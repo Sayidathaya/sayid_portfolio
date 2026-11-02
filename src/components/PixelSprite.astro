@@ -1,0 +1,158 @@
+---
+// Original hand-built pixel sprites. Rows may be uneven; the renderer pads them to the widest row.
+// Palette keys are intentionally short so the artwork stays editable.
+interface Props {
+  name: "archivist" | "drone" | "cat" | "floppy" | "bird";
+  class?: string;
+}
+
+const { name, class: className } = Astro.props;
+
+type Sprite = {
+  palette: Record<string, string>;
+  rows: string[];
+};
+
+const sprites: Record<Props["name"], Sprite> = {
+  archivist: {
+    palette: {
+      k: "#0a0a0d",
+      h: "#2864ff",
+      H: "#9db4ff",
+      f: "#ffd83d",
+      s: "#0a0a0d",
+      e: "#ffffff",
+      c: "#873bff",
+      C: "#c4a4ff",
+      m: "#ff303f",
+      p: "#ffffff",
+      P: "#b9b5c3",
+      d: "#4a1a8a",
+      r: "#ff303f",
+    },
+    rows: [
+      "........................",
+      ".........kkkkkkkk.......",
+      "........khhhhhhhhk......",
+      ".......khhhhhhhhhhk.....",
+      ".......khhHHhhhhhhk.....",
+      "......khhhhhhhhhhhhk....",
+      "......kkkkkkkkkkkkkk....",
+      "...kkkkkkkkkkkkkkkkkkk..",
+      "..kkkkkkkkkkkkkkkkkkkkk.",
+      ".......kkkkkkkkkk.......",
+      "......kffffffffffk......",
+      "......kfssssssssfk......",
+      "......kfseesseesfk......",
+      "......kfseesseesfk......",
+      "......kfssssssssfk......",
+      "......kffffffffffk......",
+      ".......kkkkkkkkkk.......",
+      "........kkkkkkkk........",
+      ".......kcccccccck.......",
+      "......kcccccccccck......",
+      ".....kcccccccccccck.....",
+      "...kCCccccccccccccCCk...",
+      "...kCCccccmmmcccccCCk...",
+      "...kccccccmmmmcccccck...",
+      "...kcccccccccccccccck...",
+      "...kccccppppppppccccck..",
+      "...kccccppppppppccccck..",
+      "...kccccccccccccccccck..",
+      "....kcccccccccccccck....",
+      ".....kcccccccccccccck...",
+      "......kddddddddddk......",
+      "......kdddk..kdddk......",
+      "......kkkkk..kkkkk......",
+    ],
+  },
+  drone: {
+    palette: {
+      k: "#0a0a0d",
+      c: "#2864ff",
+      C: "#9db4ff",
+      m: "#ff303f",
+      e: "#ffffff",
+    },
+    rows: [
+      ".....m......",
+      "....kmk.....",
+      "..kkkkkkkk..",
+      ".kcccccccck.",
+      "kccCeeeCcCck",
+      ".kcccccccck.",
+      "..k.k..k.k..",
+      "....k..k....",
+    ],
+  },
+  cat: {
+    palette: {
+      k: "#0a0a0d",
+      c: "#873bff",
+      C: "#2864ff",
+      e: "#ffd83d",
+      p: "#ffffff",
+    },
+    rows: [
+      "..k........k..",
+      ".kck......kck.",
+      ".kcckkkkkkcck.",
+      ".kcccccccccck.",
+      "kcccecccecccck",
+      "kcccccccccccck",
+      ".kcccccccccck.",
+      "..kcccccccck..",
+      "...kkk..kkk...",
+      "..kpk....kpk..",
+    ],
+  },
+  floppy: {
+    palette: {
+      k: "#0a0a0d",
+      p: "#ffffff",
+      P: "#b9b5c3",
+      c: "#2864ff",
+      m: "#ff303f",
+    },
+    rows: [
+      "kkkkkkkkkk",
+      "kppppppppk",
+      "kppkkkkppk",
+      "kppkPPkppk",
+      "kppkkkkppk",
+      "kppppppppk",
+      "kpccccccpk",
+      "kpcmcmccpk",
+      "kppppppppk",
+      "kkkkkkkkkk",
+    ],
+  },
+  bird: {
+    palette: {
+      k: "#0a0a0d",
+      c: "#ffd83d",
+      p: "#ffffff",
+    },
+    rows: ["..kk....", ".kcck...", "kcccCkk.", ".kcck.k.", "..kk...."],
+  },
+};
+
+const sprite = sprites[name];
+const width = Math.max(...sprite.rows.map((row) => row.length));
+const height = sprite.rows.length;
+const pixels = sprite.rows.flatMap((row, y) =>
+  [...row].flatMap((glyph, x) => {
+    const fill = sprite.palette[glyph];
+    return fill ? [{ x, y, fill }] : [];
+  }),
+);
+---
+
+<svg
+  viewBox={`0 0 ${width} ${height}`}
+  class:list={["pixel-sprite", `sprite-${name}`, className]}
+  shape-rendering="crispEdges"
+  aria-hidden="true"
+>
+  {pixels.map(({ x, y, fill }) => <rect x={x} y={y} width="1" height="1" fill={fill} />)}
+</svg>

@@ -1,0 +1,53 @@
+---
+// Deterministic 7×7 mirrored sigil, generated from the skill name.
+// No two entries need an external icon; the mark is stable across builds.
+interface Props {
+  seed: string;
+  class?: string;
+}
+
+const { seed, class: className } = Astro.props;
+
+const hash = (value: string): number => {
+  let state = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    state ^= value.charCodeAt(index);
+    state = Math.imul(state, 16777619);
+  }
+  return state >>> 0;
+};
+
+let state = hash(seed) || 1;
+const next = (): number => {
+  state ^= state << 13;
+  state ^= state >>> 17;
+  state ^= state << 5;
+  state >>>= 0;
+  return state;
+};
+
+const cells: Array<{ x: number; y: number }> = [];
+for (let y = 0; y < 7; y += 1) {
+  for (let x = 0; x < 4; x += 1) {
+    const filled = (next() & 7) >= 4;
+    if (!filled) continue;
+    cells.push({ x, y });
+    if (x < 3) cells.push({ x: 6 - x, y });
+  }
+}
+
+// Every sigil gets a bright centre and a pair of corner pips so the set reads as one family.
+cells.push({ x: 3, y: 3 });
+if (!cells.some((cell) => cell.y === 0 && cell.x === 3)) cells.push({ x: 3, y: 0 });
+if (!cells.some((cell) => cell.y === 6 && cell.x === 3)) cells.push({ x: 3, y: 6 });
+---
+
+<svg
+  viewBox="0 0 7 7"
+  class:list={["pixel-sigil", className]}
+  shape-rendering="crispEdges"
+  fill="currentColor"
+  aria-hidden="true"
+>
+  {cells.map(({ x, y }) => <rect x={x} y={y} width="1" height="1" />)}
+</svg>

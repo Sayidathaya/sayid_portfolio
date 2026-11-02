@@ -1,0 +1,27 @@
+---
+interface Props {
+  id: string;
+  zone: string;
+  index: string;
+  eyebrow: string;
+  title: string;
+  note?: string;
+}
+
+const { id, zone, index, eyebrow, title, note } = Astro.props;
+---
+
+<header class="sec-head" data-reveal>
+  <div class="sec-id" aria-hidden="true">
+    <span class="sec-zone">{zone}</span>
+    <span class="sec-index">{index}</span>
+  </div>
+  <div class="sec-heading">
+    <p class="sec-eyebrow label">
+      <span class="status-pixel" aria-hidden="true"></span>
+      {eyebrow}
+    </p>
+    <h2 id={id} class="sec-title">{title}</h2>
+  </div>
+  {note && <p class="meta sec-note">{note}</p>}
+</header>

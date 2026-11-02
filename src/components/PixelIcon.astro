@@ -1,0 +1,255 @@
+---
+// Original 8x8 pixel glyphs. "X" is currentColor; the component stays decorative.
+interface Props {
+  name:
+    | "play"
+    | "arrow"
+    | "mail"
+    | "copy"
+    | "external"
+    | "sun"
+    | "moon"
+    | "spark"
+    | "menu"
+    | "close"
+    | "check"
+    | "link"
+    | "pin"
+    | "star"
+    | "cartridge"
+    | "sword"
+    | "shield"
+    | "rocket"
+    | "clock"
+    | "file"
+    | "signal";
+  class?: string;
+}
+
+const { name, class: className } = Astro.props;
+
+const icons: Record<Props["name"], string[]> = {
+  play: [
+    "X.......",
+    "XX......",
+    "XXX.....",
+    "XXXX....",
+    "XXX.....",
+    "XX......",
+    "X.......",
+    "........",
+  ],
+  arrow: [
+    "........",
+    "...X....",
+    "....X...",
+    ".....XXX",
+    "....X...",
+    "...X....",
+    "........",
+    "........",
+  ],
+  mail: [
+    "........",
+    "XXXXXXXX",
+    "X......X",
+    "X.X..X.X",
+    "X..XX..X",
+    "X......X",
+    "XXXXXXXX",
+    "........",
+  ],
+  copy: [
+    "..XXXX..",
+    "..X..X..",
+    "XXX..X..",
+    "X.X..X..",
+    "X.XXXX..",
+    "X.......",
+    "X.......",
+    "........",
+  ],
+  external: [
+    "...XXXXX",
+    ".......X",
+    "..X...X.",
+    "..X..X..",
+    ".XXX....",
+    ".X......",
+    "X.......",
+    "........",
+  ],
+  sun: [
+    "...X....",
+    ".X.X.X..",
+    "..XXX...",
+    "XXX.XXX.",
+    "..XXX...",
+    ".X.X.X..",
+    "...X....",
+    "........",
+  ],
+  moon: [
+    "..XXX...",
+    ".X...X..",
+    "X....X..",
+    "X....X..",
+    "X....X..",
+    ".X..XX..",
+    "..XXX...",
+    "........",
+  ],
+  spark: [
+    "...X....",
+    "...X....",
+    ".XXXXX..",
+    "X..X..X.",
+    ".XXXXX..",
+    "...X....",
+    "...X....",
+    "........",
+  ],
+  menu: [
+    "........",
+    "XXXXXXXX",
+    "........",
+    "XXXXXXXX",
+    "........",
+    "XXXXXXXX",
+    "........",
+    "........",
+  ],
+  close: [
+    "........",
+    "XX....XX",
+    ".XX..XX.",
+    "..XXXX..",
+    "..XXXX..",
+    ".XX..XX.",
+    "XX....XX",
+    "........",
+  ],
+  check: [
+    "........",
+    "......X.",
+    ".....XX.",
+    "X...XX..",
+    "XX.XX...",
+    ".XXX....",
+    "..X.....",
+    "........",
+  ],
+  link: [
+    "..XXXX..",
+    "..X..X..",
+    "..X...XX",
+    ".XX....X",
+    "X....XX.",
+    "X....X..",
+    "X..X.X..",
+    "XXXX....",
+  ],
+  pin: [
+    "..XXXX..",
+    ".X....X.",
+    "X......X",
+    "X......X",
+    ".X....X.",
+    "..XXXX..",
+    "...XX...",
+    "..XX....",
+  ],
+  star: [
+    "...X....",
+    "...X....",
+    "..XXX...",
+    "XXXXXXX.",
+    "..XXX...",
+    "...X....",
+    "...X....",
+    "........",
+  ],
+  cartridge: [
+    ".XXXXXX.",
+    "X......X",
+    "X.XXXX.X",
+    "X.X..X.X",
+    "X.XXXX.X",
+    "X......X",
+    "X.X..X.X",
+    "XXXXXXXX",
+  ],
+  sword: [
+    "......X.",
+    ".....X..",
+    "....X...",
+    "...X....",
+    "..X.....",
+    ".XX.....",
+    "..X.....",
+    ".X......",
+  ],
+  shield: [
+    ".XXXXXX.",
+    "X......X",
+    "X.XXXX.X",
+    "X.XXXX.X",
+    "X......X",
+    ".X....X.",
+    "..XXXX..",
+    "........",
+  ],
+  rocket: [
+    "...XX...",
+    "..X..X..",
+    "..X..X..",
+    ".X....X.",
+    "X..XX..X",
+    "..X..X..",
+    "..XXXX..",
+    "...X....",
+  ],
+  clock: [
+    "..XXXX..",
+    ".X....X.",
+    "X..X...X",
+    "X..X...X",
+    "X..XXX.X",
+    ".X....X.",
+    "..XXXX..",
+    "........",
+  ],
+  file: [
+    ".XXXXXX.",
+    "X......X",
+    "X.XXXX.X",
+    "X......X",
+    "X.XXXX.X",
+    "X......X",
+    "X.XXXX.X",
+    "XXXXXXXX",
+  ],
+  signal: [
+    "........",
+    "......XX",
+    "....XXXX",
+    "..XXXXXX",
+    "XXXXXXXX",
+    "..XXXXXX",
+    "....XXXX",
+    "......XX",
+  ],
+};
+
+const pixels = icons[name];
+---
+
+<svg
+  viewBox="0 0 8 8"
+  class:list={["px-icon", className]}
+  shape-rendering="crispEdges"
+  fill="currentColor"
+  aria-hidden="true"
+>
+  {pixels.map((row, y) => row.split("").map((glyph, x) => glyph === "X" ? <rect x={x} y={y} width="1" height="1" /> : null))}
+</svg>

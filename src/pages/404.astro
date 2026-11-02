@@ -1,0 +1,62 @@
+---
+import PixelBadge from "../components/PixelBadge.astro";
+import PixelIcon from "../components/PixelIcon.astro";
+import PixelSprite from "../components/PixelSprite.astro";
+import Seal from "../components/Seal.astro";
+import { profile } from "../data/portfolio";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="404 — File not found"
+  description={`This case file does not exist in the ${profile.name} archive. Return to the dossier index.`}
+>
+  <section class="notfound" aria-labelledby="notfound-title">
+    <div class="nf-world" aria-hidden="true">
+      <span class="nf-gridlines"></span>
+      <span class="nf-stars"></span>
+      <span class="nf-sun"></span>
+    </div>
+
+    <div class="shell nf-layout">
+      <div class="nf-copy">
+        <p class="nf-eyebrow">
+          <PixelBadge tone="red" dot>Error 404</PixelBadge>
+          <span class="eyebrow-rule" aria-hidden="true"></span>
+          <span class="micro">Archive / missing file</span>
+        </p>
+
+        <p class="nf-no" aria-hidden="true">404</p>
+        <h1 id="notfound-title" class="nf-title">File not found</h1>
+        <p class="nf-lede">
+          The case file you requested was moved, closed, or never logged in this archive. The index
+          is still open — return to the title screen or browse the evidence vault.
+        </p>
+
+        <div class="nf-actions">
+          <a class="px-btn px-btn--start" href="/#top">
+            <PixelIcon name="play" />
+            Return to title
+          </a>
+          <a class="px-btn" href="/#projects">
+            <PixelIcon name="file" />
+            Browse case files
+          </a>
+        </div>
+      </div>
+
+      <aside class="paper-panel nf-card" aria-labelledby="nf-card-title" data-reveal>
+        <span class="pin nf-pin" aria-hidden="true"></span>
+        <p class="evidence-no"><Seal class="nf-seal" /> Incident report</p>
+        <h2 id="nf-card-title" class="nf-card-title">No record at this address</h2>
+        <ul class="nf-list" role="list">
+          <li><span class="no">01</span><span>Code — 404</span></li>
+          <li><span class="no">02</span><span>Status — unlogged</span></li>
+          <li><span class="no">03</span><span>Action — return to index</span></li>
+        </ul>
+        <div class="nf-sprite" aria-hidden="true"><PixelSprite name="cat" /></div>
+        <p class="sheet-foot"><span>Ref SRA–404</span><span>Closed</span></p>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>

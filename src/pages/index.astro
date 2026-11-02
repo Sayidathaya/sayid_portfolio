@@ -1,0 +1,820 @@
+---
+import { Picture } from "astro:assets";
+import type { ImageMetadata } from "astro";
+import CareerQuestMap from "../components/CareerQuestMap.astro";
+import PixelBadge from "../components/PixelBadge.astro";
+import PixelBlade from "../components/PixelBlade.astro";
+import PixelIcon from "../components/PixelIcon.astro";
+import PixelSprite from "../components/PixelSprite.astro";
+import ProjectMultiverse from "../components/ProjectMultiverse.astro";
+import SceneSeam from "../components/SceneSeam.astro";
+import Seal from "../components/Seal.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import SkillMatrix from "../components/SkillMatrix.astro";
+import {
+  certificateGroups,
+  certificates,
+  experience,
+  fieldCaptures,
+  profile,
+  projects,
+  skills,
+} from "../data/portfolio";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { findImage } from "../utils/images";
+
+const portrait = findImage("portrait");
+const aboutMe = findImage("about-me");
+const campusBackground = findImage("background");
+const nameParts = profile.name.trim().split(/\s+/);
+const givenName = nameParts.slice(0, -1).join(" ");
+const familyName = nameParts.at(-1) ?? profile.name;
+const featured = projects.filter((project) => project.featured);
+const hasLinks = profile.links.length > 0;
+const highlights = profile.highlights.length;
+const skillCount = skills.reduce((total, group) => total + group.items.length, 0);
+
+const count = (value: number): string => String(value).padStart(2, "0");
+const totalCertificates = certificates.length;
+
+const groups = certificateGroups.map((group) => ({
+  ...group,
+  items: certificates.filter((certificate) => certificate.category === group.id),
+}));
+
+const certificateNumbers = new Map(
+  certificates.map((certificate, index) => [certificate.id, String(index + 1).padStart(2, "0")]),
+);
+const pdfCount = certificates.filter((certificate) => certificate.fileType === "pdf").length;
+const imageCount = certificates.filter((certificate) => certificate.fileType === "image").length;
+
+const captures = fieldCaptures
+  .map((capture) => ({
+    ...capture,
+    image: findImage(capture.image),
+  }))
+  .filter((capture): capture is typeof capture & { image: ImageMetadata } =>
+    Boolean(capture.image),
+  );
+
+// Deterministic decorative bar patterns.
+const bars = [38, 66, 52, 88, 60, 80, 44, 72, 56, 94, 42, 68, 84, 50, 62, 78];
+const ticker = [
+  "Portfolio 2026",
+  "Profile Briefing",
+  "Experience Journey",
+  "Skill Matrix",
+  "Featured Projects",
+  "Certificates",
+  "Direct Contact",
+];
+---
+
+<BaseLayout
+  title={`${profile.name} | ${profile.role}`}
+  description={`${profile.tagline} Portfolio of ${profile.name}, ${profile.role}.`}
+>
+  <section id="top" class="hero" aria-labelledby="hero-title">
+    <div class="hero-world" aria-hidden="true">
+      <span class="hero-stars hero-stars--far" data-parallax data-depth="1.5"></span>
+      <span class="hero-stars hero-stars--near" data-parallax data-depth="2.5"></span>
+      <span class="hero-sun" data-parallax data-depth="3"></span>
+      <span class="hero-cloud hero-cloud--a"></span>
+      <span class="hero-cloud hero-cloud--b"></span>
+      <span class="hero-city hero-city--far" data-parallax data-depth="3.5">
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      </span>
+      <span class="hero-city hero-city--near" data-parallax data-depth="5">
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      </span>
+      <span class="hero-floor"></span>
+      <span class="hero-slab hero-slab--red" aria-hidden="true"></span>
+      <span class="hero-slab hero-slab--blue" aria-hidden="true"></span>
+      <span class="hero-slab hero-slab--yellow" aria-hidden="true"></span>
+      <span class="hero-slab hero-slab--purple" aria-hidden="true"></span>
+      <span class="hero-airdrone" data-parallax data-depth="6"><PixelSprite name="drone" /></span>
+      <span class="hero-airbird"><PixelSprite name="bird" /></span>
+    </div>
+
+    <div class="shell hero-shell">
+      <div class="hero-chrome">
+        <span>PLAYER 01</span>
+        <span class="hero-chrome-mid">PORTFOLIO // SAYID RAFI A'THAYA</span>
+        <span>STATUS <i class="signal-pip" aria-hidden="true"></i> ONLINE</span>
+      </div>
+
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="hero-eyebrow">
+            <PixelBadge tone="red" dot>PORTFOLIO 2026</PixelBadge>
+            <span class="eyebrow-rule" aria-hidden="true"></span>
+            <span class="micro">Web Developer & Speaker</span>
+          </p>
+
+          <h1 id="hero-title" class="game-title">
+            <span class="sr-only">{profile.name}</span>
+            <span class="game-title-line" data-text={givenName} aria-hidden="true">{givenName}</span>
+            <span class="game-title-line game-title-line--accent" data-text={familyName} aria-hidden="true">
+              {familyName}
+            </span>
+          </h1>
+
+          <div class="hero-subject">
+            <span class="subject-key">Profile</span>
+            <p class="subject-name">{profile.name}</p>
+            <p class="subject-meta">{profile.role} · {profile.location}</p>
+          </div>
+
+          <p class="hero-tagline">{profile.tagline}</p>
+          <p class="hero-intro">{profile.intro}</p>
+
+          <div class="hero-commands" role="group" aria-label="Quick links">
+            <a class="px-btn px-btn--start" href="#about">
+              <span class="px-btn-caret" aria-hidden="true">▶</span>
+              <span>Start</span>
+              <span class="px-btn-meta">About me</span>
+            </a>
+            <a class="px-btn" href="#projects">
+              <PixelIcon name="cartridge" />
+              <span>Projects</span>
+            </a>
+            <a class="px-btn" href="#certificates">
+              <PixelIcon name="file" />
+              <span>Certificates</span>
+            </a>
+            <a class="hero-quicklink" href="#contact">
+              <PixelIcon name="mail" />
+              <span>Contact</span>
+            </a>
+          </div>
+
+          <dl class="hero-stats">
+            <div><dt>Zones</dt><dd>07</dd></div>
+            <div><dt>Roles</dt><dd>{count(experience.length)}</dd></div>
+            <div><dt>Projects</dt><dd>{count(featured.length)}</dd></div>
+            <div><dt>Skills</dt><dd>{count(skillCount)}</dd></div>
+            <div><dt>Certs</dt><dd>{count(totalCertificates)}</dd></div>
+          </dl>
+        </div>
+
+        <div class="hero-visual">
+          <div class="hero-monitor">
+            <div class="monitor-bar">
+              <span class="monitor-lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="monitor-title">SRA–VIEW // PROFILE</span>
+              <span class="monitor-live"><i aria-hidden="true"></i>ONLINE</span>
+            </div>
+
+            <div class="monitor-screen">
+              <span class="monitor-stars" aria-hidden="true"></span>
+              <span class="monitor-sun" aria-hidden="true"></span>
+              <span class="monitor-city" aria-hidden="true">
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              </span>
+              <span class="monitor-halo" aria-hidden="true"></span>
+              <span class="monitor-ground" aria-hidden="true"></span>
+              <span class="monitor-agent"><PixelSprite name="archivist" /></span>
+              <span class="monitor-cat"><PixelSprite name="cat" /></span>
+              <span class="monitor-drone"><PixelSprite name="drone" /></span>
+              <span class="monitor-blade"><PixelBlade /></span>
+              <span class="monitor-scanbar" aria-hidden="true"></span>
+
+              <div class="monitor-hud monitor-hud--top">
+                <span>PORTFOLIO</span>
+                <span>PROFILE SCAN</span>
+              </div>
+              <div class="monitor-hud monitor-hud--bottom">
+                <span><i aria-hidden="true"></i> STATUS</span>
+                <span>READY</span>
+              </div>
+            </div>
+
+            <div class="monitor-foot">
+              <span>SAYID RAFI A'THAYA</span>
+              <span>SAMARINDA</span>
+              <span>INDONESIA</span>
+            </div>
+          </div>
+
+          <aside class="paper-panel hero-record" aria-label="Personal record">
+            <div class="record-top">
+              <span class="evidence-no"><Seal class="record-seal" /> Personal Record</span>
+              <span class="record-state"><i aria-hidden="true"></i> Verified</span>
+            </div>
+            <p class="record-name">{profile.name}</p>
+            <p class="record-role">{profile.role}</p>
+            <p class="record-location">{profile.location}</p>
+            <div class="record-rule" aria-hidden="true"></div>
+            <p class="record-save"><span>Status</span>{profile.availability}</p>
+            <div class="barcode" aria-hidden="true">
+              {bars.map((height) => <span style={`height:${height}%`}></span>)}
+            </div>
+            <p class="record-foot"><span>SAMARINDA</span><span>PORTFOLIO</span></p>
+          </aside>
+
+          <span class="hero-questmark" aria-hidden="true">!</span>
+        </div>
+      </div>
+
+      <div class="hero-bottomline">
+        <span class="press-command"><i aria-hidden="true"></i> Ready to explore</span>
+        <a class="hero-scroll" href="#about">Scroll to explore <span aria-hidden="true">↓</span></a>
+      </div>
+    </div>
+
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        {
+          [0, 1].map(() => (
+            <div class="ticker-group">
+              {ticker.map((item) => (
+                <span class="ticker-item">
+                  <i></i>
+                  <b>{item}</b>
+                </span>
+              ))}
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <SceneSeam label="ZONE 02 // ABOUT & BRIEFING" tone="archive" />
+
+  <section id="about" class="sec sec-briefing" aria-labelledby="about-title" data-zone="archive">
+    <div class="shell">
+      <SectionHeading
+        id="about-title"
+        zone="Zone 02"
+        index="02"
+        eyebrow="Profile Overview"
+        title="About Sayid"
+        note={`${count(highlights)} verified achievements & background highlights`}
+      />
+
+      <div class="about-grid">
+        <div class="about-col-info">
+          <div class="dialogue px-panel" data-reveal>
+            <div class="dialogue-bar">
+              <p class="dialogue-speaker">
+                <span class="dialogue-avatar"><PixelSprite name="archivist" /></span>
+                <span>Sayid Rafi A'thaya</span>
+              </p>
+              <span class="dialogue-kind">Profile</span>
+            </div>
+            <div class="dialogue-body">
+              <span class="dialogue-glyph" aria-hidden="true">▸</span>
+              <div class="dialogue-copy">
+                {profile.about.map((paragraph) => <p>{paragraph}</p>)}
+              </div>
+            </div>
+            <div class="dialogue-bar dialogue-bar--foot">
+              <span>{profile.location}</span>
+              <a class="dialogue-vault-link" href="#certificates">
+                View certificates ({count(totalCertificates)}) <span aria-hidden="true">↓</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="paper-panel evidence-sheet" data-reveal>
+            <Seal class="sheet-seal" />
+            <div class="sheet-head">
+              <h3 id="highlights-title" class="sheet-title">Key Highlights</h3>
+              <PixelBadge tone="blue" dot>Verified</PixelBadge>
+            </div>
+            <ul class="evidence-list" role="list">
+              {
+                profile.highlights.map((item, index) => (
+                  <li>
+                    <span class="no">{String(index + 1).padStart(2, "0")}</span>
+                    <span>{item}</span>
+                  </li>
+                ))
+              }
+            </ul>
+            <div class="barcode" aria-hidden="true">
+              {bars.map((height) => <span style={`height:${height}%`}></span>)}
+            </div>
+            <p class="sheet-foot">
+              <span>Samarinda, ID</span>
+              <span>{count(highlights)} entries</span>
+            </p>
+          </div>
+        </div>
+
+        <aside class="about-col-visual" aria-labelledby="highlights-title" data-reveal style="--d:120ms">
+          {
+            portrait && (
+              <figure class="paper-panel subject-portrait">
+                <Picture
+                  src={portrait}
+                  alt={profile.portraitAlt}
+                  formats={["avif", "webp"]}
+                  widths={[320, 560]}
+                  sizes="(min-width: 960px) 30vw, 90vw"
+                  loading="lazy"
+                  class="subject-photo"
+                />
+                <figcaption>Sayid Rafi A'thaya — Portrait</figcaption>
+              </figure>
+            )
+          }
+
+          {
+            (aboutMe || campusBackground) && (
+              <div class="subject-evidence-strip">
+                {aboutMe && (
+                  <figure class="paper-panel subject-snapshot">
+                    <Picture
+                      src={aboutMe}
+                      alt="Sayid speaking at Information System Competition 2025"
+                      formats={["avif", "webp"]}
+                      widths={[280, 480]}
+                      sizes="(min-width: 960px) 15vw, 45vw"
+                      loading="lazy"
+                      class="subject-photo"
+                    />
+                    <figcaption>Stage Speaker · 2025</figcaption>
+                  </figure>
+                )}
+                {campusBackground && (
+                  <figure class="paper-panel subject-snapshot">
+                    <Picture
+                      src={campusBackground}
+                      alt="Universitas Mulawarman campus grounds, Samarinda"
+                      formats={["avif", "webp"]}
+                      widths={[280, 480]}
+                      sizes="(min-width: 960px) 15vw, 45vw"
+                      loading="lazy"
+                      class="subject-photo"
+                    />
+                    <figcaption>Campus · Mulawarman</figcaption>
+                  </figure>
+                )}
+              </div>
+            )
+          }
+        </aside>
+      </div>
+
+      <p class="zone-caption" aria-hidden="true"><span></span>CONTINUOUS DOSSIER · SAYID RAFI A'THAYA<span></span></p>
+    </div>
+  </section>
+
+  <SceneSeam label="ZONE 03 // EXPERIENCE JOURNEY" tone="quest" />
+
+  <section id="experience" class="sec sec-quest" aria-labelledby="experience-title" data-zone="quest">
+    <div class="shell">
+      <SectionHeading
+        id="experience-title"
+        zone="Zone 03"
+        index="03"
+        eyebrow="Timeline"
+        title="Experience Journey"
+        note={`${count(experience.length)} milestones · interactive journey map`}
+      />
+
+      <CareerQuestMap entries={experience} />
+    </div>
+  </section>
+
+  <SceneSeam label="ZONE 04 // CORE SKILLS" tone="inventory" />
+
+  <section id="skills" class="sec sec-inventory" aria-labelledby="skills-title" data-zone="inventory">
+    <div class="shell">
+      <SectionHeading
+        id="skills-title"
+        zone="Zone 04"
+        index="04"
+        eyebrow="Competencies"
+        title="Skill Matrix"
+        note={`${count(skillCount)} skills · ${count(skills.length)} categories`}
+      />
+
+      <SkillMatrix groups={skills} />
+    </div>
+  </section>
+
+  <SceneSeam label="ZONE 05 // FEATURED PROJECTS" tone="vault" />
+
+  <section id="projects" class="sec sec-multiverse" aria-labelledby="projects-title" data-zone="vault">
+    <div class="shell">
+      <ProjectMultiverse projects={featured} />
+    </div>
+  </section>
+
+  <SceneSeam label="ZONE 06 // CREDENTIAL VAULT" tone="vault" />
+
+  <section id="certificates" class="sec sec-archive" aria-labelledby="certificates-title" data-zone="vault">
+    <div class="shell">
+      <SectionHeading
+        id="certificates-title"
+        zone="Zone 06"
+        index="06"
+        eyebrow="Verified Credentials"
+        title="Certificates"
+        note={`${count(totalCertificates)} verified credentials · ${pdfCount} PDFs · ${imageCount} image records`}
+      />
+
+      <div class="cert-workbench">
+        <aside class="cert-sidebar">
+          <details class="cert-index" data-cert-index open>
+            <summary class="cert-index-summary">
+              <span class="cert-index-summary-kicker">Navigation Directory</span>
+              <span class="cert-index-summary-title">Certificates</span>
+              <span class="cert-index-summary-meta">{totalCertificates} documents filed</span>
+              <span class="cert-index-toggle" aria-hidden="true"></span>
+            </summary>
+
+            <nav class="cert-index-nav" aria-label="Certificate ledger">
+              {
+                groups.map((group) => (
+                  <div class="cert-index-group">
+                    <p class="cert-index-group-head">
+                      <span>{group.label}</span>
+                      <b>{count(group.items.length)}</b>
+                    </p>
+                    <ul class="cert-index-list">
+                      {group.items.map((certificate) => (
+                        <li>
+                          <a
+                            class="cert-index-link"
+                            href={`#cert-${certificate.id}`}
+                            data-cert-link={certificate.id}
+                          >
+                            <span class="cert-index-no" aria-hidden="true">
+                              {certificateNumbers.get(certificate.id)}
+                            </span>
+                            <span class="cert-index-copy">
+                              <span class="cert-index-name">{certificate.title}</span>
+                              <span class="cert-index-meta">{certificate.issuer}</span>
+                            </span>
+                            <span
+                              class:list={[
+                                "cert-index-type",
+                                `cert-index-type--${certificate.fileType}`,
+                              ]}
+                            >
+                              {certificate.fileType.toUpperCase()}
+                            </span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))
+              }
+            </nav>
+
+            <div class="cert-index-foot">
+              <PixelIcon name="file" />
+              <span>Select any entry to inspect</span>
+            </div>
+          </details>
+        </aside>
+
+        <div class="archive-groups">
+          {
+            groups.map((group) => (
+              <section class="archive-group" aria-labelledby={`group-${group.id}-title`}>
+                <header class="archive-group-head" data-reveal>
+                  <div>
+                    <p class="archive-group-kicker">Category</p>
+                    <h3 id={`group-${group.id}-title`} class="archive-group-title">
+                      {group.label}
+                    </h3>
+                  </div>
+                  <p class="archive-group-note">
+                    <b>{count(group.items.length)}</b> certificates
+                  </p>
+                </header>
+
+                <ol class="archive-grid">
+                  {group.items.map((certificate) => {
+                    const number = certificateNumbers.get(certificate.id);
+                    const thumb = `/certificates/thumbs/${certificate.id}.jpg`;
+
+                    return (
+                      <li class="archive-card-wrap">
+                        <article
+                          id={`cert-${certificate.id}`}
+                          class="archive-card paper-panel"
+                          data-certificate={certificate.id}
+                          data-cert-num={number}
+                          data-cert-type={certificate.fileType}
+                          data-cert-title={certificate.title}
+                          data-cert-issuer={certificate.issuer}
+                          data-cert-date={certificate.date}
+                          data-cert-file={certificate.file}
+                          data-cert-detail={certificate.detail}
+                          data-cert-cred={certificate.credentialId ?? ""}
+                          data-cert-verify={certificate.verifyUrl ?? ""}
+                          data-reveal
+                        >
+                          <button
+                            type="button"
+                            class="archive-card-preview archive-card-preview-btn"
+                            data-open-modal={certificate.id}
+                            aria-label={`View certificate: ${certificate.title}`}
+                          >
+                            <img
+                              src={thumb}
+                              alt={`Certificate: ${certificate.title}`}
+                              loading="lazy"
+                              width="400"
+                              height="300"
+                            />
+                            <span class="archive-card-type">{certificate.fileType}</span>
+
+                          </button>
+
+                          <div class="archive-card-body">
+                            <p class="archive-card-kicker">
+                              {number} // {certificate.date}
+                            </p>
+                            <h4 class="archive-card-title">{certificate.title}</h4>
+                            <p class="archive-card-issuer">{certificate.issuer}</p>
+                            <p class="archive-card-detail">{certificate.detail}</p>
+
+                            {(certificate.credentialId || certificate.verifyUrl) && (
+                              <dl class="archive-card-facts">
+                                {certificate.credentialId && (
+                                  <div>
+                                    <dt>Credential</dt>
+                                    <dd>{certificate.credentialId}</dd>
+                                  </div>
+                                )}
+                                {certificate.verifyUrl && (
+                                  <div>
+                                    <dt>Verify</dt>
+                                    <dd>
+                                      <a
+                                        href={certificate.verifyUrl}
+                                        target="_blank"
+                                        rel="noopener"
+                                      >
+                                        Official record ↗
+                                      </a>
+                                    </dd>
+                                  </div>
+                                )}
+                              </dl>
+                            )}
+
+                            <div class="archive-card-actions">
+                              <button
+                                type="button"
+                                class="px-btn px-btn--small px-btn--start archive-card-view-btn"
+                                data-open-modal={certificate.id}
+                              >
+                                <PixelIcon name="spark" />
+                                <span>Preview</span>
+                              </button>
+                              <a
+                                class="archive-card-open"
+                                href={certificate.file}
+                                target="_blank"
+                                rel="noopener"
+                              >
+                                <span>
+                                  Open <PixelIcon name="external" />
+                                </span>
+                                <span>({certificate.fileType.toUpperCase()})</span>
+                              </a>
+                            </div>
+                          </div>
+                        </article>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </section>
+            ))
+          }
+        </div>
+      </div>
+
+      {
+        captures.length > 0 && (
+          <div class="field-captures-wrap">
+            <div class="field-captures-head" data-reveal>
+              <div>
+                <p class="archive-group-kicker">Visual Archive</p>
+                <h3 class="field-captures-title">Field Captures</h3>
+              </div>
+              <p class="field-captures-note">Photographic documentation from campus, stage & events</p>
+            </div>
+
+            <div class="archive-captures">
+              {captures.map((capture, index) => (
+                <figure class="archive-capture paper-panel" data-reveal>
+                  <Picture
+                    src={capture.image}
+                    alt={capture.alt}
+                    formats={["avif", "webp"]}
+                    widths={[320, 640]}
+                    sizes="(min-width: 64rem) 22vw, (min-width: 40rem) 45vw, 90vw"
+                    loading="lazy"
+                  />
+                  <figcaption>
+                    <span class="archive-capture-meta">{capture.meta}</span>
+                    <span class="archive-capture-caption">{capture.caption}</span>
+                    {capture.platform && capture.platformUrl && (
+                      <a
+                        class="archive-capture-platform"
+                        href={capture.platformUrl}
+                        target="_blank"
+                        rel="noopener"
+                        aria-label={`Open on ${capture.platform}`}
+                      >
+                        <PixelIcon name="external" />
+                        <span>{capture.platform}</span>
+                        <span class="archive-capture-arrow" aria-hidden="true">↗</span>
+                      </a>
+                    )}
+                    <span class="archive-capture-no" aria-hidden="true">
+                      CAP–{String(index + 1).padStart(2, "0")}
+                    </span>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <SceneSeam label="ZONE 07 // DIRECT CONTACT" tone="comms" />
+
+  <section id="contact" class="sec sec-terminal" aria-labelledby="contact-title" data-zone="comms">
+    <div class="shell">
+      <SectionHeading
+        id="contact-title"
+        zone="Zone 07"
+        index="07"
+        eyebrow="Get In Touch"
+        title="Direct Contact"
+        note="Direct email & social profiles"
+      />
+
+      <div class="terminal" data-reveal>
+        <div class="terminal-bar">
+          <span class="terminal-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="terminal-title">GET IN TOUCH // SAYID RAFI A'THAYA</span>
+          <span class="terminal-status"><i aria-hidden="true"></i> Online</span>
+        </div>
+
+        <div class="terminal-screen">
+          <div class="terminal-operator" aria-hidden="true">
+            <span class="operator-frame">
+              <PixelSprite name="archivist" />
+              <span class="operator-scan"></span>
+            </span>
+            <p class="operator-name">SRA–01</p>
+            <p class="operator-state"><i></i> Available</p>
+            <span class="operator-bars">
+              <i></i><i></i><i></i><i></i><i></i><i></i>
+            </span>
+          </div>
+
+          <div class="terminal-main">
+            <p class="terminal-line"><span class="terminal-prompt" aria-hidden="true">$</span> send message --direct</p>
+            <p class="terminal-copy">
+              Feel free to reach out for web development projects, speaking opportunities, or collaborations.
+            </p>
+            <a class="terminal-email" href={`mailto:${profile.email}`}>{profile.email}</a>
+
+            <div class="terminal-actions">
+              <a class="px-btn px-btn--magenta" href={`mailto:${profile.email}`}>
+                <PixelIcon name="mail" />
+                Compose email
+                <span class="sr-only"> to {profile.name}</span>
+              </a>
+              <button
+                type="button"
+                class="copy-btn"
+                data-copy={profile.email}
+                aria-describedby="copy-help"
+              >
+                <PixelIcon name="copy" />
+                <span data-copy-text>Copy address</span>
+              </button>
+            </div>
+
+            <p id="copy-help" class="terminal-foot">
+              Click to open your mail client or copy the address.
+            </p>
+            <p class="sr-only" role="status" data-copy-status></p>
+
+            {
+              hasLinks && (
+                <nav class="terminal-links" aria-label="External profiles">
+                  {profile.links.map((link) => (
+                    <a href={link.href}>
+                      <span>{link.label}</span>
+                      <PixelIcon name="external" />
+                    </a>
+                  ))}
+                </nav>
+              )
+            }
+          </div>
+        </div>
+
+        <div class="terminal-meta">
+          <span>Direct Email</span>
+          <span>Fast Response</span>
+          <span>Samarinda, Indonesia</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <SceneSeam label="END OF DOSSIER // THANKS FOR VISITING" tone="end" />
+
+  <dialog class="cert-modal" data-cert-modal aria-label="Certificate preview lightbox">
+    <div class="cert-modal-frame paper-panel">
+      <header class="cert-modal-head">
+        <div class="cert-modal-kicker-wrap">
+          <p class="cert-modal-kicker">
+            <span data-modal-num>01</span> // <span data-modal-type>PDF DOCUMENT</span>
+          </p>
+          <h3 class="cert-modal-title" data-modal-title>Certificate preview</h3>
+          <p class="cert-modal-meta">
+            <span data-modal-issuer>Issuer</span> · <span data-modal-date>Date</span>
+          </p>
+        </div>
+        <button
+          type="button"
+          class="cert-modal-close"
+          data-modal-close
+          aria-label="Close certificate lightbox"
+        >
+          <span aria-hidden="true">✕</span>
+        </button>
+      </header>
+
+      <div class="cert-modal-body">
+        <div class="cert-modal-viewer" data-modal-viewer>
+          <!-- Loaded dynamically -->
+        </div>
+
+        <p class="cert-modal-detail" data-modal-detail></p>
+
+        <dl class="cert-modal-facts" data-modal-facts>
+          <div data-modal-fact-cred hidden>
+            <dt>Credential ID</dt>
+            <dd data-modal-cred></dd>
+          </div>
+          <div data-modal-fact-verify hidden>
+            <dt>Verification</dt>
+            <dd>
+              <a data-modal-verify href="#" target="_blank" rel="noopener">Official record ↗</a>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <footer class="cert-modal-foot">
+        <a
+          class="px-btn px-btn--small px-btn--start"
+          data-modal-orig-link
+          href="#"
+          target="_blank"
+          rel="noopener"
+        >
+          <PixelIcon name="file" />
+          <span>Open original in new tab</span>
+          <span class="px-btn-meta" data-modal-orig-type>PDF ↗</span>
+        </a>
+        <a
+          class="px-btn px-btn--small"
+          data-modal-verify-link
+          href="#"
+          target="_blank"
+          rel="noopener"
+          hidden
+        >
+          <PixelIcon name="external" />
+          <span>Verify record</span>
+        </a>
+        <button type="button" class="px-btn px-btn--small" data-modal-close>
+          <span>Close [ESC]</span>
+        </button>
+      </footer>
+    </div>
+  </dialog>
+</BaseLayout>
+
+<style>
+  .dialogue-vault-link {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .dialogue-vault-link:hover,
+  .dialogue-vault-link:focus-visible {
+    color: var(--color-accent-red-ink);
+  }
+</style>

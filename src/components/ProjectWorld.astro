@@ -1,0 +1,156 @@
+---
+import type { PortfolioProject } from "../types/portfolio";
+import {
+  projectDetailHref,
+  projectNumbers,
+  resolveWorld,
+  worldLabels,
+  worldStyle,
+} from "../utils/world";
+import PixelBadge from "./PixelBadge.astro";
+import PixelIcon from "./PixelIcon.astro";
+import ProjectArt from "./ProjectArt.astro";
+
+interface Props {
+  project: PortfolioProject;
+  index: number;
+  total: number;
+}
+
+const { project, index, total } = Astro.props;
+
+const direction = resolveWorld(project, index);
+const { variant, tone, accent } = direction;
+const { worldNo, caseNo } = projectNumbers(index);
+const headingId = `world-${project.slug}-title`;
+const detailHref = projectDetailHref(project.slug);
+const hasLinks = Boolean(project.repositoryUrl || project.demoUrl);
+const techLabel = project.technologies.length === 1 ? "tech tag" : "tech tags";
+const variantLabel = worldLabels[variant];
+const directionStyle = worldStyle(direction);
+---
+
+<article
+  id={`world-${project.slug}`}
+  class:list={["world", `world--${variant}`]}
+  aria-labelledby={headingId}
+  data-tone={tone}
+  data-world
+  data-reveal
+  style={directionStyle}
+>
+  <div class="world-strap">
+    <span class="world-strap-no">World {worldNo}</span>
+    <span class="world-strap-line" aria-hidden="true" />
+    <span class="world-strap-kind">{variantLabel}</span>
+    <span class="world-selected" aria-hidden="true">World selected</span>
+    <a class="world-atlas-link" href="#mv-atlas">
+      Atlas <span aria-hidden="true">↑</span>
+    </a>
+  </div>
+
+  <div class="world-visual">
+    <ProjectArt project={project} index={index} variant={variant} tone={tone} accent={accent} />
+  </div>
+
+  <div class:list={["world-panel", `world-panel--${variant}`]}>
+    <span class="world-tab" aria-hidden="true">Case file // {caseNo}</span>
+
+    <div class="world-panel-head">
+      <p class="world-kicker">
+        <span class="world-kicker-pixel" aria-hidden="true"></span>
+        {variantLabel} // World {worldNo} of {String(total).padStart(2, "0")}
+      </p>
+      {
+        project.placeholder ? (
+          <PixelBadge tone="yellow" stamp>
+            Sample dossier
+          </PixelBadge>
+        ) : (
+          <PixelBadge tone="blue" dot>
+            Filed
+          </PixelBadge>
+        )
+      }
+    </div>
+
+    <div class="world-panel-lead">
+      <h3 id={headingId} class="world-title">{project.title}</h3>
+      <p class="world-desc">{project.description}</p>
+    </div>
+
+    <div class="world-panel-data">
+      <dl class="world-specs">
+        <div>
+          <dt>Year</dt>
+          <dd>{project.year}</dd>
+        </div>
+        <div>
+          <dt>Role</dt>
+          <dd>{project.role}</dd>
+        </div>
+        <div>
+          <dt>World</dt>
+          <dd>{worldNo} / {String(total).padStart(2, "0")}</dd>
+        </div>
+      </dl>
+
+      <ul class="world-tags" aria-label="Technologies" role="list">
+        {project.technologies.map((tech) => <li class="world-tag">{tech}</li>)}
+      </ul>
+    </div>
+
+    <div class="world-panel-links">
+      {
+        project.demoUrl && (
+          <a class="world-action world-action--primary" href={project.demoUrl}>
+            <PixelIcon name="external" />
+            Live demo
+            <span class="sr-only"> of {project.title}</span>
+          </a>
+        )
+      }
+      {
+        project.repositoryUrl && (
+          <a class="world-action" href={project.repositoryUrl}>
+            <PixelIcon name="link" />
+            Repository
+            <span class="sr-only"> for {project.title}</span>
+          </a>
+        )
+      }
+      <a class="world-action world-action--file" href={detailHref}>
+        <PixelIcon name="file" />
+        Open dossier
+        <span class="sr-only"> for {project.title}</span>
+        <span aria-hidden="true">→</span>
+      </a>
+      {
+        !hasLinks && (
+          <p class="world-link-note">
+            <span aria-hidden="true">--</span>
+            Repository and live demo available on request.
+          </p>
+        )
+      }
+    </div>
+
+    {
+      project.notes && (
+        <details class="world-notes">
+          <summary>
+            <span>Project notes</span>
+            <span class="world-plus" aria-hidden="true" />
+          </summary>
+          <p>{project.notes}</p>
+        </details>
+      )
+    }
+
+    <p class="world-panel-foot" aria-hidden="true">
+      <span>Project {worldNo}</span>
+      <span>{project.technologies.length} {techLabel}</span>
+      <span>{project.year}</span>
+    </p>
+  </div>
+</article>

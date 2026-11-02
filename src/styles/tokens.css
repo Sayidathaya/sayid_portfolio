@@ -1,0 +1,269 @@
+/* ==========================================================================
+   Sayid Rafi A'thaya — 8-BIT CHROMATIC CHAOS
+   Six-colour universe: red, yellow, blue, purple, black, white.
+   Dark and light themes are designed independently, not inverted.
+   ========================================================================== */
+
+@theme static {
+  --font-display: "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-pixel: "Silkscreen", ui-monospace, SFMono-Regular, monospace;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-chromatic-red: #ff303f;
+  --color-chromatic-yellow: #ffd83d;
+  --color-chromatic-blue: #2864ff;
+  --color-chromatic-purple: #873bff;
+  --color-chromatic-black: #0a0a0d;
+  --color-chromatic-white: #ffffff;
+}
+
+@theme inline {
+  --color-canvas: var(--color-background);
+  --color-panel: var(--color-surface);
+  --color-ink: var(--color-foreground);
+  --color-muted: var(--color-muted);
+  --color-line: var(--color-border);
+}
+
+:root {
+  color-scheme: dark;
+
+  /* ---- Core semantic tokens ------------------------------------------- */
+  --color-background: #0a0a0d;
+  --color-background-deep: #050507;
+  --color-foreground: #ffffff;
+  --color-surface: #121218;
+  --color-surface-raised: #1b1b24;
+  --color-surface-sunken: #0e0e13;
+  --color-border: rgb(255 255 255 / 0.18);
+  --color-border-strong: rgb(255 255 255 / 0.52);
+  --color-border-soft: rgb(255 255 255 / 0.08);
+
+  --color-accent-red: #ff303f;
+  --color-accent-yellow: #ffd83d;
+  --color-accent-blue: #2864ff;
+  --color-accent-purple: #873bff;
+
+  --color-accent-red-ink: #ff929b;
+  --color-accent-yellow-ink: #ffe791;
+  --color-accent-blue-ink: #9db4ff;
+  --color-accent-purple-ink: #cfb2ff;
+
+  --color-on-red: #0a0a0d;
+  --color-on-yellow: #0a0a0d;
+  --color-on-blue: #ffffff;
+  --color-on-purple: #ffffff;
+
+  --color-muted: #b9b5c3;
+  --color-dim: #8d8998;
+  --color-focus: #ffd83d;
+  --color-focus-halo: #0a0a0d;
+
+  --color-selection-bg: #ffd83d;
+  --color-selection-ink: #0a0a0d;
+
+  /* ---- Dossier paper (a deliberate bright neutral in both themes) ----- */
+  --color-paper: #f7f3e9;
+  --color-paper-2: #ece5d6;
+  --color-paper-3: #d9ceb9;
+  --color-paper-ink: #0a0a0d;
+  --color-paper-muted: #575044;
+  --color-paper-line: rgb(10 10 13 / 0.28);
+  --color-paper-shadow: #0a0a0d;
+
+  /* ---- Comms device: a screen object with its own surface tokens ------ */
+  --color-terminal-bg: #060609;
+  --color-terminal-surface: #121218;
+  --color-terminal-ink: #ffffff;
+  --color-terminal-muted: #b9b5c3;
+  --color-terminal-dim: #8d8998;
+  --color-terminal-line: rgb(255 255 255 / 0.18);
+  --color-terminal-line-strong: rgb(255 255 255 / 0.46);
+
+  /* ---- Theme furniture ------------------------------------------------ */
+  --color-header-bg: #0a0a0d;
+  --color-shadow: #000000;
+  --color-scanline: rgb(255 255 255 / 0.035);
+  --color-dot: rgb(255 255 255 / 0.09);
+
+  /* ---- Legacy aliases consumed by older primitives -------------------- */
+  --bg: var(--color-background);
+  --bg-deep: var(--color-background-deep);
+  --panel: var(--color-surface);
+  --panel-2: var(--color-surface-raised);
+  --panel-3: var(--color-surface-sunken);
+  --ink: var(--color-foreground);
+  --muted: var(--color-muted);
+  --dim: var(--color-dim);
+  --line: var(--color-border);
+  --line-strong: var(--color-border-strong);
+  --line-soft: var(--color-border-soft);
+
+  --cobalt: var(--color-accent-blue);
+  --cobalt-ink: var(--color-accent-blue-ink);
+  --violet: var(--color-accent-purple);
+  --violet-ink: var(--color-accent-purple-ink);
+  --magenta: var(--color-accent-red);
+  --magenta-ink: var(--color-accent-red-ink);
+  --crimson: var(--color-accent-red);
+  --crimson-ink: var(--color-accent-red-ink);
+  --amber: var(--color-accent-yellow);
+  --amber-ink: var(--color-accent-yellow-ink);
+  --bone: var(--color-paper);
+
+  --paper: var(--color-paper);
+  --paper-2: var(--color-paper-2);
+  --paper-3: var(--color-paper-3);
+  --paper-ink: var(--color-paper-ink);
+  --paper-muted: var(--color-paper-muted);
+  --paper-line: var(--color-paper-line);
+  --paper-shadow: var(--color-paper-shadow);
+
+  --focus: var(--color-focus);
+  --shadow-color: var(--color-shadow);
+  --header-bg: var(--color-header-bg);
+  --selection-bg: var(--color-selection-bg);
+  --selection-ink: var(--color-selection-ink);
+  --dot-color: var(--color-dot);
+  --ui-ink: var(--color-foreground);
+
+  /* ---- 8-bit geometry ------------------------------------------------- */
+  --px-border: 3px;
+  --px-border-sm: 2px;
+  --px-unit: 4px;
+  --shadow-1: 3px 3px 0 var(--shadow-color);
+  --shadow-2: 6px 6px 0 var(--shadow-color);
+  --shadow-3: 9px 9px 0 var(--shadow-color);
+  --shadow-hot: 6px 6px 0 var(--color-accent-red);
+  --shadow-cobalt: 7px 7px 0 var(--color-accent-blue);
+  --shadow-violet: 7px 7px 0 var(--color-accent-purple);
+  --shadow-paper: 7px 7px 0 var(--color-paper-shadow);
+  --shadow-yellow: 6px 6px 0 var(--color-accent-yellow);
+
+  --pixel-cut-sm: polygon(
+    0 4px, 4px 4px, 4px 0, calc(100% - 4px) 0, calc(100% - 4px) 4px, 100% 4px,
+    100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) 100%,
+    4px 100%, 4px calc(100% - 4px), 0 calc(100% - 4px)
+  );
+  --pixel-cut: polygon(
+    0 6px, 6px 6px, 6px 0, calc(100% - 6px) 0, calc(100% - 6px) 6px, 100% 6px,
+    100% calc(100% - 6px), calc(100% - 6px) calc(100% - 6px), calc(100% - 6px) 100%,
+    6px 100%, 6px calc(100% - 6px), 0 calc(100% - 6px)
+  );
+  --pixel-cut-lg: polygon(
+    0 10px, 10px 10px, 10px 0, calc(100% - 10px) 0, calc(100% - 10px) 10px, 100% 10px,
+    100% calc(100% - 10px), calc(100% - 10px) calc(100% - 10px), calc(100% - 10px) 100%,
+    10px 100%, 10px calc(100% - 10px), 0 calc(100% - 10px)
+  );
+  --pixel-tab: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+  --pixel-notch: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+
+  /* ---- Motion scale --------------------------------------------------- */
+  --t-micro: 110ms;
+  --t-ui: 190ms;
+  --t-reveal: 420ms;
+  --ease-step: steps(4, end);
+  --ease-step-7: steps(7, end);
+  --ease-step-2: steps(2, end);
+
+  /* ---- Layers --------------------------------------------------------- */
+  --z-world: 0;
+  --z-content: 2;
+  --z-header: 60;
+  --z-rail: 35;
+  --z-menu: 70;
+  --z-fx: 94;
+  --z-progress: 96;
+  --z-skip: 120;
+
+  /* ---- Textures ------------------------------------------------------- */
+  --dot-pattern: repeating-conic-gradient(var(--dot-color) 0 25%, transparent 0 50%) 0 0 / 6px 6px;
+  --grid-fine: linear-gradient(90deg, var(--line-soft) 1px, transparent 1px) 0 0 / 16px 16px,
+    linear-gradient(var(--line-soft) 1px, transparent 1px) 0 0 / 16px 16px;
+  --grid-wide: linear-gradient(90deg, var(--line-soft) 1px, transparent 1px) 0 0 / 64px 64px,
+    linear-gradient(var(--line-soft) 1px, transparent 1px) 0 0 / 64px 64px;
+  --kawung-pixel: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' shape-rendering='crispEdges' fill='%232864FF'%3E%3Cpath opacity='.25' d='M28 8h8v8h8v8h8v8h-8v8h-8v8h-8v-8h-8v-8h-8v-8h8v-8h8V8z'/%3E%3Cpath opacity='.3' d='M28 4h8v4h8v4h4v4h4v4h4v8h-4v4h-4v4h-4v4h-8v4h-8v-4h-8v-4h-4v-4h-4v-4H4v-8h4V16h4v-4h4V8h8V4z' fill='none'/%3E%3C/svg%3E");
+  --scanline: repeating-linear-gradient(0deg, transparent 0 3px, var(--color-scanline) 3px 4px);
+
+  /* ---- Layout --------------------------------------------------------- */
+  --shell-max: 84rem;
+  --section-pad: clamp(4.5rem, 9vw, 8rem);
+  --gutter: clamp(1.15rem, 4vw, 2.75rem);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --color-background: #fffdf7;
+  --color-background-deep: #f2eee2;
+  --color-foreground: #0a0a0d;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f6f0df;
+  --color-surface-sunken: #f0ebdd;
+  --color-border: rgb(10 10 13 / 0.2);
+  --color-border-strong: rgb(10 10 13 / 0.68);
+  --color-border-soft: rgb(10 10 13 / 0.09);
+
+  --color-accent-red: #ff303f;
+  --color-accent-yellow: #ffd83d;
+  --color-accent-blue: #2864ff;
+  --color-accent-purple: #873bff;
+
+  --color-accent-red-ink: #b00f22;
+  --color-accent-yellow-ink: #6b5100;
+  --color-accent-blue-ink: #1740c4;
+  --color-accent-purple-ink: #6423c8;
+
+  --color-muted: #49454f;
+  --color-dim: #6d6774;
+  --color-focus: #1445d8;
+  --color-focus-halo: #ffffff;
+
+  --color-selection-bg: #0a0a0d;
+  --color-selection-ink: #ffffff;
+
+  --color-paper: #ffffff;
+  --color-paper-2: #f6f0df;
+  --color-paper-3: #e9e0cb;
+  --color-paper-ink: #0a0a0d;
+  --color-paper-muted: #575044;
+  --color-paper-line: rgb(10 10 13 / 0.26);
+  --color-paper-shadow: #0a0a0d;
+
+  --color-terminal-bg: #ffffff;
+  --color-terminal-surface: #f4efe2;
+  --color-terminal-ink: #0a0a0d;
+  --color-terminal-muted: #49454f;
+  --color-terminal-dim: #6d6774;
+  --color-terminal-line: rgb(10 10 13 / 0.2);
+  --color-terminal-line-strong: rgb(10 10 13 / 0.68);
+
+  --color-header-bg: #fffdf7;
+  --color-shadow: #0a0a0d;
+  --color-scanline: rgb(10 10 13 / 0.03);
+  --color-dot: rgb(10 10 13 / 0.11);
+
+  --ui-ink: var(--color-foreground);
+}
+
+/* Tone helpers: every chromatic component opts into one of these roles. */
+[data-tone="red"] {
+  --tone: var(--color-accent-red);
+  --tone-ink: var(--color-accent-red-ink);
+  --tone-contrast: var(--color-on-red);
+}
+[data-tone="yellow"] {
+  --tone: var(--color-accent-yellow);
+  --tone-ink: var(--color-accent-yellow-ink);
+  --tone-contrast: var(--color-on-yellow);
+}
+[data-tone="blue"] {
+  --tone: var(--color-accent-blue);
+  --tone-ink: var(--color-accent-blue-ink);
+  --tone-contrast: var(--color-on-blue);
+}
+[data-tone="purple"] {
+  --tone: var(--color-accent-purple);
+  --tone-ink: var(--color-accent-purple-ink);
+  --tone-contrast: var(--color-on-purple);
+}

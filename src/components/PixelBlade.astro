@@ -1,0 +1,45 @@
+---
+// Original 16x16 pixel blade: w = edge highlight, c/d = cobalt, m = magenta guard,
+// v = violet grip, k = crimson pommel gem. Edit the rows to redraw it.
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+
+const rows = [
+  "...............w",
+  "..............wc",
+  ".............wcd",
+  "............wcd.",
+  "...........wcd..",
+  "..........wcd...",
+  ".........wcd....",
+  "...m....wcd.....",
+  "...mm..wcd......",
+  "....mmwcd.......",
+  ".....mm.........",
+  "......mm........",
+  ".....vvmm.......",
+  "....vv..mm......",
+  "...vv....m......",
+  "..kk............",
+];
+const palette: Record<string, string> = {
+  w: "#ffffff",
+  c: "#9db4ff",
+  d: "#2864ff",
+  m: "#ff303f",
+  v: "#873bff",
+  k: "#ffd83d",
+};
+const pixels = rows.flatMap((row, y) =>
+  [...row].flatMap((glyph, x) => {
+    const fill = palette[glyph];
+    return fill ? [{ x, y, fill }] : [];
+  }),
+);
+---
+
+<svg viewBox="0 0 16 16" class={className} shape-rendering="crispEdges" aria-hidden="true">
+  {pixels.map(({ x, y, fill }) => <rect x={x} y={y} width="1" height="1" fill={fill} />)}
+</svg>

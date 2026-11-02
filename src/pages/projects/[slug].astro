@@ -1,0 +1,415 @@
+---
+import type { InferGetStaticPropsType } from "astro";
+import PixelBadge from "../../components/PixelBadge.astro";
+import PixelIcon from "../../components/PixelIcon.astro";
+import ProjectArt from "../../components/ProjectArt.astro";
+import SceneSeam from "../../components/SceneSeam.astro";
+import WorldGlyph from "../../components/WorldGlyph.astro";
+import { profile, projects } from "../../data/portfolio";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import {
+  projectDetailHref,
+  projectNumbers,
+  resolveWorld,
+  worldLabels,
+  worldStyle,
+} from "../../utils/world";
+
+export function getStaticPaths() {
+  return projects.map((project, index) => ({
+    params: { slug: project.slug },
+    props: { project, index, total: projects.length },
+  }));
+}
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { project, index, total } = Astro.props;
+const direction = resolveWorld(project, index);
+const { variant, tone, accent } = direction;
+const { worldNo, caseNo } = projectNumbers(index);
+const totalLabel = String(total).padStart(2, "0");
+const variantLabel = worldLabels[variant];
+const detailStyle = worldStyle(direction);
+const hasLinks = Boolean(project.repositoryUrl || project.demoUrl);
+const techHeading = `${project.technologies.length} ${
+  project.technologies.length === 1 ? "item" : "items"
+} on record`;
+
+const previousProject = index > 0 ? projects[index - 1] : undefined;
+const previous = previousProject
+  ? {
+      project: previousProject,
+      number: projectNumbers(index - 1),
+      direction: resolveWorld(previousProject, index - 1),
+    }
+  : null;
+
+const nextProject = projects[index + 1];
+const next = nextProject
+  ? {
+      project: nextProject,
+      number: projectNumbers(index + 1),
+      direction: resolveWorld(nextProject, index + 1),
+    }
+  : null;
+
+const pageTitle = `${project.title} // World ${worldNo} — ${profile.name}`;
+const pageDescription = `${project.description} ${project.role}, ${project.year}.`;
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <SceneSeam label={`CASE ${caseNo} // WORLD ${worldNo}`} tone="vault" />
+
+  <article
+    class:list={["dossier-page", `dossier-page--${variant}`]}
+    aria-labelledby="dossier-title"
+    data-tone={tone}
+    data-world
+    style={detailStyle}
+  >
+    <div class="dossier-page-bg" aria-hidden="true">
+      <span class="dossier-page-stars"></span>
+      <span class="dossier-page-grid"></span>
+    </div>
+
+    <div class="shell dossier-shell">
+      <nav class="dossier-nav" aria-label="Dossier navigation" data-reveal>
+        <a class="dossier-nav-link" href="/#mv-atlas">
+          <span aria-hidden="true">←</span>
+          Back to world atlas
+        </a>
+        <p class="dossier-nav-id">
+          <span class="status-pixel" aria-hidden="true"></span>
+          SRA–MV // Case {caseNo} / open
+        </p>
+        <a class="dossier-nav-link dossier-nav-link--end" href="/#projects">
+          All destinations
+          <span aria-hidden="true">↗</span>
+        </a>
+      </nav>
+
+      <header class="dossier-head">
+        <div class="dossier-head-main" data-reveal>
+          <span class="dossier-ghost" aria-hidden="true">{worldNo}</span>
+          <p class="dossier-eyebrow">
+            <span class="dossier-eyebrow-pixel" aria-hidden="true"></span>
+            {variantLabel} // World {worldNo} of {totalLabel}
+          </p>
+
+          <h1 id="dossier-title" class="dossier-title">{project.title}</h1>
+          <p class="dossier-lede">{project.description}</p>
+
+          <div class="dossier-head-meta">
+            {
+              project.placeholder ? (
+                <PixelBadge tone="yellow" stamp>
+                  Sample dossier
+                </PixelBadge>
+              ) : (
+                <PixelBadge tone="blue" dot>
+                  On file
+                </PixelBadge>
+              )
+            }
+            <span class="dossier-head-meta-text">{project.year} · {project.role}</span>
+          </div>
+
+          <ul class="dossier-head-tags" aria-label="Technologies" role="list">
+            {project.technologies.map((tech) => <li class="dossier-head-tag">{tech}</li>)}
+          </ul>
+        </div>
+
+        <aside
+          class="paper-panel dossier-plate"
+          aria-labelledby="dossier-plate-title"
+          data-reveal
+          style="--d:110ms"
+        >
+          <span class="pin dossier-pin" aria-hidden="true"></span>
+          <span class="dossier-tab" aria-hidden="true">World file // {worldNo}</span>
+
+          <div class="dossier-plate-head">
+            <p class="dossier-plate-kicker">
+              <WorldGlyph variant={variant} />
+              <span>Field record</span>
+            </p>
+            <span class="dossier-plate-state">Retained</span>
+          </div>
+
+          <h2 id="dossier-plate-title" class="dossier-plate-title">{project.title}</h2>
+
+          <dl class="dossier-facts">
+            <div>
+              <dt>Year</dt>
+              <dd>{project.year}</dd>
+            </div>
+            <div>
+              <dt>Role</dt>
+              <dd>{project.role}</dd>
+            </div>
+            <div>
+              <dt>World</dt>
+              <dd>{worldNo} / {totalLabel}</dd>
+            </div>
+            <div>
+              <dt>Index</dt>
+              <dd>Case {caseNo}</dd>
+            </div>
+          </dl>
+
+          <div class="dossier-plate-actions">
+            {
+              project.demoUrl && (
+                <a class="dossier-action dossier-action--primary" href={project.demoUrl}>
+                  <PixelIcon name="external" />
+                  Live build
+                  <span class="sr-only"> of {project.title}</span>
+                </a>
+              )
+            }
+            {
+              project.repositoryUrl && (
+                <a class="dossier-action" href={project.repositoryUrl}>
+                  <PixelIcon name="link" />
+                  Source
+                  <span class="sr-only"> for {project.title}</span>
+                </a>
+              )
+            }
+            <a class="dossier-action dossier-action--quiet" href="/#mv-atlas">
+              <PixelIcon name="cartridge" />
+              Atlas
+            </a>
+          </div>
+
+          {
+            !hasLinks && (
+              <p class="dossier-missing">
+                <span aria-hidden="true">--</span>
+                Repository and live demo are not on file. No links are invented.
+              </p>
+            )
+          }
+
+          <p class="dossier-plate-foot" aria-hidden="true">
+            <span>{variant}</span>
+          </p>
+        </aside>
+      </header>
+
+      <figure class="dossier-figure" data-reveal>
+        <div class="dossier-art">
+          <ProjectArt
+            project={project}
+            index={index}
+            variant={variant}
+            tone={tone}
+            accent={accent}
+          />
+        </div>
+        <figcaption class="dossier-figcaption">
+          <span>Exhibit // World {worldNo}</span>
+          <span>{variantLabel} · {project.year}</span>
+        </figcaption>
+      </figure>
+
+      <div class="dossier-body">
+        <div class="dossier-main">
+          <section class="dossier-block" aria-labelledby="dossier-notes-title" data-reveal>
+            <div class="dossier-block-head">
+              <p class="dossier-label">01 // Field notes</p>
+              <h2 id="dossier-notes-title" class="dossier-block-title">Inside the world</h2>
+            </div>
+
+            {
+              project.notes ? (
+                <div class="dossier-notes">
+                  <span class="dossier-notes-mark" aria-hidden="true">NOTE</span>
+                  <p>{project.notes}</p>
+                </div>
+              ) : (
+                <div class="dossier-empty">
+                  <p>No field notes are on file for this world.</p>
+                  <p>
+                    This dossier records only the brief, the technology names and the case metadata
+                    entered in the project data.
+                  </p>
+                </div>
+              )
+            }
+          </section>
+
+          <section class="dossier-block dossier-block--tech" aria-labelledby="dossier-tech-title" data-reveal>
+            <div class="dossier-block-head">
+              <p class="dossier-label">02 // Technology index</p>
+              <h2 id="dossier-tech-title" class="dossier-block-title">
+                {techHeading}
+              </h2>
+            </div>
+
+            <ul class="dossier-tech" role="list">
+              {
+                project.technologies.map((tech, techIndex) => (
+                  <li>
+                    <span aria-hidden="true">{String(techIndex + 1).padStart(2, "0")}</span>
+                    {tech}
+                  </li>
+                ))
+              }
+            </ul>
+
+            <p class="dossier-integrity">
+              Technology names come directly from the project record. No proficiency, years or
+              certification is implied.
+            </p>
+          </section>
+        </div>
+
+        <aside class="dossier-side" aria-labelledby="dossier-access-title" data-reveal style="--d:120ms">
+          <section class="dossier-access">
+            <p class="dossier-label">03 // Access</p>
+            <h2 id="dossier-access-title" class="dossier-access-title">Open files</h2>
+
+            <ul class="dossier-access-list" role="list">
+              {
+                project.demoUrl && (
+                  <li>
+                    <a href={project.demoUrl}>
+                      <span class="dossier-access-icon" aria-hidden="true">
+                        <PixelIcon name="external" />
+                      </span>
+                      <span>
+                        <b>Live build</b>
+                        <small>Opens the project outside this archive</small>
+                      </span>
+                      <span class="dossier-access-arrow" aria-hidden="true">↗</span>
+                    </a>
+                  </li>
+                )
+              }
+              {
+                project.repositoryUrl && (
+                  <li>
+                    <a href={project.repositoryUrl}>
+                      <span class="dossier-access-icon" aria-hidden="true">
+                        <PixelIcon name="link" />
+                      </span>
+                      <span>
+                        <b>Repository</b>
+                        <small>Source record for this project</small>
+                      </span>
+                      <span class="dossier-access-arrow" aria-hidden="true">↗</span>
+                    </a>
+                  </li>
+                )
+              }
+              <li>
+                <a href="/#mv-atlas">
+                  <span class="dossier-access-icon" aria-hidden="true">
+                    <PixelIcon name="file" />
+                  </span>
+                  <span>
+                    <b>World atlas</b>
+                    <small>Return to all charted destinations</small>
+                  </span>
+                  <span class="dossier-access-arrow" aria-hidden="true">↑</span>
+                </a>
+              </li>
+            </ul>
+
+            {
+              !hasLinks && (
+                <p class="dossier-access-note">
+                  No live build or repository is recorded. The atlas route remains open.
+                </p>
+              )
+            }
+          </section>
+
+          <section class="dossier-mark" aria-labelledby="dossier-mark-title">
+            <div class="dossier-mark-art">
+              <WorldGlyph variant={variant} />
+            </div>
+            <div class="dossier-mark-copy">
+              <p class="dossier-label">World signature</p>
+              <h2 id="dossier-mark-title">{variantLabel}</h2>
+              <p>
+                Composition {worldNo} of {totalLabel}. Each destination keeps its own terrain,
+                accent and route back to the atlas.
+              </p>
+            </div>
+          </section>
+
+          <p class="dossier-side-code" aria-hidden="true">
+            <span>SRA–MV // {caseNo}</span>
+            <span>End of record</span>
+          </p>
+        </aside>
+      </div>
+
+      <nav class="dossier-adjacent" aria-labelledby="dossier-adjacent-title" data-reveal>
+        <div class="dossier-adjacent-head">
+          <p id="dossier-adjacent-title" class="dossier-label">Continue the survey</p>
+          <a class="dossier-adjacent-atlas" href="/#projects">All worlds <span aria-hidden="true">↗</span></a>
+        </div>
+
+        <div class="dossier-adjacent-grid">
+          {
+            previous ? (
+              <a
+                class="dossier-jump dossier-jump--previous"
+                href={projectDetailHref(previous.project.slug)}
+                style={worldStyle(previous.direction)}
+              >
+                <span class="dossier-jump-glyph" aria-hidden="true">
+                  <WorldGlyph variant={previous.direction.variant} />
+                </span>
+                <span class="dossier-jump-copy">
+                  <span class="dossier-jump-kicker">
+                    <span aria-hidden="true">←</span> Previous world {previous.number.worldNo}
+                  </span>
+                  <span class="dossier-jump-title">{previous.project.title}</span>
+                  <span class="dossier-jump-meta">{worldLabels[previous.direction.variant]}</span>
+                </span>
+              </a>
+            ) : (
+              <div class="dossier-jump dossier-jump--empty">
+                <span class="dossier-jump-kicker">← Atlas start</span>
+                <span class="dossier-jump-title">This is the first world on the route.</span>
+              </div>
+            )
+          }
+
+          {
+            next ? (
+              <a
+                class="dossier-jump dossier-jump--next"
+                href={projectDetailHref(next.project.slug)}
+                style={worldStyle(next.direction)}
+              >
+                <span class="dossier-jump-copy">
+                  <span class="dossier-jump-kicker">
+                    Next world {next.number.worldNo} <span aria-hidden="true">→</span>
+                  </span>
+                  <span class="dossier-jump-title">{next.project.title}</span>
+                  <span class="dossier-jump-meta">{worldLabels[next.direction.variant]}</span>
+                </span>
+                <span class="dossier-jump-glyph" aria-hidden="true">
+                  <WorldGlyph variant={next.direction.variant} />
+                </span>
+              </a>
+            ) : (
+              <div class="dossier-jump dossier-jump--empty dossier-jump--next">
+                <span class="dossier-jump-kicker">Atlas end →</span>
+                <span class="dossier-jump-title">The survey ends here.</span>
+              </div>
+            )
+          }
+        </div>
+      </nav>
+    </div>
+  </article>
+
+  <SceneSeam label={`END OF CASE // WORLD ${worldNo}`} tone="end" />
+</BaseLayout>

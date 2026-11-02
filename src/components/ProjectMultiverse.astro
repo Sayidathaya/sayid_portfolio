@@ -1,0 +1,176 @@
+---
+import type { PortfolioProject } from "../types/portfolio";
+import { projectNumbers, resolveWorld, worldLabels, worldStyle } from "../utils/world";
+import PixelBadge from "./PixelBadge.astro";
+import ProjectWorld from "./ProjectWorld.astro";
+import WorldGlyph from "./WorldGlyph.astro";
+
+interface Props {
+  projects: PortfolioProject[];
+}
+
+const { projects } = Astro.props;
+const total = projects.length;
+const totalLabel = String(total).padStart(2, "0");
+const first = projects[0];
+
+const destinations = projects.map((project, index) => {
+  const direction = resolveWorld(project, index);
+  return {
+    project,
+    direction,
+    number: projectNumbers(index),
+    label: worldLabels[direction.variant],
+    style: worldStyle(direction),
+  };
+});
+---
+
+<div class="multiverse" data-multiverse>
+  <header class="mv-head" data-reveal>
+    <div class="mv-head-id" aria-hidden="true">
+      <span class="mv-head-zone">Zone 04</span>
+      <span class="mv-head-index">04</span>
+    </div>
+
+    <div class="mv-head-main">
+      <p class="mv-eyebrow">
+        <span class="status-pixel" aria-hidden="true"></span>
+        Portfolio Works
+      </p>
+      <h2 id="projects-title" class="mv-title">
+        <span class="mv-title-top">Featured</span>
+        <span class="mv-title-bottom">Projects</span>
+      </h2>
+    </div>
+
+    <div class="mv-head-aside">
+      <p class="mv-head-lede">Real-world applications & creative development.</p>
+      <p class="mv-head-note">
+        {totalLabel} featured projects<br />
+        live demos & repositories
+      </p>
+    </div>
+  </header>
+
+  {
+    total > 0 ? (
+      <>
+        <section
+          id="mv-atlas"
+          class="mv-atlas"
+          aria-labelledby="mv-atlas-title"
+          data-reveal
+          data-multiverse-stage
+        >
+          <div class="mv-atlas-bar" aria-hidden="true">
+            <span class="mv-atlas-bar-id">
+              <i />
+              PROJECT SHOWCASE
+            </span>
+            <span class="mv-atlas-bar-coord">WEB & APPLICATION WORK</span>
+            <span class="mv-atlas-bar-status">VERIFIED BUILDS</span>
+          </div>
+
+          <div class="mv-atlas-stage">
+            <div class="mv-brief">
+              <p class="mv-brief-kicker">Project index</p>
+              <p id="mv-atlas-title" class="mv-thesis">
+                Building<br />
+                accessible &<br />
+                <span>dynamic web apps.</span>
+              </p>
+              <p class="mv-brief-copy">
+                From responsive front-end landing pages to full-stack database-driven platforms, each project showcases technical problem-solving and modern web engineering.
+              </p>
+
+              <div class="mv-brief-footer">
+                <a class="mv-jump" href={first ? `#world-${first.slug}` : "#projects"}>
+                  <span class="mv-jump-caret" aria-hidden="true">▶</span>
+                  Explore projects
+                  <span class="mv-jump-code" aria-hidden="true">01 / {totalLabel}</span>
+                </a>
+                <p class="mv-legend" aria-label="Atlas legend">
+                  <span><i aria-hidden="true" />Selected</span>
+                  <span><b aria-hidden="true">↘</b>Click to view</span>
+                </p>
+              </div>
+            </div>
+
+            <nav class="mv-route" aria-label="Project world index">
+              <span class="mv-route-heading" aria-hidden="true">Project Navigator</span>
+              <span class="mv-constellation" aria-hidden="true">
+                <svg viewBox="0 0 340 260" preserveAspectRatio="none">
+                  <path class="mv-constellation-line" d="M18 216 H92 V92 H180 V172 H322" />
+                  <rect class="mv-constellation-node" x="90" y="90" width="4" height="4" />
+                  <rect class="mv-constellation-node" x="178" y="170" width="4" height="4" />
+                  <rect class="mv-constellation-node" x="320" y="170" width="4" height="4" />
+                </svg>
+              </span>
+
+              <ol class="mv-stops" role="list">
+                {
+                  destinations.map(({ project, direction, number, label, style }, index) => (
+                    <li
+                      class:list={[
+                        "mv-stop",
+                        `mv-stop--${direction.variant}`,
+                        { "mv-stop--lead": index === 0 },
+                      ]}
+                      data-tone={direction.tone}
+                      style={style}
+                    >
+                      <a class="mv-stop-link" href={`#world-${project.slug}`}>
+                        <span class="mv-stop-art" aria-hidden="true">
+                          <WorldGlyph variant={direction.variant} />
+                        </span>
+
+                        <span class="mv-stop-copy">
+                          <span class="mv-stop-number" aria-hidden="true">
+                            {number.worldNo}
+                          </span>
+                          <span class="mv-stop-kicker">{label} // case {number.caseNo}</span>
+                          <span class="mv-stop-title">{project.title}</span>
+                          <span class="mv-stop-meta">
+                            {project.year} · {project.role}
+                          </span>
+                          <span class="mv-stop-enter" aria-hidden="true">
+                            Enter world <i>↘</i>
+                          </span>
+                        </span>
+                      </a>
+                    </li>
+                  ))
+                }
+              </ol>
+            </nav>
+          </div>
+
+          <div class="mv-atlas-foot" aria-hidden="true">
+            <span class="mv-atlas-foot-mark">
+              <i />
+              PROJECT ARCHIVE
+            </span>
+            <span class="mv-atlas-foot-hint">Select any project above to view details & live links</span>
+            <span>PUBLIC WORK</span>
+          </div>
+        </section>
+
+        <div class="mv-worlds">
+          {projects.map((project, index) => (
+            <ProjectWorld project={project} index={index} total={total} />
+          ))}
+        </div>
+      </>
+    ) : (
+      <div class="mv-empty paper-panel">
+        <PixelBadge tone="yellow" stamp>Atlas empty</PixelBadge>
+        <h3>No worlds charted</h3>
+        <p>
+          Mark a project as featured in <code>src/data/portfolio.ts</code> to place it on the
+          multiverse map.
+        </p>
+      </div>
+    )
+  }
+</div>

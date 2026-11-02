@@ -1,0 +1,332 @@
+---
+import type { ChromaticTone, SkillGlyph, SkillGroup } from "../types/portfolio";
+import PixelIcon from "./PixelIcon.astro";
+import PixelSigil from "./PixelSigil.astro";
+
+interface Props {
+  groups: SkillGroup[];
+}
+
+const { groups } = Astro.props;
+
+const fallbackTones: ChromaticTone[] = ["blue", "red", "purple", "blue"];
+const fallbackGlyphs: SkillGlyph[] = ["cartridge", "shield", "rocket", "spark"];
+const fallbackHubs = [
+  { x: 24, y: 31 },
+  { x: 77, y: 31 },
+  { x: 34, y: 77 },
+  { x: 69, y: 72 },
+];
+const fallbackNodes = [
+  { x: 18, y: 20 },
+  { x: 30, y: 40 },
+  { x: 14, y: 49 },
+];
+
+const clamp = (value: number, min: number, max: number): number =>
+  Math.min(max, Math.max(min, value));
+
+const groupVisuals = groups.map((group, groupIndex) => {
+  const tone = group.tone ?? fallbackTones[groupIndex % fallbackTones.length] ?? "blue";
+  const glyph = group.glyph ?? fallbackGlyphs[groupIndex % fallbackGlyphs.length] ?? "spark";
+  const hub = fallbackHubs[groupIndex % fallbackHubs.length] ?? { x: 50, y: 50 };
+  const items = group.items.map((name, itemIndex) => {
+    const fallback = fallbackNodes[itemIndex % fallbackNodes.length] ??
+      fallbackNodes[0] ?? { x: 50, y: 50 };
+    const point = group.matrix?.[itemIndex] ?? fallback;
+    return {
+      name,
+      x: clamp(point.x, 8, 92),
+      y: clamp(point.y, 12, 90),
+      indexInGroup: itemIndex,
+    };
+  });
+  return { group, groupIndex, tone, glyph, hub, items };
+});
+
+const allItems = groupVisuals.flatMap((visual) =>
+  visual.items.map((item, indexInGroup) => ({
+    ...item,
+    group: visual.group,
+    groupIndex: visual.groupIndex,
+    tone: visual.tone,
+    glyph: visual.glyph,
+    indexInGroup,
+  })),
+);
+
+const initial = allItems[0];
+const total = allItems.length;
+const core = { x: 50, y: 49 };
+
+const stepPath = (fromX: number, fromY: number, toX: number, toY: number): string => {
+  const midX = Math.round((fromX + (toX - fromX) * 0.5) * 10) / 10;
+  return `M ${fromX} ${fromY} H ${midX} V ${toY} H ${toX}`;
+};
+
+const links = groupVisuals.flatMap((visual) => {
+  const bus = {
+    key: `bus-${visual.group.id}`,
+    group: visual.group.id,
+    tone: visual.tone,
+    kind: "bus",
+    path: stepPath(core.x, core.y, visual.hub.x, visual.hub.y),
+  };
+  const branches = visual.items.map((item) => ({
+    key: `branch-${visual.group.id}-${item.name}`,
+    group: visual.group.id,
+    tone: visual.tone,
+    kind: "branch",
+    path: stepPath(visual.hub.x, visual.hub.y, item.x, item.y),
+  }));
+  return [bus, ...branches];
+});
+
+const itemCode = (groupIndex: number, itemIndex: number): string =>
+  `${String(groupIndex + 1).padStart(2, "0")}.${String(itemIndex + 1).padStart(2, "0")}`;
+
+const initialSiblings = initial
+  ? (groupVisuals[initial.groupIndex]?.items.filter((item) => item.name !== initial.name) ?? [])
+  : [];
+---
+
+<div
+  class="skill-matrix"
+  data-skill-matrix
+  data-selected-group={initial?.group.id ?? ""}
+  data-selected-tone={initial?.tone ?? "blue"}
+  data-tone={initial?.tone ?? "blue"}
+>
+  <div class="ability-board" data-reveal data-skill-board>
+    <div class="ability-hud">
+      <p class="ability-hud__title">
+        <span class="ability-hud__icon" aria-hidden="true"><PixelIcon name="spark" /></span>
+        <span>
+          <span class="ability-hud__kicker">Core Competencies</span>
+          <span class="ability-hud__name">Skill Matrix</span>
+        </span>
+      </p>
+      <p class="ability-hud__legend">
+        {
+          groupVisuals.map(({ group, tone }) => (
+            <span data-tone={tone} data-legend-group={group.id}>
+              <i aria-hidden="true"></i>
+              {group.label}
+              <b>{String(group.items.length).padStart(2, "0")}</b>
+            </span>
+          ))
+        }
+      </p>
+      <p class="ability-hud__count"><b>{String(total).padStart(2, "0")}</b><span>abilities<br />catalogued</span></p>
+    </div>
+
+    <div class="ability-stage" data-skill-stage data-visible="false">
+      <div class="ability-stage__grid" aria-hidden="true"></div>
+      <div class="ability-stage__scan" aria-hidden="true"></div>
+
+      <svg
+        class="ability-links"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+        focusable="false"
+      >
+        {
+          links.map((link) => (
+            <g class="ability-link" data-link-group={link.group} data-link-kind={link.kind}>
+              <path class="ability-link__under" d={link.path} vector-effect="non-scaling-stroke" />
+              <path class="ability-link__line" d={link.path} vector-effect="non-scaling-stroke" data-tone={link.tone} />
+              <path class="ability-link__signal" d={link.path} vector-effect="non-scaling-stroke" />
+            </g>
+          ))
+        }
+        <rect class="ability-junction" x="49.4" y="48.4" width="1.2" height="1.2" />
+      </svg>
+
+      <span class="ability-core" aria-hidden="true">
+        <span class="ability-core__ring"></span>
+        <span class="ability-core__pips"><i></i><i></i><i></i><i></i></span>
+        <b>SRA<br />CORE</b>
+      </span>
+
+      {
+        groupVisuals.map(({ group, tone, hub }) => (
+          <span
+            class="ability-zone"
+            data-tone={tone}
+            style={`--x:${hub.x}%;--y:${hub.y}%`}
+            aria-hidden="true"
+          >
+            <i></i>{group.label}
+          </span>
+        ))
+      }
+
+      <ul class="ability-nodes" aria-label="Interactive ability nodes">
+        {
+          groupVisuals.map(({ group, groupIndex, tone, glyph, items }) =>
+            items.map((item, indexInGroup) => {
+              const selected = initial?.name === item.name;
+              return (
+                <li style={`--x:${item.x}%;--y:${item.y}%;--i:${groupIndex * 3 + indexInGroup}`}>
+                  <button
+                    type="button"
+                    class="skill-node"
+                    data-skill-node={item.name}
+                    data-skill-name={item.name}
+                    data-skill-group={group.id}
+                    data-skill-category={group.label}
+                    data-skill-tone={tone}
+                    data-skill-glyph={glyph}
+                    data-skill-count={group.items.length}
+                    data-skill-item-index={itemCode(groupIndex, indexInGroup)}
+                    aria-pressed={selected ? "true" : "false"}
+                    data-tone={tone}
+                  >
+                    <span class="skill-node__box">
+                      <span class="skill-node__sigil"><PixelSigil seed={item.name} /></span>
+                      <span class="skill-node__corner" aria-hidden="true"></span>
+                      <span class="skill-node__check" aria-hidden="true">✓</span>
+                    </span>
+                    <span class="skill-node__text">
+                      <span class="skill-node__name">{item.name}</span>
+                      <span class="skill-node__group">{group.label} / {itemCode(groupIndex, indexInGroup)}</span>
+                    </span>
+                  </button>
+                </li>
+              );
+            }),
+          )
+        }
+      </ul>
+
+      <div class="ability-stage__foot">
+        <span><i aria-hidden="true"></i> INTERACTIVE SKILL MATRIX</span>
+        <span>SELECT ANY NODE</span>
+      </div>
+    </div>
+
+    <div class="ability-board__foot">
+      <span><PixelIcon name="spark" /> Verified skills</span>
+      <span class="ability-board__hint">Click any skill node to inspect category and related items</span>
+    </div>
+  </div>
+
+  <div class="ability-console" data-reveal>
+    <div
+      class="ability-readout"
+      data-skill-readout
+      data-tone={initial?.tone ?? "blue"}
+      aria-labelledby="ability-readout-title"
+    >
+      <div class="ability-readout__bar">
+        <p><span class="ability-readout__pixel" aria-hidden="true"></span> Skill details</p>
+        <p>Overview</p>
+      </div>
+
+      <div class="ability-readout__main">
+        <span class="ability-readout__sigil" data-skill-sigil>
+          {initial && <PixelSigil seed={initial.name} />}
+        </span>
+        <div class="ability-readout__copy">
+          <p class="ability-readout__kicker">
+            Category: <span data-skill-category>{initial?.group.label ?? ""}</span>
+          </p>
+          <h3 id="ability-readout-title" data-skill-name>{initial?.name ?? "Select a node"}</h3>
+          <p class="ability-readout__context" data-skill-context>
+            Part of the {initial?.group.label ?? "ability"} toolset applied across projects,
+            coursework, and public engagements.
+          </p>
+          <dl class="ability-readout__meta">
+            <div><dt>Category</dt><dd data-skill-category>{initial?.group.label ?? "—"}</dd></div>
+            <div><dt>Code</dt><dd data-skill-item-index>{initial ? itemCode(initial.groupIndex, initial.indexInGroup) : "—"}</dd></div>
+            <div><dt>Group size</dt><dd><span data-skill-count>{initial?.group.items.length ?? 0}</span> skills</dd></div>
+          </dl>
+        </div>
+      </div>
+
+      <div class="ability-readout__siblings">
+        <p><span aria-hidden="true">↳</span> Other skills in this group</p>
+        <ul data-skill-siblings>
+          {initialSiblings.map((sibling) => <li>{sibling.name}</li>)}
+        </ul>
+      </div>
+
+      <p class="sr-only" role="status" data-skill-status></p>
+    </div>
+
+    <aside class="ability-index" aria-labelledby="ability-index-title">
+      <div class="ability-index__head">
+        <h3 id="ability-index-title">Complete index</h3>
+        <span>{String(total).padStart(2, "0")} entries</span>
+      </div>
+
+      {
+        groupVisuals.map(({ group, groupIndex, tone, glyph, items }) => (
+          <section class="ability-index__group" data-tone={tone}>
+            <h4>
+              <span class="ability-index__glyph" aria-hidden="true"><PixelIcon name={glyph} /></span>
+              {group.label}
+              <b>{String(items.length).padStart(2, "0")}</b>
+            </h4>
+            <ul>
+              {items.map((item, indexInGroup) => (
+                <li data-index-skill={item.name}>
+                  <span class="ability-index__dot" aria-hidden="true"></span>
+                  <span>{item.name}</span>
+                  <span class="ability-index__code" aria-hidden="true">{itemCode(groupIndex, indexInGroup)}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+
+      <p class="ability-index__foot">Skill inventory</p>
+    </aside>
+  </div>
+
+  <div class="ability-modules" data-reveal aria-label="Touch-friendly ability modules">
+    <div class="ability-modules__head">
+      <p><span aria-hidden="true">◆</span> Module view</p>
+      <span>Grouped for touch</span>
+    </div>
+    {
+      groupVisuals.map(({ group, groupIndex, tone, glyph, items }) => (
+        <section class="ability-module" data-tone={tone}>
+          <header>
+            <span class="ability-module__glyph" aria-hidden="true"><PixelIcon name={glyph} /></span>
+            <h3>{group.label}</h3>
+            <span>{String(items.length).padStart(2, "0")} items</span>
+          </header>
+          <div class="ability-module__grid">
+            {items.map((item, indexInGroup) => {
+              const selected = initial?.name === item.name;
+              return (
+                <button
+                  type="button"
+                  class="module-node"
+                  data-skill-node={item.name}
+                  data-skill-name={item.name}
+                  data-skill-group={group.id}
+                  data-skill-category={group.label}
+                  data-skill-tone={tone}
+                  data-skill-glyph={glyph}
+                  data-skill-count={group.items.length}
+                  data-skill-item-index={itemCode(groupIndex, indexInGroup)}
+                  aria-pressed={selected ? "true" : "false"}
+                  data-tone={tone}
+                >
+                  <span class="module-node__sigil"><PixelSigil seed={item.name} /></span>
+                  <span class="module-node__name">{item.name}</span>
+                  <span class="module-node__check" aria-hidden="true">✓</span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      ))
+    }
+    <p class="ability-modules__foot">Tap a module item to update the readout below.</p>
+  </div>
+</div>

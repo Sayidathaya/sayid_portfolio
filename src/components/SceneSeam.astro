@@ -1,0 +1,14 @@
+---
+interface Props {
+  label: string;
+  tone?: "archive" | "quest" | "inventory" | "vault" | "comms" | "end";
+}
+
+const { label, tone = "archive" } = Astro.props;
+---
+
+<div class:list={["scene-seam", `scene-seam--${tone}`]} aria-hidden="true">
+  <span class="seam-grid"></span>
+  <span class="seam-label"><i></i>{label}<i></i></span>
+  <span class="seam-grid seam-grid--end"></span>
+</div>

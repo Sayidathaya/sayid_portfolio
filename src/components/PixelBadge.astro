@@ -1,0 +1,26 @@
+---
+interface Props {
+  tone?:
+    | "red"
+    | "yellow"
+    | "blue"
+    | "purple"
+    | "paper"
+    | "ghost"
+    // Legacy aliases kept so existing dossier components stay source-compatible.
+    | "cobalt"
+    | "magenta"
+    | "crimson"
+    | "amber";
+  dot?: boolean;
+  stamp?: boolean;
+  class?: string;
+}
+
+const { tone = "blue", dot = false, stamp = false, class: className } = Astro.props;
+---
+
+<span class:list={["px-badge", `px-badge--${tone}`, { "is-stamp": stamp }, className]}>
+  {dot && <span class="px-badge-dot" aria-hidden="true"></span>}
+  <slot />
+</span>

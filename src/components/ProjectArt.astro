@@ -1,0 +1,188 @@
+---
+import { Picture } from "astro:assets";
+import type { ChromaticTone, PortfolioProject, ProjectWorldVariant } from "../types/portfolio";
+import { findImage } from "../utils/images";
+import PixelSigil from "./PixelSigil.astro";
+import PixelSprite from "./PixelSprite.astro";
+
+interface Props {
+  project: PortfolioProject;
+  index: number;
+  variant: ProjectWorldVariant;
+  tone: ChromaticTone;
+  accent: ChromaticTone;
+}
+
+const { project, index, variant, tone, accent } = Astro.props;
+const image = findImage(project.slug);
+const worldNo = String(index + 1).padStart(2, "0");
+const caseNo = String(index + 1).padStart(3, "0");
+const leadTech = project.technologies.slice(0, 2).join(" / ");
+const artStyle = [
+  `--world-tone:var(--color-accent-${tone})`,
+  `--world-accent:var(--color-accent-${accent})`,
+  `--world-tone-ink:var(--color-accent-${tone}-ink)`,
+  `--world-accent-ink:var(--color-accent-${accent}-ink)`,
+].join(";");
+---
+
+<div
+  class:list={["world-art", `world-art--${variant}`, { "has-image": Boolean(image) }]}
+  data-tone={tone}
+  data-world-stage
+  style={artStyle}
+>
+  {
+    image ? (
+      <Picture
+        src={image}
+        alt={`Preview of ${project.title}`}
+        formats={["avif", "webp"]}
+        widths={[640, 960, 1360]}
+        sizes={
+          variant === "feature"
+            ? "(min-width: 84rem) 76rem, (min-width: 48rem) 92vw, 100vw"
+            : "(min-width: 64rem) 52vw, 92vw"
+        }
+        loading="lazy"
+        decoding="async"
+        class="world-art-photo"
+      />
+    ) : (
+      <>
+        {variant === "feature" && (
+          <div class="wa-scene wa-scene--feature" aria-hidden="true">
+            <span class="wa-stars mv-ambient" />
+            <span class="wa-glow" />
+            <span class="wa-sun mv-ambient" />
+            <span class="wa-ridge wa-ridge--far" />
+            <span class="wa-ridge wa-ridge--near" />
+            <span class="wa-tower">
+              <i class="wa-tower-spire" />
+              <i class="wa-tower-beacon mv-ambient" />
+              <i class="wa-tower-body" />
+              <i class="wa-tower-wing wa-tower-wing--left" />
+              <i class="wa-tower-wing wa-tower-wing--right" />
+              <i class="wa-tower-bridge" />
+              <i class="wa-tower-portal" />
+              <i class="wa-tower-windows" />
+            </span>
+            <span class="wa-floor" />
+            <span class="wa-trail">
+              <i />
+              <i />
+              <i />
+            </span>
+            <span class="wa-walker mv-ambient"><PixelSprite name="archivist" /></span>
+            <span class="wa-drone mv-ambient"><PixelSprite name="drone" /></span>
+            <span class="wa-cat"><PixelSprite name="cat" /></span>
+          </div>
+        )}
+
+        {variant === "artifact" && (
+          <div class="wa-scene wa-scene--artifact" aria-hidden="true">
+            <span class="wa-artifact-grid" />
+            <span class="wa-orbit wa-orbit--a mv-ambient" />
+            <span class="wa-orbit wa-orbit--b mv-ambient" />
+            <span class="wa-orbit wa-orbit--c" />
+            <span class="wa-artifact-axis wa-artifact-axis--x" />
+            <span class="wa-artifact-axis wa-artifact-axis--y" />
+            <span class="wa-crosshair wa-crosshair--a">+</span>
+            <span class="wa-crosshair wa-crosshair--b">+</span>
+
+            <span class="wa-relic-anchor mv-ambient">
+              <span class="wa-relic-rig">
+                <span class="wa-relic">
+                  <span class="wa-relic-top">SRA–05.{worldNo}</span>
+                  <span class="wa-relic-screen">
+                    <PixelSigil seed={`${project.slug}-${project.title}`} />
+                  </span>
+                  <span class="wa-relic-grooves" />
+                  <span class="wa-relic-label">{leadTech} // relic</span>
+                  <span class="wa-relic-pins">
+                    <i /><i /><i /><i /><i />
+                  </span>
+                </span>
+              </span>
+            </span>
+
+            <span class="wa-callout wa-callout--year">
+              <b>Year</b>
+              {project.year}
+            </span>
+            <span class="wa-callout wa-callout--role">
+              <b>Role</b>
+              {project.role}
+            </span>
+            <span class="wa-callout wa-callout--stack">
+              <b>Stack</b>
+              {leadTech || "Not listed"}
+            </span>
+
+            <span class="wa-sparks">
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+            </span>
+            <span class="wa-artifact-index">02</span>
+            <span class="wa-artifact-caption">ARTIFACT CATALOGUED // {caseNo}</span>
+          </div>
+        )}
+
+        {variant === "expedition" && (
+          <div class="wa-scene wa-scene--expedition" aria-hidden="true">
+            <span class="wa-stars mv-ambient" />
+            <span class="wa-glow" />
+            <span class="wa-sun wa-sun--wide mv-ambient" />
+            <span class="wa-cloud wa-cloud--a" />
+            <span class="wa-cloud wa-cloud--b" />
+            <span class="wa-ridge wa-ridge--far" />
+            <span class="wa-ridge wa-ridge--near" />
+            <span class="wa-floor" />
+            <span class="wa-relay">
+              <i class="wa-relay-dish" />
+              <i class="wa-relay-mast" />
+              <i class="wa-relay-beacon mv-ambient" />
+              <i class="wa-relay-base" />
+            </span>
+            <span class="wa-gate">
+              <i class="wa-gate-body" />
+              <i class="wa-gate-cap" />
+            </span>
+            <span class="wa-trail">
+              <i />
+              <i />
+              <i />
+              <i />
+            </span>
+            <span class="wa-walker mv-ambient"><PixelSprite name="archivist" /></span>
+            <span class="wa-drone mv-ambient"><PixelSprite name="drone" /></span>
+            <span class="wa-cat"><PixelSprite name="cat" /></span>
+            <span class="wa-exp-index">03</span>
+            <span class="wa-exp-kicker">WORLD {worldNo} // SIDE-SCROLL SECTOR</span>
+            <span class="wa-exp-title">{project.title}</span>
+          </div>
+        )}
+      </>
+    )
+  }
+
+  <span class="world-art-scan" aria-hidden="true" />
+
+  <div class="wa-hud" aria-hidden="true">
+    <span class="wa-hud-id">CASE {caseNo}</span>
+    <span class="wa-hud-mid">PROJECT {worldNo}</span>
+    <span class="wa-hud-signal"><i />{image ? "SCREENSHOT" : "PREVIEW"}</span>
+  </div>
+
+  {variant === "feature" && (
+    <div class="wa-poster" aria-hidden="true">
+      <span class="wa-index">{worldNo}</span>
+      <p class="wa-kicker">FEATURED PROJECT {worldNo}</p>
+      <p class="wa-post-title">{project.title}</p>
+      <p class="wa-poster-meta">{project.year} · {project.role}</p>
+    </div>
+  )}
+</div>

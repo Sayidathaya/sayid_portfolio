@@ -1,0 +1,321 @@
+---
+import type { ChromaticTone, ExperienceEntry, ExperienceMapPosition } from "../types/portfolio";
+import PixelBadge from "./PixelBadge.astro";
+import PixelIcon from "./PixelIcon.astro";
+import PixelSprite from "./PixelSprite.astro";
+
+interface Props {
+  entries: ExperienceEntry[];
+}
+
+const { entries } = Astro.props;
+
+// The data file is newest-first. The quest world reads oldest → newest so the route is
+// chronological from the left edge to the current signal.
+const trail = [...entries].reverse();
+const total = trail.length;
+const latest = trail[total - 1];
+
+const fallbackPositions: Array<
+  Required<Pick<ExperienceMapPosition, "x" | "y" | "scale" | "structure">>
+> = [
+  { x: 20, y: 65, scale: 0.92, structure: "vault" },
+  { x: 47, y: 46, scale: 1, structure: "relay" },
+  { x: 76, y: 62, scale: 1.04, structure: "tower" },
+  { x: 38, y: 82, scale: 0.86, structure: "gate" },
+];
+
+const clamp = (value: number, min: number, max: number): number =>
+  Math.min(max, Math.max(min, value));
+
+const toneFor = (entry: ExperienceEntry): ChromaticTone => {
+  if (entry.map?.tone) return entry.map.tone;
+  if (entry.status === "Archived") return "purple";
+  if (entry.status === "Active") return "red";
+  return "blue";
+};
+
+const placed = trail.map((entry, index) => {
+  const fallback = fallbackPositions[index % fallbackPositions.length] ?? {
+    x: 50,
+    y: 50,
+    scale: 1,
+    structure: "relay",
+  };
+  const x = clamp(entry.map?.x ?? fallback.x, 8, 92);
+  const y = clamp(entry.map?.y ?? fallback.y, 26, 86);
+  const scale = clamp(entry.map?.scale ?? fallback.scale, 0.72, 1.22);
+  const structure = entry.map?.structure ?? fallback.structure;
+  return {
+    entry,
+    chapter: String(index + 1).padStart(2, "0"),
+    x,
+    y,
+    scale,
+    structure,
+    tone: toneFor(entry),
+  };
+});
+
+const activeId = latest?.id ?? "";
+
+const stepPath = (fromX: number, fromY: number, toX: number, toY: number): string => {
+  const midX = Math.round((fromX + (toX - fromX) * 0.5) * 10) / 10;
+  return `M ${fromX} ${fromY} H ${midX} V ${toY} H ${toX}`;
+};
+
+const segments = placed
+  .slice(0, -1)
+  .map((point, index) => {
+    const next = placed[index + 1];
+    if (!next) return null;
+    return {
+      index,
+      from: point.entry.id,
+      to: next.entry.id,
+      tone: next.tone,
+      path: stepPath(point.x, point.y, next.x, next.y),
+    };
+  })
+  .filter((segment): segment is NonNullable<typeof segment> => segment !== null);
+
+const statusTone = (status: ExperienceEntry["status"]): "red" | "blue" | "purple" =>
+  status === "Active" ? "red" : status === "Archived" ? "purple" : "blue";
+---
+
+<div class="quest-map" data-career-map data-latest={activeId}>
+  <div class="quest-shell" data-reveal>
+    <div class="quest-hud">
+      <p class="quest-hud__title">
+        <span class="quest-hud__icon" aria-hidden="true"><PixelIcon name="pin" /></span>
+        <span>
+          <span class="quest-hud__kicker">Career Timeline</span>
+          <span class="quest-hud__name">Experience Journey</span>
+        </span>
+      </p>
+      <p class="quest-hud__legend" aria-label="Status legend">
+        <span data-tone="red"><i aria-hidden="true"></i>Active</span>
+        <span data-tone="blue"><i aria-hidden="true"></i>Completed</span>
+        <span data-tone="purple"><i aria-hidden="true"></i>Archived</span>
+      </p>
+      <p class="quest-hud__count">
+        <b>{String(total).padStart(2, "0")}</b>
+        <span>roles &<br />milestones</span>
+      </p>
+    </div>
+
+    <div class="quest-world" data-quest-world data-visible="false">
+      <div class="quest-world__sky" aria-hidden="true">
+        <span class="quest-stars"></span>
+        <span class="quest-sun"></span>
+        <span class="quest-cloud quest-cloud--a"></span>
+        <span class="quest-cloud quest-cloud--b"></span>
+        <span class="quest-moon"></span>
+        <span class="quest-mountains quest-mountains--far"></span>
+        <span class="quest-mountains quest-mountains--near"></span>
+        <span class="quest-grid-floor"></span>
+      </div>
+
+      <div class="quest-world__hud">
+        <span><i aria-hidden="true"></i> TIMELINE ROUTE</span>
+        <span class="quest-world__hud-mid">OLDEST → NEWEST</span>
+        <span>EXPERIENCE MAP</span>
+      </div>
+
+      <svg
+        class="quest-trail"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+        focusable="false"
+      >
+        {
+          segments.map((segment) => (
+            <g class="quest-segment" data-segment data-from={segment.from} data-to={segment.to} data-tone={segment.tone}>
+              <path class="quest-segment__under" d={segment.path} vector-effect="non-scaling-stroke" />
+              <path class="quest-segment__line" d={segment.path} vector-effect="non-scaling-stroke" />
+              <path class="quest-segment__signal" d={segment.path} vector-effect="non-scaling-stroke" />
+            </g>
+          ))
+        }
+        <path
+          class="quest-spur"
+          d="M 6 82 H 14 V 71 H 20"
+          vector-effect="non-scaling-stroke"
+        />
+        <path
+          class="quest-spur"
+          d="M 68 48 H 78 V 34 H 88"
+          vector-effect="non-scaling-stroke"
+        />
+      </svg>
+
+      <span class="quest-gate" aria-hidden="true">
+        <span class="quest-gate__label">ARCHIVE GATE</span>
+        <span class="quest-gate__body"></span>
+      </span>
+
+      <span class="quest-relay" aria-hidden="true">
+        <span class="quest-relay__dish"></span>
+        <span class="quest-relay__mast"></span>
+        <span class="quest-relay__base"></span>
+      </span>
+
+      <span class="quest-airdrone" aria-hidden="true">
+        <PixelSprite name="drone" />
+      </span>
+      <span class="quest-airbird" aria-hidden="true">
+        <PixelSprite name="bird" />
+      </span>
+
+      <ol class="quest-nodes" aria-label="Career quest waypoints">
+        {
+          placed.map(({ entry, chapter, x, y, scale, structure, tone }, index) => {
+            const active = entry.id === activeId;
+            return (
+              <li
+                class="quest-node-wrap"
+                style={`--x:${x}%;--y:${y}%;--scale:${scale};--i:${index}`}
+              >
+                <a
+                  class="quest-node"
+                  href={`#quest-detail-${entry.id}`}
+                  data-quest-node={entry.id}
+                  data-tone={tone}
+                  data-structure={structure}
+                  aria-current={active ? "true" : undefined}
+                  aria-label={`${entry.role} at ${entry.organization}, ${entry.period}. Open field dossier.`}
+                >
+                  <span class="quest-prop" aria-hidden="true">
+                    <span class="quest-prop__beacon"></span>
+                    <span class="quest-prop__antenna"></span>
+                    <span class="quest-prop__flag"></span>
+                    <span class="quest-prop__roof"></span>
+                    <span class="quest-prop__body">
+                      <i></i><i></i><i></i><i></i><i></i><i></i>
+                    </span>
+                    <span class="quest-prop__door"></span>
+                    <span class="quest-prop__base"></span>
+                  </span>
+
+                  <span class="quest-node__plaque">
+                    <span class="quest-node__no">
+                      <i aria-hidden="true"></i>
+                      Chapter {chapter}
+                      <b class="quest-node__state" aria-hidden="true">{active ? "VIEWING" : "OPEN"}</b>
+                    </span>
+                    <span class="quest-node__role">{entry.role}</span>
+                    <span class="quest-node__org">{entry.organization}</span>
+                    <span class="quest-node__period">{entry.period}</span>
+                  </span>
+                </a>
+              </li>
+            );
+          })
+        }
+      </ol>
+
+      <div class="quest-world__foot">
+        <span><i aria-hidden="true"></i> SELECT A WAYPOINT</span>
+        <span>{String(total).padStart(2, "0")} MILESTONES</span>
+      </div>
+    </div>
+
+    <div class="quest-shell__foot">
+      <span><PixelIcon name="signal" /> Verified timeline</span>
+      <span>Click any waypoint to view organization and key achievements</span>
+    </div>
+  </div>
+
+  <div class="quest-console" data-reveal>
+    <div class="quest-readout" data-quest-readout>
+      <div class="quest-readout__bar">
+        <p>
+          <span class="quest-readout__pixel" aria-hidden="true"></span>
+          Role Details
+        </p>
+        <p class="quest-readout__hint">Select a milestone above to view details</p>
+      </div>
+
+      {
+        placed.map(({ entry, chapter, structure, tone }, index) => {
+          const active = entry.id === activeId;
+          return (
+            <article
+              class="quest-detail"
+              id={`quest-detail-${entry.id}`}
+              data-quest-detail={entry.id}
+              data-tone={tone}
+              data-active={active ? "" : undefined}
+              aria-labelledby={`quest-title-${entry.id}`}
+            >
+              <div class="quest-detail__top">
+                <p class="quest-detail__chapter">
+                  <span aria-hidden="true">◈</span> Chapter {chapter} // {structure}
+                </p>
+                <p class="quest-detail__badges">
+                  {entry.placeholder && <PixelBadge tone="yellow" stamp>Sample data</PixelBadge>}
+                  <PixelBadge tone={statusTone(entry.status)} dot={entry.status === "Active"}>
+                    {entry.status}
+                  </PixelBadge>
+                </p>
+              </div>
+
+              <h3 id={`quest-title-${entry.id}`} class="quest-detail__role">{entry.role}</h3>
+              <p class="quest-detail__org">{entry.organization}</p>
+
+              <p class="quest-detail__period">
+                <PixelIcon name="clock" />
+                <span>{entry.period}</span>
+                <span class="quest-detail__index" aria-hidden="true">{String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}</span>
+              </p>
+
+              <p class="quest-detail__summary">{entry.summary}</p>
+
+              <div class="quest-detail__loot">
+                <span class="quest-detail__loot-label" aria-hidden="true">Artifacts</span>
+                <ul class="case-tags" aria-label="Technologies used" role="list">
+                  {entry.technologies.map((tech) => <li class="tag">{tech}</li>)}
+                </ul>
+              </div>
+            </article>
+          );
+        })
+      }
+
+      <p class="sr-only" role="status" data-quest-status></p>
+    </div>
+
+    <nav class="quest-route" aria-label="Career route index">
+      <div class="quest-route__head">
+        <p>Route index</p>
+        <span aria-hidden="true">03-A</span>
+      </div>
+      <ol>
+        {
+          placed.map(({ entry, chapter, tone }) => {
+            const active = entry.id === activeId;
+            return (
+              <li>
+                <a
+                  href={`#quest-detail-${entry.id}`}
+                  data-quest-node={entry.id}
+                  data-tone={tone}
+                  aria-current={active ? "true" : undefined}
+                >
+                  <span class="quest-route__no">{chapter}</span>
+                  <span class="quest-route__body">
+                    <span class="quest-route__role">{entry.role}</span>
+                    <span class="quest-route__meta">{entry.organization} · {entry.period}</span>
+                  </span>
+                  <span class="quest-route__arrow" aria-hidden="true">{active ? "◀" : "▶"}</span>
+                </a>
+              </li>
+            );
+          })
+        }
+      </ol>
+      <p class="quest-route__foot"><i aria-hidden="true"></i> Chronological order · Select to inspect</p>
+    </nav>
+  </div>
+</div>

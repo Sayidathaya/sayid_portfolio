@@ -1,0 +1,230 @@
+---
+import "@fontsource-variable/space-grotesk";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/silkscreen/400.css";
+import "@fontsource/silkscreen/700.css";
+import "../styles/global.css";
+import { Image } from "astro:assets";
+import PixelIcon from "../components/PixelIcon.astro";
+import PixelSprite from "../components/PixelSprite.astro";
+import Seal from "../components/Seal.astro";
+import { navigation, profile } from "../data/portfolio";
+import { findImage } from "../utils/images";
+
+const brandPhoto = findImage("brand-photo");
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+const year = new Date().getFullYear();
+const nameParts = profile.name.trim().split(/\s+/);
+const givenName = nameParts.slice(0, -1).join(" ");
+const familyName = nameParts.at(-1) ?? profile.name;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={profile.name} />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#0A0A0D" data-theme-color />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={profile.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <script is:inline>
+      (() => {
+        const root = document.documentElement;
+        root.classList.add("js");
+
+        let theme = null;
+        try {
+          theme = localStorage.getItem("theme");
+        } catch {}
+        if (theme !== "light" && theme !== "dark") {
+          theme = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        }
+        root.dataset.theme = theme;
+
+        let motion = null;
+        try {
+          motion = localStorage.getItem("motion");
+        } catch {}
+        if (motion !== "full" && motion !== "calm") {
+          motion = matchMedia("(prefers-reduced-motion: reduce)").matches ? "calm" : "full";
+        }
+        root.dataset.motion = motion;
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="fx" aria-hidden="true">
+      <span class="fx-grain"></span>
+      <span class="fx-scan"></span>
+    </div>
+    <div class="scroll-progress" aria-hidden="true"><span data-progress></span></div>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="hud" data-hud>
+      <span class="hud-spectrum" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i><i></i>
+      </span>
+      <div class="shell hud-inner">
+        <a class="brand" href="/#top" aria-label={`${profile.name}, back to the title screen`}>
+          <span class="brand-mark">
+            {brandPhoto && (
+              <Image
+                src={brandPhoto}
+                alt=""
+                aria-hidden="true"
+                width={64}
+                height={64}
+                densities={[1, 2]}
+                loading="eager"
+                class="brand-photo"
+              />
+            )}
+          </span>
+          <span class="brand-type">
+            <span class="brand-name">{givenName} <span class="brand-slash">{familyName}</span></span>
+            <span class="brand-sub">8-bit chromatic chaos · player 1</span>
+          </span>
+        </a>
+
+        <nav aria-label="Primary" class="hud-nav">
+          <ul id="site-menu" class="nav-list" data-menu>
+            {
+              navigation.map((item, index) => (
+                <li>
+                  <a class="nav-link" href={item.href} data-nav-link>
+                    <span class="nav-cursor" aria-hidden="true"></span>
+                    <span class="nav-no" aria-hidden="true">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span>{item.label}</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+
+          <div class="hud-actions">
+            <button
+              type="button"
+              class="icon-btn has-tip"
+              data-theme-toggle
+              data-tip="Switch theme"
+              aria-pressed="false"
+              aria-label="Switch to light theme"
+            >
+              <PixelIcon name="sun" class="theme-icon theme-icon--sun" />
+              <PixelIcon name="moon" class="theme-icon theme-icon--moon" />
+            </button>
+            <button
+              type="button"
+              class="icon-btn has-tip"
+              data-motion-toggle
+              data-tip="Reduce motion"
+              aria-pressed="false"
+              aria-label="Reduce motion"
+            >
+              <PixelIcon name="spark" />
+            </button>
+            <button
+              type="button"
+              class="icon-btn menu-btn"
+              data-menu-button
+              aria-expanded="false"
+              aria-controls="site-menu"
+              aria-label="Open menu"
+            >
+              <PixelIcon name="menu" class="menu-icon" />
+              <span data-menu-label>Menu</span>
+            </button>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main"><slot /></main>
+
+    <footer class="console" aria-labelledby="footer-title">
+      <div class="console-scene" aria-hidden="true">
+        <span class="console-stars"></span>
+        <span class="console-sun"></span>
+        <span class="console-skyline">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </span>
+        <span class="console-ground"></span>
+        <span class="console-cat"><PixelSprite name="cat" /></span>
+        <span class="console-drone"><PixelSprite name="drone" /></span>
+      </div>
+
+      <div class="shell console-top">
+        <div class="console-continue">
+          <p class="console-kicker" data-reveal>
+            <Seal class="console-seal" />
+            <span>PLAYER 01 · MISSION FINALE</span>
+          </p>
+
+          <h2 id="footer-title" class="console-title" data-reveal style="--d:80ms">
+            CONTINUE<span class="console-title-mark" aria-hidden="true">?</span>
+          </h2>
+
+          <div class="console-arcade-hud" aria-hidden="true" data-reveal style="--d:160ms">
+            <span class="console-timer-frame">
+              <span class="console-timer-digit">9</span>
+            </span>
+            <span class="console-coin-prompt">INSERT COIN · PRESS START</span>
+          </div>
+
+          <p class="console-note" data-reveal style="--d:240ms">
+            Every project is a case file: the brief, the code, and the verified evidence.
+            Return to the title screen or reach out to start the next mission.
+          </p>
+
+          <div class="console-actions" data-reveal style="--d:320ms">
+            <a class="px-btn px-btn--start console-cta" href="#top">
+              <span class="px-btn-caret" aria-hidden="true">▲</span>
+              <span>Restart Mission</span>
+              <span class="px-btn-meta">Top</span>
+            </a>
+            <a class="px-btn console-cta" href="#contact">
+              <PixelIcon name="mail" />
+              <span>Contact Sayid</span>
+            </a>
+            <a class="px-btn console-cta" href="#certificates">
+              <PixelIcon name="file" />
+              <span>Certificates</span>
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="shell console-bottom">
+        <p>© {year} {profile.name}</p>
+      </div>
+    </footer>
+
+    <script>
+      import "../scripts/theme";
+      import "../scripts/interactions";
+    </script>
+  </body>
+</html>

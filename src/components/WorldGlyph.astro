@@ -1,0 +1,103 @@
+---
+import type { ProjectWorldVariant } from "../types/portfolio";
+
+// Atlas miniatures are drawn on a 32 × 24 pixel grid. Each world gets a distinct silhouette,
+// not a recoloured copy of the same card.
+interface Props {
+  variant: ProjectWorldVariant;
+}
+
+const { variant } = Astro.props;
+---
+
+<svg
+  viewBox="0 0 32 24"
+  class:list={["world-glyph", `world-glyph--${variant}`]}
+  shape-rendering="crispEdges"
+  aria-hidden="true"
+>
+  {
+    variant === "feature" && (
+      <g>
+        <rect class="glyph-tone" x="22" y="3" width="7" height="7" />
+        <rect class="glyph-ink" x="22" y="5" width="7" height="1" />
+        <rect class="glyph-ink" x="22" y="7" width="7" height="1" />
+        <rect class="glyph-accent" x="23" y="6" width="5" height="1" />
+        <rect class="glyph-accent" x="23" y="8" width="5" height="1" />
+        <rect class="glyph-faint" x="2" y="16" width="6" height="6" />
+        <rect class="glyph-faint" x="8" y="13" width="5" height="9" />
+        <rect class="glyph-faint" x="24" y="14" width="7" height="8" />
+        <rect class="glyph-tone" x="15" y="5" width="3" height="3" />
+        <rect class="glyph-accent" x="16" y="3" width="1" height="2" />
+        <rect class="glyph-tone" x="14" y="8" width="5" height="13" />
+        <rect class="glyph-tone" x="11" y="12" width="3" height="9" />
+        <rect class="glyph-tone" x="19" y="12" width="3" height="9" />
+        <rect class="glyph-ink" x="15" y="16" width="3" height="5" />
+        <rect class="glyph-paper" x="15" y="10" width="1" height="1" />
+        <rect class="glyph-paper" x="17" y="10" width="1" height="1" />
+        <rect class="glyph-paper" x="15" y="13" width="1" height="1" />
+        <rect class="glyph-paper" x="17" y="13" width="1" height="1" />
+        <rect class="glyph-ink" x="0" y="20" width="32" height="4" />
+        <rect class="glyph-tone" x="0" y="20" width="32" height="1" />
+        <rect class="glyph-accent" x="3" y="21" width="2" height="1" />
+        <rect class="glyph-accent" x="7" y="21" width="2" height="1" />
+        <rect class="glyph-accent" x="11" y="21" width="2" height="1" />
+      </g>
+    )
+  }
+
+  {
+    variant === "artifact" && (
+      <g>
+        <rect class="glyph-faint" x="3" y="4" width="1" height="1" />
+        <rect class="glyph-faint" x="27" y="7" width="1" height="1" />
+        <rect class="glyph-faint" x="5" y="18" width="1" height="1" />
+        <rect class="glyph-accent" x="2" y="11" width="4" height="1" />
+        <rect class="glyph-accent" x="26" y="11" width="4" height="1" />
+        <rect class="glyph-accent" x="16" y="1" width="1" height="4" />
+        <rect class="glyph-accent" x="16" y="19" width="1" height="3" />
+        <rect class="glyph-ink" x="11" y="5" width="10" height="14" />
+        <rect class="glyph-tone" x="12" y="5" width="8" height="1" />
+        <rect class="glyph-accent" x="13" y="4" width="6" height="1" />
+        <rect class="glyph-tone" x="12" y="6" width="8" height="12" />
+        <rect class="glyph-paper" x="14" y="8" width="4" height="4" />
+        <rect class="glyph-ink" x="15" y="9" width="2" height="2" />
+        <rect class="glyph-ink" x="13" y="14" width="6" height="1" />
+        <rect class="glyph-ink" x="13" y="16" width="6" height="1" />
+        <rect class="glyph-accent" x="12" y="18" width="2" height="2" />
+        <rect class="glyph-ink" x="15" y="18" width="2" height="2" />
+        <rect class="glyph-accent" x="18" y="18" width="2" height="2" />
+        <rect class="glyph-faint" x="7" y="8" width="1" height="1" />
+        <rect class="glyph-faint" x="24" y="15" width="1" height="1" />
+      </g>
+    )
+  }
+
+  {
+    variant === "expedition" && (
+      <g>
+        <rect class="glyph-tone" x="23" y="4" width="6" height="6" />
+        <rect class="glyph-ink" x="23" y="6" width="6" height="1" />
+        <rect class="glyph-ink" x="23" y="8" width="6" height="1" />
+        <rect class="glyph-accent" x="24" y="7" width="4" height="1" />
+        <rect class="glyph-faint" x="1" y="15" width="4" height="5" />
+        <rect class="glyph-faint" x="6" y="12" width="4" height="8" />
+        <rect class="glyph-faint" x="11" y="16" width="4" height="4" />
+        <rect class="glyph-faint" x="21" y="14" width="4" height="6" />
+        <rect class="glyph-faint" x="26" y="16" width="5" height="4" />
+        <rect class="glyph-ink" x="14" y="7" width="1" height="12" />
+        <rect class="glyph-tone" x="12" y="8" width="5" height="1" />
+        <rect class="glyph-accent" x="13" y="6" width="3" height="1" />
+        <rect class="glyph-tone" x="15" y="10" width="4" height="9" />
+        <rect class="glyph-ink" x="16" y="13" width="2" height="3" />
+        <rect class="glyph-accent" x="17" y="14" width="1" height="1" />
+        <rect class="glyph-ink" x="0" y="19" width="32" height="5" />
+        <rect class="glyph-tone" x="0" y="19" width="32" height="1" />
+        <rect class="glyph-accent" x="2" y="21" width="3" height="1" />
+        <rect class="glyph-accent" x="7" y="21" width="3" height="1" />
+        <rect class="glyph-accent" x="22" y="21" width="4" height="1" />
+        <rect class="glyph-paper" x="15" y="5" width="1" height="1" />
+      </g>
+    )
+  }
+</svg>
