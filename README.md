@@ -66,6 +66,8 @@
 
 Bayangkan layar permainan retro. Halaman pertama adalah *title screen*, pengalaman kerja menjadi *peta quest*, kemampuan menjadi *inventory*, sertifikat disimpan di *vault*, dan kontak ada di *terminal komunikasi*.
 
+LINK WEBSITE: https://sayidportfolio.vercel.app
+
 > [!NOTE]
 > Website ini dibangun sebagai **static site**. Astro menghasilkan halaman HTML statis, lalu JavaScript/TypeScript menambahkan interaksi. Tidak ada server atau database yang berjalan saat website dibuka, jadi mudah di-*hosting* dan cepat dimuat.
 
