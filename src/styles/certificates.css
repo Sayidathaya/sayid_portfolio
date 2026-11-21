@@ -16,7 +16,7 @@
     }
     .cert-sidebar {
       position: sticky;
-      top: 6.5rem;
+      top: calc(var(--hud-height, 5.375rem) + 1.1rem);
     }
   }
   .cert-sidebar {
@@ -233,7 +233,12 @@
 
   .archive-groups {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 2.2rem;
+    min-width: 0;
+  }
+  .archive-group {
+    min-width: 0;
   }
   .archive-group-head {
     display: flex;
@@ -279,22 +284,95 @@
     font-size: 0.7rem;
   }
 
+  .archive-grid-zone,
+  .archive-captures-zone {
+    position: relative;
+  }
   .archive-grid {
-    display: grid;
+    display: flex;
     gap: 1.1rem;
-    grid-template-columns: 1fr;
     margin: 0;
-    padding: 0;
+    padding: 0.25rem 0.25rem 0.75rem;
     list-style: none;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent-blue) transparent;
   }
-  @media (min-width: 48rem) {
-    .archive-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  .archive-grid:focus-visible {
+    outline: 3px solid var(--color-accent-yellow);
+    outline-offset: 3px;
   }
-  @media (min-width: 82rem) {
-    .archive-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+  .archive-grid > li {
+    flex: 0 0 auto;
+    width: min(24rem, 78vw);
+  }
+  .archive-card-wrap:hover .archive-card,
+  .archive-card-wrap:focus-within .archive-card {
+    transform: translate(-2px, -2px);
+    box-shadow: 7px 7px 0 var(--color-accent-red);
+  }
+
+  .gallery-nav {
+    position: absolute;
+    top: 50%;
+    z-index: 6;
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border: 2px solid var(--color-accent-blue);
+    background: var(--color-surface);
+    color: var(--color-foreground);
+    box-shadow: 3px 3px 0 var(--color-accent-red);
+    font-family: var(--font-pixel);
+    font-size: 0.66rem;
+    font-weight: 700;
+    cursor: pointer;
+    transform: translateY(-50%);
+    transition:
+      transform var(--t-micro) var(--ease-step),
+      box-shadow var(--t-micro) var(--ease-step),
+      border-color var(--t-ui) steps(2, end),
+      background-color var(--t-ui) steps(2, end),
+      color var(--t-ui) steps(2, end);
+  }
+  .gallery-nav:hover,
+  .gallery-nav:focus-visible {
+    transform: translateY(-50%) translate(-2px, -2px);
+    border-color: var(--color-accent-yellow);
+    color: var(--color-on-yellow);
+    background: var(--color-accent-yellow);
+    box-shadow: 5px 5px 0 var(--color-accent-red);
+  }
+  .gallery-nav:active {
+    transform: translateY(-50%) translate(2px, 2px);
+    box-shadow: none;
+  }
+  .gallery-nav:disabled {
+    cursor: default;
+    opacity: 0.38;
+  }
+  .gallery-nav--prev {
+    left: -0.75rem;
+  }
+  .gallery-nav--next {
+    right: -0.75rem;
+  }
+  .gallery-pos {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+    letter-spacing: 0.1em;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 47.99rem) {
+    .gallery-nav {
+      display: none;
     }
   }
 
@@ -303,7 +381,7 @@
     flex-direction: column;
     min-width: 0;
     overflow: hidden;
-    scroll-margin-top: 7.5rem;
+    scroll-margin-top: calc(var(--hud-height, 5.375rem) + 1.5rem);
     box-shadow: 5px 5px 0 var(--color-shadow);
   }
   .archive-card:target {
@@ -489,9 +567,18 @@
     letter-spacing: 0.05em;
   }
   .archive-captures {
-    display: grid;
+    display: flex;
     gap: 1.1rem;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    margin: 0;
+    padding: 0.25rem 0.25rem 0.75rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent-blue) transparent;
+  }
+  .archive-captures > figure {
+    flex: 0 0 auto;
+    width: min(19rem, 78vw);
   }
   .archive-capture {
     --tilt: -0.35deg;
@@ -499,6 +586,10 @@
     padding: 0.5rem;
     transform: rotate(var(--tilt, 0deg));
     box-shadow: 5px 5px 0 var(--color-shadow);
+    transition: box-shadow 180ms steps(2, end);
+  }
+  .archive-capture:hover {
+    box-shadow: 7px 7px 0 var(--color-accent-red);
   }
   .archive-capture:nth-child(even) {
     --tilt: 0.4deg;

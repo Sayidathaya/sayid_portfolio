@@ -994,7 +994,7 @@
 @media (min-width: 68rem) {
   .dossier-side {
     position: sticky;
-    top: 6.5rem;
+    top: calc(var(--hud-height, 5.375rem) + 1.1rem);
   }
 }
 @media (max-width: 67.99rem) {

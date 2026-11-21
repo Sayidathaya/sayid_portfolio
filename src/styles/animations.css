@@ -1,0 +1,1039 @@
+/* ==========================================================================
+   Animation layer — Micro Slats, audio deck, 8-bit props, GSAP hand-off
+   ========================================================================== */
+
+:root {
+  --surface-veil: color-mix(in srgb, var(--color-background) 82%, transparent);
+  --surface-veil-deep: color-mix(in srgb, var(--color-background-deep) 80%, transparent);
+  --z-audio: 50;
+}
+
+html {
+  background: var(--color-background);
+}
+
+/* Let the fixed Micro Slats layer show through the dossier surfaces. */
+body {
+  background: transparent;
+}
+
+main {
+  position: relative;
+}
+
+.console {
+  position: relative;
+  z-index: var(--z-content);
+}
+
+/* ---------- Micro Slats — furthest-back visual layer ---------------------- */
+.micro-slats {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-world);
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--color-background);
+}
+
+.micro-slats-fallback {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(62% 42% at 78% 2%, color-mix(in srgb, var(--color-accent-purple) 12%, transparent), transparent 72%),
+    radial-gradient(54% 36% at 14% 18%, color-mix(in srgb, var(--color-accent-blue) 10%, transparent), transparent 70%),
+    linear-gradient(180deg, var(--color-background) 0%, var(--color-background-deep) 100%);
+  opacity: 0.9;
+}
+
+.micro-slats-canvas {
+  position: absolute;
+  inset: 0;
+  opacity: var(--micro-slats-opacity, 0.7);
+  transition: opacity 600ms steps(4, end);
+}
+
+.micro-slats-canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.micro-slats-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgb(0 0 0 / 0.18), transparent 18%, transparent 82%, rgb(0 0 0 / 0.28)),
+    radial-gradient(74% 62% at 50% 50%, transparent 46%, color-mix(in srgb, var(--color-background-deep) 55%, transparent) 100%);
+}
+
+[data-micro-slats-active="true"] .micro-slats-fallback {
+  opacity: 0.55;
+}
+
+[data-micro-slats-fallback="true"] .micro-slats-canvas {
+  display: none;
+}
+
+:root[data-theme="light"] .micro-slats-vignette {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.2), transparent 20%, transparent 80%, rgb(255 255 255 / 0.3)),
+    radial-gradient(74% 62% at 50% 50%, transparent 50%, color-mix(in srgb, var(--color-background) 55%, transparent) 100%);
+}
+
+/* ---------- Translucent zone surfaces ------------------------------------ */
+.hero {
+  background: var(--surface-veil-deep);
+}
+
+/* The title screen is an arcade stage, not a theme-tinted page surface.
+   It still follows the theme's authored stage colour in both modes. */
+.landing {
+  background: color-mix(in srgb, var(--landing-void, #050507) 92%, transparent);
+}
+
+.sec-briefing {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--cobalt) 7%, var(--surface-veil)) 0%, var(--surface-veil) 56%),
+    var(--surface-veil);
+}
+
+.sec-quest {
+  background:
+    radial-gradient(54% 46% at 18% 0%, color-mix(in srgb, var(--color-accent-red) 12%, transparent), transparent 72%),
+    radial-gradient(58% 50% at 82% 0%, color-mix(in srgb, var(--color-accent-purple) 16%, transparent), transparent 72%),
+    linear-gradient(180deg, var(--surface-veil) 0%, color-mix(in srgb, var(--color-accent-blue) 6%, var(--surface-veil)) 100%);
+}
+
+.sec-inventory {
+  background:
+    radial-gradient(54% 48% at 84% 8%, color-mix(in srgb, var(--color-accent-blue) 14%, transparent), transparent 70%),
+    radial-gradient(42% 38% at 12% 18%, color-mix(in srgb, var(--color-accent-purple) 9%, transparent), transparent 72%),
+    var(--surface-veil-deep);
+}
+
+.sec-multiverse {
+  background:
+    radial-gradient(58% 36% at 84% 1%, color-mix(in srgb, var(--color-accent-purple) 12%, transparent), transparent 72%),
+    radial-gradient(46% 34% at 12% 6%, color-mix(in srgb, var(--color-accent-red) 8%, transparent), transparent 70%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-accent-blue) 5%, var(--surface-veil-deep)) 0%, var(--surface-veil-deep) 72%);
+}
+
+.sec-archive {
+  background:
+    radial-gradient(70% 55% at 12% 0%, color-mix(in srgb, var(--crimson) 10%, transparent), transparent 72%),
+    linear-gradient(180deg, color-mix(in srgb, var(--cobalt) 8%, var(--surface-veil)) 0%, var(--surface-veil-deep) 100%);
+}
+
+.sec-terminal {
+  background: color-mix(in srgb, #050507 90%, transparent);
+}
+
+/* ---------- 8-bit pixel art --------------------------------------------- */
+.pixel-art {
+  display: block;
+  height: auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* ---------- Zone props --------------------------------------------------- */
+.zone-props {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: clip;
+  pointer-events: none;
+}
+
+.zone-prop {
+  position: absolute;
+  display: block;
+  opacity: 0.58;
+  filter: drop-shadow(5px 5px 0 rgb(0 0 0 / 0.28));
+}
+
+.zone-prop .pixel-art {
+  width: 100%;
+  height: auto;
+}
+
+:root[data-theme="light"] .zone-prop {
+  opacity: 0.48;
+  filter: drop-shadow(5px 5px 0 rgb(10 10 13 / 0.16));
+}
+
+.zone-prop--notebook {
+  top: 8%;
+  right: 1.5%;
+  width: clamp(4.4rem, 7vw, 7.4rem);
+  rotate: -4deg;
+}
+
+.zone-prop--book {
+  bottom: 6%;
+  left: 1.5%;
+  width: clamp(3.6rem, 5.4vw, 5.8rem);
+  rotate: 3deg;
+}
+
+.zone-prop--stone-castle {
+  top: 5%;
+  left: 0.5%;
+  width: clamp(5.5rem, 9vw, 9.4rem);
+  opacity: 0.42;
+}
+
+.zone-prop--alarm {
+  top: 18%;
+  right: 3%;
+  width: clamp(3rem, 4.4vw, 4.2rem);
+  rotate: 5deg;
+}
+
+.zone-prop--potion {
+  top: 12%;
+  right: 2%;
+  width: clamp(3rem, 4.4vw, 4.6rem);
+  rotate: 4deg;
+}
+
+.zone-prop--dumbbell {
+  bottom: 7%;
+  left: 2%;
+  width: clamp(4rem, 6vw, 6.2rem);
+  rotate: -8deg;
+}
+
+.zone-prop--computer {
+  top: 10%;
+  right: 1.5%;
+  width: clamp(5rem, 8vw, 8.4rem);
+  rotate: 2deg;
+}
+
+.zone-prop--floppy {
+  bottom: 9%;
+  left: 1.5%;
+  width: clamp(3rem, 4.4vw, 4.2rem);
+  rotate: -6deg;
+}
+
+.zone-prop--sword {
+  right: 4%;
+  bottom: 18%;
+  width: clamp(2.6rem, 3.8vw, 3.8rem);
+  rotate: 12deg;
+}
+
+.zone-prop--shield {
+  top: 11%;
+  left: 2%;
+  width: clamp(3.6rem, 5.4vw, 5.2rem);
+  rotate: -5deg;
+}
+
+.zone-prop--coin {
+  right: 3%;
+  bottom: 8%;
+  width: clamp(2.6rem, 3.8vw, 3.8rem);
+  rotate: 8deg;
+}
+
+.zone-prop--terminal-computer {
+  right: 3%;
+  bottom: 9%;
+  width: clamp(4.4rem, 7vw, 7.4rem);
+  opacity: 0.42;
+}
+
+.zone-prop--terminal-floppy {
+  top: 12%;
+  left: 2%;
+  width: clamp(2.8rem, 4vw, 3.8rem);
+  rotate: -8deg;
+  opacity: 0.4;
+}
+
+.field-captures-camera {
+  position: absolute;
+  top: 0;
+  right: 1rem;
+  width: clamp(3.2rem, 4.6vw, 4.6rem);
+  opacity: 0.7;
+  pointer-events: none;
+  filter: drop-shadow(4px 4px 0 rgb(0 0 0 / 0.28));
+}
+
+.hero-8bit {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  pointer-events: none;
+}
+
+.hero-8bit .pixel-art {
+  width: 100%;
+  height: auto;
+}
+
+.hero-8bit--clouds {
+  top: 12%;
+  left: 1%;
+  width: clamp(5rem, 11vw, 14rem);
+  opacity: 0.28;
+}
+
+.hero-8bit--speedometer {
+  right: 3%;
+  bottom: 15%;
+  width: clamp(2.8rem, 4.2vw, 4.4rem);
+  opacity: 0.72;
+  filter: drop-shadow(4px 4px 0 rgb(0 0 0 / 0.32));
+}
+
+.console-castle {
+  position: absolute;
+  z-index: 1;
+  bottom: 12%;
+  left: 4%;
+  width: clamp(5rem, 9vw, 9rem);
+  opacity: 0.5;
+  filter: drop-shadow(5px 5px 0 rgb(0 0 0 / 0.35));
+}
+
+.console-clouds {
+  position: absolute;
+  z-index: 1;
+  top: 8%;
+  right: 4%;
+  width: clamp(6rem, 12vw, 13rem);
+  opacity: 0.2;
+}
+
+.console-castle .pixel-art,
+.console-clouds .pixel-art {
+  width: 100%;
+  height: auto;
+}
+
+/* ---------- Intro extras ------------------------------------------------- */
+.intro-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.intro-particle {
+  position: absolute;
+  width: var(--s, 4px);
+  height: var(--s, 4px);
+  opacity: 0;
+  box-shadow:
+    3px 0 currentColor,
+    0 3px currentColor;
+  image-rendering: pixelated;
+}
+
+.intro-glitch {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  left: 50%;
+  color: var(--color-accent-yellow);
+  font-family: var(--font-pixel);
+  font-size: clamp(3rem, 14vw, 10rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-shadow:
+    6px 0 var(--color-accent-red),
+    -6px 0 var(--color-accent-blue);
+  transform: translate(-50%, -50%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.intro-sprite {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  filter: drop-shadow(6px 6px 0 rgb(0 0 0 / 0.38));
+  pointer-events: none;
+}
+
+.intro-sprite .pixel-art {
+  width: 100%;
+  height: auto;
+}
+
+.intro-sprite--astronaut {
+  left: clamp(1rem, 6vw, 8rem);
+  bottom: clamp(2rem, 9vh, 7rem);
+  width: clamp(4rem, 9vw, 8rem);
+  rotate: -6deg;
+}
+
+.intro-sprite--shield {
+  top: clamp(2rem, 8vh, 6rem);
+  right: clamp(1rem, 7vw, 9rem);
+  width: clamp(2.6rem, 5vw, 4.5rem);
+  rotate: 8deg;
+}
+
+/* GSAP replaces the legacy CSS phase animations once the module is ready. */
+.intro[data-intro-engine="gsap"] .intro-line,
+.intro[data-intro-engine="gsap"] .intro-title,
+.intro[data-intro-engine="gsap"] .intro-bar-fill,
+.intro[data-intro-engine="gsap"] .intro-ready-btn {
+  animation: none !important;
+}
+
+/* GSAP animates scaleX; give the fill its full width back. */
+.intro[data-intro-engine="gsap"] .intro-bar-fill {
+  width: 100%;
+}
+
+.intro[data-intro-engine="gsap"] .intro-ready {
+  transition: none;
+}
+
+.intro[data-intro-engine="gsap"][data-intro-phase="exit"] {
+  animation: none !important;
+}
+
+/* ---------- Landing GSAP hand-off --------------------------------------- */
+.landing[data-landing-engine="gsap"] .landing-title-line {
+  animation: none;
+  opacity: 1;
+}
+
+.landing[data-landing-engine="gsap"] .landing-title-line--accent {
+  animation-delay: 0s;
+}
+
+.landing[data-landing-engine="gsap"][data-landing-state="active"] .landing-title-line,
+.landing[data-landing-engine="gsap"][data-landing-state="active"] .landing-title-line--accent {
+  font-size: inherit;
+  transition: none;
+}
+
+.landing[data-landing-engine="gsap"] .landing-avatar,
+.landing[data-landing-engine="gsap"] .landing-marquee {
+  transition: none;
+}
+
+.landing[data-landing-engine="gsap"] .landing-avatar-img {
+  animation: none !important;
+}
+
+.landing[data-landing-engine="gsap"] .landing-marquee-track {
+  animation: none;
+}
+
+/* ---------- GSAP reveal hand-off ---------------------------------------- */
+html[data-gsap="on"] [data-reveal] {
+  transition: none;
+}
+
+/* The generic reveal end-state uses `clip-path: inset(...)`. These panels are
+   authored with pixel-cut clip paths, so restore their designed cut once GSAP
+   takes over. */
+html[data-gsap="on"] .paper-panel[data-reveal][data-inview],
+html[data-gsap="on"] .px-panel[data-reveal][data-inview] {
+  clip-path: var(--pixel-cut);
+}
+
+html[data-gsap="on"] .quest-shell[data-reveal][data-inview],
+html[data-gsap="on"] .ability-board[data-reveal][data-inview],
+html[data-gsap="on"] .mv-atlas[data-reveal][data-inview] {
+  clip-path: var(--pixel-cut-lg);
+}
+
+/* GSAP writes inline transforms on scrubbed targets. Move the authored
+   percent-centering to the independent `translate` property so a reveal tween
+   can never erase the layout position. */
+@media (min-width: 48rem) {
+  html[data-gsap="on"] .quest-node-wrap {
+    translate: -50% -50%;
+    transform: none;
+  }
+}
+
+@media (min-width: 60rem) {
+  html[data-gsap="on"] .ability-nodes li,
+  html[data-gsap="on"] .ability-zone {
+    translate: -50% -50%;
+    transform: none;
+  }
+
+  html[data-gsap="on"] .ability-core {
+    translate: -50% -50%;
+    transform: none;
+  }
+}
+
+html[data-gsap="on"] .archive-card[data-reveal] .archive-card-preview img,
+html[data-gsap="on"] .archive-capture[data-reveal] img {
+  transition: none;
+}
+
+html[data-gsap="on"] .game-title-line,
+html[data-gsap="on"] .hero-monitor,
+html[data-gsap="on"] .hero-record {
+  animation: none;
+}
+
+html[data-gsap="on"] .quest-node-wrap,
+html[data-gsap="on"] .ability-nodes li {
+  animation: none;
+}
+
+/* ---------- Galleries ---------------------------------------------------- */
+.gallery-meter {
+  display: block;
+  width: min(100%, 18rem);
+  height: 5px;
+  margin: 0.35rem auto 0;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface-sunken);
+  overflow: hidden;
+}
+
+.gallery-meter i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(var(--gallery-progress, 0));
+  transform-origin: 0 50%;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--color-accent-red) 0 8px,
+    var(--color-accent-yellow) 8px 16px,
+    var(--color-accent-blue) 16px 24px,
+    var(--color-accent-purple) 24px 32px
+  );
+  transition: transform 120ms steps(3, end);
+}
+
+.archive-grid.is-dragging,
+.archive-captures.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+/* ---------- Audio deck --------------------------------------------------- */
+.audio-deck {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: var(--z-audio);
+  width: min(17.25rem, calc(100vw - 2rem));
+  color: var(--color-foreground);
+  font-family: var(--font-mono);
+}
+
+.audio-deck-details {
+  display: block;
+  border: 3px solid var(--color-accent-blue);
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+  box-shadow:
+    5px 5px 0 var(--color-accent-red),
+    9px 9px 0 rgb(0 0 0 / 0.35);
+  clip-path: var(--pixel-cut);
+  transition:
+    border-color 180ms steps(2, end),
+    opacity 180ms steps(2, end);
+}
+
+.audio-deck-toggle {
+  display: none;
+}
+
+.audio-deck[data-audio-power="on"] .audio-deck-details {
+  border-color: var(--color-accent-yellow);
+}
+
+.audio-deck[data-audio-power="error"] .audio-deck-details {
+  border-color: var(--color-accent-red);
+}
+
+.audio-deck-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.38rem 0.52rem;
+  border-bottom: 2px solid var(--color-border-strong);
+  background: var(--color-surface-sunken);
+}
+
+.audio-deck-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 2px solid var(--color-border);
+  background: var(--color-surface-raised);
+}
+
+.audio-deck-title {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.audio-deck-kicker {
+  color: var(--color-accent-blue-ink);
+  font-family: var(--font-pixel);
+  font-size: 0.4rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  line-height: 1.5;
+}
+
+.audio-deck-track {
+  overflow: hidden;
+  color: var(--color-foreground);
+  font-size: 0.52rem;
+  letter-spacing: 0.05em;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.audio-deck-led {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface-sunken);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.3);
+}
+
+.audio-deck[data-audio-active="true"] .audio-deck-led {
+  background: var(--color-accent-yellow);
+  box-shadow:
+    0 0 0 1px var(--color-accent-yellow),
+    0 0 8px var(--color-accent-yellow);
+}
+
+.audio-deck-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 0.32rem;
+  align-items: stretch;
+  padding: 0.42rem 0.52rem;
+}
+
+.audio-deck-btn {
+  display: grid;
+  gap: 0.05rem;
+  justify-items: start;
+  min-width: 0;
+  padding: 0.24rem 0.38rem;
+  border: 2px solid var(--color-border-strong);
+  background: var(--color-surface-raised);
+  color: var(--color-foreground);
+  text-align: left;
+  transition:
+    background-color 140ms steps(2, end),
+    border-color 140ms steps(2, end),
+    color 140ms steps(2, end);
+}
+
+.audio-deck-btn:hover,
+.audio-deck-btn:focus-visible {
+  border-color: var(--color-accent-yellow);
+  background: color-mix(in srgb, var(--color-accent-yellow) 16%, var(--color-surface-raised));
+}
+
+.audio-deck-btn[aria-pressed="true"] {
+  border-color: var(--color-accent-blue);
+  background: color-mix(in srgb, var(--color-accent-blue) 20%, var(--color-surface-raised));
+}
+
+.audio-deck-btn:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.audio-deck-btn-key {
+  color: var(--color-accent-blue-ink);
+  font-family: var(--font-pixel);
+  font-size: 0.42rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.5;
+}
+
+.audio-deck-btn-value {
+  overflow: hidden;
+  font-size: 0.5rem;
+  letter-spacing: 0.05em;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.audio-eq {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  width: 2.4rem;
+  padding: 0.25rem 0.3rem;
+  border: 2px solid var(--color-border);
+  background: var(--color-surface-sunken);
+}
+
+.audio-eq i {
+  flex: 1;
+  height: 100%;
+  min-height: 4px;
+  background: var(--color-accent-blue);
+  transform: scaleY(0.18);
+  transform-origin: 50% 100%;
+}
+
+.audio-eq i:nth-child(2n) {
+  background: var(--color-accent-yellow);
+}
+
+.audio-eq i:nth-child(3n) {
+  background: var(--color-accent-red);
+}
+
+.audio-deck[data-audio-playing="true"] .audio-eq i {
+  transform: scaleY(0.74);
+}
+
+.audio-deck[data-audio-muted="true"][data-audio-playing="true"] .audio-eq {
+  opacity: 0.42;
+}
+
+.audio-deck-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  padding: 0.32rem 0.52rem 0.4rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.audio-deck-status {
+  color: var(--color-muted);
+  font-size: 0.45rem;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+}
+
+.audio-deck-clock {
+  flex: none;
+  color: var(--color-accent-blue-ink);
+  font-family: var(--font-pixel);
+  font-size: 0.42rem;
+  letter-spacing: 0.05em;
+}
+
+:root[data-theme="light"] .audio-deck-details {
+  box-shadow:
+    5px 5px 0 var(--color-accent-red),
+    9px 9px 0 rgb(10 10 13 / 0.16);
+}
+
+/* ---------- Responsive --------------------------------------------------- */
+@media (max-width: 63.99rem) {
+  .zone-prop--notebook,
+  .zone-prop--computer {
+    opacity: 0.38;
+  }
+
+  .landing-art--castle {
+    opacity: 0.32;
+  }
+
+  .intro-sprite--astronaut {
+    opacity: 0.8;
+  }
+}
+
+/* The compact disclosure is used on narrow viewports and on short desktop
+   windows, where the full dock would cover the hero record and the certificate
+   / skill-index actions in the bottom-right corner. */
+@media (max-width: 63.99rem), (min-width: 64rem) and (max-height: 50rem) {
+  .audio-deck {
+    right: 0.6rem;
+    bottom: 0.6rem;
+    left: auto;
+    width: auto;
+    max-width: calc(100vw - 1.2rem);
+  }
+
+  .audio-deck-details {
+    width: auto;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    clip-path: none;
+  }
+
+  .audio-deck-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-height: 2.6rem;
+    padding: 0.25rem 0.32rem;
+    border: 3px solid var(--color-accent-blue);
+    background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+    box-shadow: 4px 4px 0 var(--color-accent-red);
+    clip-path: var(--pixel-cut);
+    color: var(--color-foreground);
+    cursor: pointer;
+    font-family: var(--font-pixel);
+    font-size: 0.42rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    list-style: none;
+  }
+
+  .audio-deck-toggle::-webkit-details-marker {
+    display: none;
+  }
+
+  .audio-deck-toggle:focus-visible {
+    outline: 2px solid var(--color-accent-yellow);
+    outline-offset: 3px;
+  }
+
+  .audio-deck[data-audio-power="on"] .audio-deck-toggle {
+    border-color: var(--color-accent-yellow);
+  }
+
+  .audio-deck[data-audio-power="error"] .audio-deck-toggle {
+    border-color: var(--color-accent-red);
+  }
+
+  .audio-deck-details:not([open]) .audio-deck-panel {
+    display: none;
+  }
+
+  .audio-deck-details[open] {
+    width: min(21.5rem, calc(100vw - 1.2rem));
+    border: 3px solid var(--color-accent-blue);
+    background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+    box-shadow:
+      5px 5px 0 var(--color-accent-red),
+      9px 9px 0 rgb(0 0 0 / 0.35);
+    clip-path: var(--pixel-cut);
+  }
+
+  .audio-deck[data-audio-power="on"] .audio-deck-details[open] {
+    border-color: var(--color-accent-yellow);
+  }
+
+  .audio-deck[data-audio-power="error"] .audio-deck-details[open] {
+    border-color: var(--color-accent-red);
+  }
+
+  .audio-deck-details[open] .audio-deck-toggle {
+    width: 100%;
+    min-height: auto;
+    justify-content: flex-start;
+    padding: 0.45rem 0.65rem;
+    border: 0;
+    border-bottom: 2px solid var(--color-border-strong);
+    background: var(--color-surface-sunken);
+    box-shadow: none;
+    clip-path: none;
+  }
+
+  .audio-deck-details[open] .audio-deck-toggle::after {
+    content: "CLOSE";
+    margin-left: auto;
+    color: var(--color-accent-blue-ink);
+    font-size: 0.46rem;
+  }
+
+  .audio-deck-details[open] .audio-deck-head {
+    display: none;
+  }
+
+  :root[data-theme="light"] .audio-deck-details[open] {
+    box-shadow:
+      5px 5px 0 var(--color-accent-red),
+      9px 9px 0 rgb(10 10 13 / 0.16);
+  }
+}
+
+@media (min-width: 64rem) and (min-height: 50.01rem) {
+  .audio-deck-details:not([open]) .audio-deck-panel {
+    display: block;
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .zone-prop--book,
+  .zone-prop--dumbbell,
+  .zone-prop--floppy,
+  .zone-prop--coin,
+  .zone-prop--stone-castle,
+  .zone-prop--terminal-floppy,
+  .hero-8bit--clouds {
+    display: none;
+  }
+
+  .zone-prop--notebook,
+  .zone-prop--computer,
+  .zone-prop--terminal-computer {
+    top: 5%;
+    right: -1.5rem;
+    width: 4.4rem;
+    opacity: 0.28;
+  }
+
+  .zone-prop--alarm,
+  .zone-prop--potion,
+  .zone-prop--shield {
+    top: 8%;
+    right: 0.5rem;
+    width: 2.9rem;
+  }
+
+  .zone-prop--sword {
+    right: 1.5rem;
+    bottom: 5%;
+    width: 2.4rem;
+  }
+
+  .field-captures-camera {
+    right: 0.25rem;
+    width: 2.8rem;
+  }
+
+  .hero-8bit--speedometer {
+    display: none;
+  }
+
+  .console-castle {
+    left: 0.5rem;
+    bottom: 18%;
+    width: 4.2rem;
+    opacity: 0.32;
+  }
+
+  .console-clouds {
+    width: 6rem;
+    opacity: 0.16;
+  }
+
+  .intro-sprite--astronaut {
+    left: 0.25rem;
+    bottom: 0.5rem;
+    width: 3.4rem;
+    opacity: 0.55;
+  }
+
+  .intro-sprite--shield {
+    top: 0.75rem;
+    right: 0.4rem;
+    width: 2.1rem;
+  }
+
+  .landing-art--castle {
+    left: -2rem;
+    bottom: 2%;
+    width: 5.2rem;
+  }
+
+  .landing-art--icecream {
+    right: 2%;
+    bottom: 7%;
+    width: 2.4rem;
+  }
+
+  .audio-deck-body {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  }
+
+  .audio-deck-kicker {
+    font-size: 0.4rem;
+  }
+
+  .gallery-meter {
+    width: min(100%, 12rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .audio-deck-details,
+  .micro-slats-canvas,
+  .gallery-meter i {
+    transition: none;
+  }
+}
+
+/* ---------- Section cinematics ----------------------------------------- */
+.about-col-visual .paper-panel {
+  overflow: hidden;
+}
+
+.quest-segment__line.cine-draw,
+.ability-link__line.cine-draw,
+.mv-constellation-line.cine-draw {
+  animation: none !important;
+  opacity: 0.95;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--tone, currentColor) 46%, transparent));
+}
+
+.quest-segment__line.cine-draw {
+  stroke-width: 4;
+}
+
+.ability-link__line.cine-draw {
+  stroke-width: 3.2;
+}
+
+.cine-char {
+  display: inline-block;
+}
+
+/* The horizontal project reel is enabled by JS only in full motion. */
+.mv-worlds[data-mv-horizontal="true"] {
+  display: flex;
+  align-items: center;
+}
+
+.mv-worlds[data-mv-horizontal="true"] .mv-worlds-track {
+  transform-origin: left center;
+}
+
+/* Signal sweep, driven by ScrollTrigger. */
+.comms-scan {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  z-index: 3;
+  height: 18%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgb(157 180 255 / 0.14) 38%,
+    rgb(247 245 255 / 0.28) 50%,
+    rgb(157 180 255 / 0.14) 62%,
+    transparent 100%
+  );
+  mix-blend-mode: screen;
+  pointer-events: none;
+  transform: translateY(-140%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .comms-scan {
+    display: none;
+  }
+}

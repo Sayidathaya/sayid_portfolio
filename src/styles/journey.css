@@ -1,0 +1,734 @@
+/* ==========================================================================
+   Journey compass and living pixel atmosphere
+   --------------------------------------------------------------------------
+   Two systems share this file:
+
+   1. The chapter compass is a compact, accessible journey indicator inside the
+      fixed HUD. Content reserves its measured height, so it never covers the
+      page on desktop or mobile.
+
+   2. Every scene owns one decorative atmosphere layer. The scene director
+      toggles `data-active` on exactly one layer and writes a clamped velocity
+      value; no copy, control, card or image is ever transformed here.
+
+   Ownership: transforms are written by the scene director at most once per
+   frame. Layer animations only run for the active scene, and are paused when
+   the tab is hidden or Calm Motion is selected.
+   ========================================================================== */
+
+/* ---------- Unified chapter nav ---------------------------------------- */
+/* The chapter navigation is now a single premium row inside the fixed HUD:
+   brand left, one chapter list centre, utility controls right. The journey
+   state (tone, progress, velocity) still lives on this element. */
+.hud-nav[data-journey] {
+  --journey-velocity: 0;
+  --journey-progress: 0;
+  --scene-progress: 0;
+}
+
+:where(.hud-nav[data-journey]) {
+  --tone: var(--color-accent-blue);
+  --tone-ink: var(--color-accent-blue-ink);
+  --tone-contrast: var(--color-on-blue);
+}
+
+.hud-nav[data-journey] .hud-journey-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* One row owns all three roles: the chapter list leads and the progress
+     meter trails inside the same flex object, so no group can push or overlap. */
+  gap: 0.9rem;
+  width: 100%;
+  min-height: 2.2rem;
+}
+
+/* The current-chapter chip is a screen-reader-only live region: the active
+   chapter link itself is the visible indicator, so the duplicate visible chip
+   is gone without losing scene-director state or screen-reader context. */
+.journey-now--live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(0 0 0 0);
+}
+
+html:not(.js) .hud-nav[data-journey] .journey-now,
+html:not(.js) .hud-nav[data-journey] .journey-meter {
+  display: none;
+}
+
+.journey-now {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.journey-zone {
+  display: grid;
+  place-items: center;
+  flex: none;
+  min-width: 1.7rem;
+  height: 1.7rem;
+  border: 2px solid var(--tone);
+  color: var(--tone-contrast);
+  background: var(--tone);
+  font-family: var(--font-pixel);
+  font-size: 0.54rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  clip-path: var(--pixel-cut-sm);
+  box-shadow: 2px 2px 0 color-mix(in srgb, var(--tone) 40%, var(--color-shadow));
+}
+
+.journey-zone b {
+  color: inherit;
+  font: inherit;
+}
+
+.journey-copy {
+  display: grid;
+  gap: 0.06rem;
+  min-width: 0;
+  max-width: 20rem;
+}
+
+.journey-title {
+  overflow: hidden;
+  color: var(--color-foreground);
+  font-family: var(--font-pixel);
+  font-size: 0.58rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.journey-chapter {
+  overflow: hidden;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  line-height: 1.35;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.journey-stops {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  min-width: 0;
+  /* Owns the flexible centre of the single-row chapter bar and centres its own
+     content, so the trailing progress meter never collides with a stop. */
+  flex: 1 1 auto;
+}
+
+.journey-stop {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 2.05rem;
+  padding: 0.25rem 0.5rem;
+  border: 2px solid transparent;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition:
+    transform var(--t-micro) var(--ease-step),
+    color var(--t-ui) steps(2, end),
+    background-color var(--t-ui) steps(2, end),
+    border-color var(--t-ui) steps(2, end);
+}
+
+.journey-stop-no {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.05rem;
+  height: 1.05rem;
+  border: 2px solid color-mix(in srgb, var(--color-border-strong) 60%, transparent);
+  color: var(--color-muted);
+  background: var(--color-surface);
+  font-family: var(--font-pixel);
+  font-size: 0.38rem;
+  font-weight: 700;
+  line-height: 1;
+  transition:
+    color var(--t-ui) steps(2, end),
+    background-color var(--t-ui) steps(2, end),
+    border-color var(--t-ui) steps(2, end),
+    box-shadow var(--t-micro) var(--ease-step);
+}
+
+.journey-stop-name {
+  display: none;
+  white-space: nowrap;
+}
+
+.journey-stop[data-state="done"] {
+  color: var(--color-dim);
+}
+
+.journey-stop[data-state="done"] .journey-stop-no {
+  border-color: color-mix(in srgb, var(--tone) 48%, transparent);
+  color: var(--tone-ink);
+}
+
+.journey-stop[data-state="current"] {
+  border-color: color-mix(in srgb, var(--tone) 68%, transparent);
+  color: var(--color-foreground);
+  background: color-mix(in srgb, var(--tone) 12%, var(--color-surface));
+}
+
+.journey-stop[data-state="current"] .journey-stop-no {
+  border-color: var(--tone);
+  color: var(--tone-contrast);
+  background: var(--tone);
+  box-shadow: 2px 2px 0 color-mix(in srgb, var(--tone) 35%, var(--color-shadow));
+}
+
+.journey-stop:hover,
+.journey-stop:focus-visible {
+  transform: translateY(-1px);
+  border-color: var(--color-border-strong);
+  color: var(--color-foreground);
+  background: var(--color-surface);
+}
+
+.journey-stop:hover .journey-stop-no,
+.journey-stop:focus-visible .journey-stop-no {
+  border-color: var(--tone);
+  color: var(--tone-contrast);
+  background: var(--tone);
+  box-shadow: 2px 2px 0 var(--color-accent-red);
+}
+
+.journey-stop:active {
+  transform: translateY(1px);
+}
+
+.journey-meter {
+  /* Journey progress lives as a thin rail on the header's bottom edge, so it
+     can never compete with the chapter list for horizontal space. */
+  position: absolute;
+  right: 0;
+  bottom: -3px;
+  left: 0;
+  z-index: 2;
+  display: block;
+  height: 3px;
+  pointer-events: none;
+}
+
+.journey-count,
+.journey-percent {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(0 0 0 0);
+  white-space: nowrap;
+}
+
+.journey-count b {
+  color: var(--color-foreground);
+  font-weight: 700;
+}
+
+.journey-count span {
+  color: var(--color-dim);
+}
+
+.journey-track {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: var(--color-accent-blue);
+  overflow: hidden;
+}
+
+.journey-track i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent-red),
+    var(--color-accent-yellow) 34%,
+    var(--color-accent-blue) 68%,
+    var(--color-accent-purple)
+  );
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+
+.journey-track::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  left: calc(var(--journey-progress) * 100%);
+  width: 2px;
+  background: var(--color-accent-yellow);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent-yellow) 30%, transparent);
+  opacity: calc(0.7 + var(--journey-velocity) * -0.25);
+}
+
+.journey-percent {
+  min-width: 2rem;
+  color: var(--tone-ink);
+  text-align: right;
+}
+
+@media (min-width: 84rem) {
+  .journey-stop-name {
+    display: inline;
+  }
+}
+
+@media (max-width: 74.99rem) {
+  .journey-copy {
+    max-width: 15rem;
+  }
+
+  .journey-chapter,
+  .journey-percent {
+    display: none;
+  }
+
+  /* The unified navbar collapses into the accessible chapter drawer below
+     the desktop bar: only the brand and the utility controls stay visible. */
+  .hud-nav .journey-now,
+  .hud-nav .journey-meter {
+    display: none;
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .hud-journey-inner {
+    gap: 0.35rem;
+    min-height: 1.95rem;
+  }
+
+  .journey-now {
+    gap: 0.35rem;
+  }
+
+  .journey-zone {
+    min-width: 1.45rem;
+    height: 1.45rem;
+    font-size: 0.48rem;
+  }
+
+  .journey-title {
+    max-width: 5.4rem;
+    font-size: 0.5rem;
+  }
+
+  .journey-stop {
+    min-height: 1.45rem;
+    padding: 0.14rem 0.18rem;
+    gap: 0;
+  }
+
+  .journey-stop-no {
+    width: 1rem;
+    height: 1rem;
+    border-width: 1px;
+    font-size: 0.34rem;
+  }
+
+  .journey-count {
+    display: none;
+  }
+
+  .journey-track {
+    width: 3.2rem;
+  }
+}
+
+@media (max-width: 27rem) {
+  .journey-title {
+    display: none;
+  }
+
+  .journey-track {
+    width: 2.6rem;
+  }
+}
+
+/* ---------- Living pixel environment ------------------------------------ */
+.scene-atmosphere {
+  --fx-a: var(--color-accent-blue-ink);
+  --fx-b: var(--color-accent-purple-ink);
+  --fx-c: var(--color-accent-yellow-ink);
+  --fx-mote: var(--color-accent-blue-ink);
+  --fx-vel: 0;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.scene-atmosphere--title {
+  --fx-a: var(--color-accent-red-ink);
+  --fx-b: var(--color-accent-blue-ink);
+  --fx-c: var(--color-accent-yellow-ink);
+  --fx-mote: var(--color-accent-red-ink);
+}
+
+.scene-atmosphere--archive {
+  --fx-a: var(--color-accent-blue-ink);
+  --fx-b: var(--color-accent-purple-ink);
+  --fx-c: var(--color-accent-blue-ink);
+  --fx-mote: var(--color-accent-blue-ink);
+}
+
+.scene-atmosphere--quest {
+  --fx-a: var(--color-accent-red-ink);
+  --fx-b: var(--color-accent-purple-ink);
+  --fx-c: var(--color-accent-yellow-ink);
+  --fx-mote: var(--color-accent-red-ink);
+}
+
+.scene-atmosphere--inventory {
+  --fx-a: var(--color-accent-blue-ink);
+  --fx-b: var(--color-accent-purple-ink);
+  --fx-c: var(--color-accent-blue-ink);
+  --fx-mote: var(--color-accent-purple-ink);
+}
+
+.scene-atmosphere--portal {
+  --fx-a: var(--color-accent-purple-ink);
+  --fx-b: var(--color-accent-blue-ink);
+  --fx-c: var(--color-accent-yellow-ink);
+  --fx-mote: var(--color-accent-purple-ink);
+}
+
+.scene-atmosphere--vault {
+  --fx-a: var(--color-accent-purple-ink);
+  --fx-b: var(--color-accent-blue-ink);
+  --fx-c: var(--color-accent-yellow-ink);
+  --fx-mote: var(--color-accent-yellow-ink);
+}
+
+.scene-atmosphere--captures {
+  --fx-a: var(--color-accent-red-ink);
+  --fx-b: var(--color-accent-yellow-ink);
+  --fx-c: var(--color-accent-blue-ink);
+  --fx-mote: var(--color-accent-red-ink);
+}
+
+.scene-atmosphere--comms {
+  --fx-a: var(--color-accent-blue-ink);
+  --fx-b: var(--color-accent-yellow-ink);
+  --fx-c: var(--color-accent-blue-ink);
+  --fx-mote: var(--color-accent-blue-ink);
+}
+
+.scene-atmosphere--end {
+  --fx-a: var(--color-accent-yellow-ink);
+  --fx-b: var(--color-accent-red-ink);
+  --fx-c: var(--color-accent-yellow-ink);
+  --fx-mote: var(--color-accent-yellow-ink);
+}
+
+.scene-atmosphere--hero {
+  opacity: 0.82;
+}
+
+/* Static wash: always present, so the section never depends on JS to look
+   complete. Only the moving pieces below are gated by `data-active`. */
+.scene-atmo-wash {
+  position: absolute;
+  inset: -8% -4%;
+  background:
+    radial-gradient(
+      46% 42% at 14% 18%,
+      color-mix(in srgb, var(--fx-a) 18%, transparent),
+      transparent 72%
+    ),
+    radial-gradient(
+      44% 40% at 86% 72%,
+      color-mix(in srgb, var(--fx-b) 15%, transparent),
+      transparent 74%
+    );
+  opacity: 0.8;
+}
+
+.scene-atmo-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(90deg, color-mix(in srgb, var(--fx-a) 17%, transparent) 1px, transparent 1px),
+    linear-gradient(0deg, color-mix(in srgb, var(--fx-a) 17%, transparent) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(72% 68% at 52% 44%, #000 12%, transparent 78%);
+  opacity: 0.16;
+}
+
+.scene-atmosphere--hero .scene-atmo-grid {
+  opacity: 0.2;
+}
+
+.scene-atmo-beam {
+  position: absolute;
+  top: -30%;
+  bottom: -30%;
+  left: -34%;
+  width: 38%;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    color-mix(in srgb, var(--fx-c) 9%, transparent) 42%,
+    color-mix(in srgb, var(--fx-a) 12%, transparent) 58%,
+    transparent
+  );
+  opacity: 0;
+  translate: calc(var(--fx-vel) * 22px) 0;
+  animation: scene-beam 17s linear infinite;
+  animation-play-state: paused;
+}
+
+.scene-atmosphere[data-active] .scene-atmo-beam {
+  opacity: 0.72;
+  animation-play-state: running;
+}
+
+.scene-atmo-motes {
+  position: absolute;
+  inset: -4%;
+  translate: 0 calc(var(--fx-vel) * 20px);
+}
+
+.scene-atmo-motes i {
+  position: absolute;
+  top: var(--y);
+  left: var(--x);
+  width: var(--s);
+  height: var(--s);
+  background: var(--fx-mote);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--fx-mote) 24%, transparent),
+    0 0 8px color-mix(in srgb, var(--fx-mote) 38%, transparent);
+  opacity: 0;
+  animation: scene-mote var(--dur) steps(7, end) infinite;
+  animation-delay: var(--delay);
+  animation-play-state: paused;
+}
+
+.scene-atmosphere[data-active] .scene-atmo-motes i {
+  animation-play-state: running;
+}
+
+.scene-atmo-portal {
+  position: absolute;
+  top: 18%;
+  right: 5%;
+  width: clamp(9rem, 22vw, 20rem);
+  aspect-ratio: 1;
+  opacity: 0.55;
+  translate: 0 calc(var(--fx-vel) * -28px);
+}
+
+.scene-atmo-portal::before,
+.scene-atmo-portal::after,
+.scene-atmo-portal i {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+}
+
+.scene-atmo-portal::before {
+  inset: 0;
+  border: 2px dashed color-mix(in srgb, var(--fx-a) 45%, transparent);
+  rotate: 0deg;
+  animation: scene-portal 28s linear infinite;
+  animation-play-state: paused;
+}
+
+.scene-atmo-portal::after {
+  inset: 14%;
+  border: 2px solid color-mix(in srgb, var(--fx-b) 32%, transparent);
+  animation: scene-portal-reverse 20s linear infinite;
+  animation-play-state: paused;
+}
+
+.scene-atmo-portal i {
+  inset: 31%;
+  border: 3px solid color-mix(in srgb, var(--fx-c) 30%, transparent);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--fx-b) 12%, transparent),
+    transparent 70%
+  );
+  box-shadow:
+    0 0 0 10px color-mix(in srgb, var(--fx-a) 5%, transparent),
+    0 0 42px color-mix(in srgb, var(--fx-b) 16%, transparent);
+}
+
+.scene-atmosphere[data-active] .scene-atmo-portal::before,
+.scene-atmosphere[data-active] .scene-atmo-portal::after {
+  animation-play-state: running;
+}
+
+@keyframes scene-beam {
+  from {
+    transform: translateX(-30%);
+  }
+  to {
+    transform: translateX(420%);
+  }
+}
+
+@keyframes scene-mote {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  18% {
+    opacity: 0.62;
+  }
+  72% {
+    opacity: 0.38;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(9px, -30px, 0);
+  }
+}
+
+@keyframes scene-portal {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@keyframes scene-portal-reverse {
+  to {
+    rotate: -360deg;
+  }
+}
+
+:root[data-theme="light"] .scene-atmo-wash {
+  opacity: 0.56;
+}
+
+:root[data-theme="light"] .scene-atmo-grid {
+  opacity: 0.1;
+}
+
+:root[data-theme="light"] .scene-atmo-beam {
+  opacity: 0;
+}
+
+:root[data-theme="light"] .scene-atmosphere[data-active] .scene-atmo-beam {
+  opacity: 0.42;
+}
+
+:root[data-theme="light"] .scene-atmo-motes i {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--fx-mote) 20%, transparent);
+}
+
+:root[data-theme="light"] .scene-atmo-portal {
+  opacity: 0.32;
+}
+
+@media (max-width: 63.99rem) {
+  .scene-atmo-portal {
+    top: 10%;
+    right: -6%;
+    width: clamp(8rem, 34vw, 14rem);
+    opacity: 0.3;
+  }
+
+  .scene-atmo-grid {
+    background-size: 44px 44px;
+    opacity: 0.1;
+  }
+}
+
+html[data-motion="calm"] .scene-atmo-motes i,
+html[data-motion="calm"] .scene-atmo-beam,
+html[data-motion="calm"] .scene-atmo-portal::before,
+html[data-motion="calm"] .scene-atmo-portal::after {
+  animation: none;
+}
+
+html[data-motion="calm"] .scene-atmo-motes i {
+  opacity: 0.28;
+}
+
+html[data-paused="true"] .scene-atmosphere * {
+  animation-play-state: paused !important;
+}
+
+/* ---------- Scene-aware micro-interactions ------------------------------ */
+/* Skill cables preview the hovered/focused node without stealing the selected
+   state or the scroll-scrubbed draw-on. */
+.skill-matrix .ability-link[data-preview] .ability-link__line {
+  opacity: 0.72;
+}
+
+.skill-matrix .ability-link[data-preview] .ability-link__signal {
+  opacity: 0.55;
+  stroke-dasharray: 3 9;
+  animation: dash-run 900ms steps(6, end) infinite;
+}
+
+.skill-matrix .ability-link[data-active] .ability-link__signal {
+  animation: dash-run 1100ms steps(6, end) infinite;
+}
+
+/* A focused skill node keeps the same cable preview as hover. */
+.skill-node:focus-visible .skill-node__box,
+.ability-index li[data-preview] .ability-index__dot {
+  border-color: var(--tone);
+  box-shadow:
+    3px 3px 0 var(--tone),
+    0 0 0 2px var(--color-focus-halo);
+}
+
+/* The compass is the only fixed object that reacts to velocity besides the
+   active atmosphere; keep the marker nudges small and reversible. */
+html[data-motion="calm"] .journey-track::after {
+  translate: 0 0;
+  opacity: 0.55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-atmo-motes i,
+  .scene-atmo-beam,
+  .scene-atmo-portal::before,
+  .scene-atmo-portal::after,
+  .skill-matrix .ability-link__signal {
+    animation: none !important;
+  }
+
+  .journey-stop,
+  .journey-track::after {
+    transition: none;
+    translate: 0 0;
+  }
+}

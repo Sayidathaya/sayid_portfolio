@@ -1,0 +1,56 @@
+---
+import PixelArt from "./PixelArt.astro";
+---
+
+<script is:inline>
+  document.documentElement.classList.add("intro-lock");
+</script>
+
+<div
+  class="intro"
+  data-intro
+  data-intro-phase="boot"
+  data-intro-engine="pending"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="intro-title"
+  aria-busy="true"
+  tabindex="-1"
+>
+  <div class="intro-scan" aria-hidden="true"></div>
+  <div class="intro-particles" data-intro-particles aria-hidden="true"></div>
+  <span class="intro-glitch" data-intro-glitch aria-hidden="true">SYSTEM</span>
+
+  <span class="intro-sprite intro-sprite--astronaut" aria-hidden="true">
+    <PixelArt name="astronaut" size={128} loading="eager" fetchpriority="high" />
+  </span>
+  <span class="intro-sprite intro-sprite--shield" aria-hidden="true">
+    <PixelArt name="shield" size={72} loading="eager" />
+  </span>
+
+  <div class="intro-frame" data-intro-frame>
+    <div class="intro-lines" aria-hidden="true">
+      <p class="intro-line">SRA BIOS v2.6.4 — QUANTUM PALETTE OK</p>
+      <p class="intro-line">MOUNTING PIXEL WORLD ... OK</p>
+      <p class="intro-line">CALIBRATING CHROMATIC DISPLAY ... OK</p>
+      <p class="intro-line">CHARGING PIXEL BATTERY ... 100%</p>
+      <p class="intro-line">LOADING PLAYER 01 ... OK</p>
+    </div>
+    <div class="intro-bar" aria-hidden="true">
+      <span class="intro-bar-fill" data-intro-bar></span>
+    </div>
+    <h2 class="intro-title" id="intro-title">ARE YOU READY?</h2>
+    <div class="intro-ready" data-intro-ready-wrap inert>
+      <button
+        type="button"
+        class="px-btn px-btn--start intro-ready-btn"
+        data-intro-ready
+        tabindex="-1"
+      >
+        <span class="px-btn-caret" aria-hidden="true">▶</span>
+        <span>Ready</span>
+      </button>
+      <p class="intro-hint">Press Start</p>
+    </div>
+  </div>
+</div>

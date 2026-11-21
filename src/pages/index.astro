@@ -1,27 +1,56 @@
 ---
 import { Picture } from "astro:assets";
+import { getCollection } from "astro:content";
 import type { ImageMetadata } from "astro";
 import CareerQuestMap from "../components/CareerQuestMap.astro";
+import InteractiveToggleLanding from "../components/InteractiveToggleLanding.astro";
+import IntroSequence from "../components/IntroSequence.astro";
+import PixelArt from "../components/PixelArt.astro";
 import PixelBadge from "../components/PixelBadge.astro";
 import PixelBlade from "../components/PixelBlade.astro";
 import PixelIcon from "../components/PixelIcon.astro";
 import PixelSprite from "../components/PixelSprite.astro";
 import ProjectMultiverse from "../components/ProjectMultiverse.astro";
+import SceneAtmosphere from "../components/SceneAtmosphere.astro";
 import SceneSeam from "../components/SceneSeam.astro";
 import Seal from "../components/Seal.astro";
 import SectionHeading from "../components/SectionHeading.astro";
 import SkillMatrix from "../components/SkillMatrix.astro";
-import {
-  certificateGroups,
-  certificates,
-  experience,
-  fieldCaptures,
-  profile,
-  projects,
-  skills,
-} from "../data/portfolio";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import type {
+  Certificate,
+  CertificateGroup,
+  ExperienceEntry,
+  FieldCapture,
+  PortfolioProject,
+  Profile,
+  SkillGroup,
+} from "../types/portfolio";
 import { findImage } from "../utils/images";
+
+const profileEntries = await getCollection("profile");
+const profile: Profile = (profileEntries[0]?.data ?? {}) as Profile;
+
+const experienceEntries = await getCollection("experience");
+const experience: ExperienceEntry[] = experienceEntries.map((entry) => entry.data);
+
+const skillsEntries = await getCollection("skills");
+const skills: SkillGroup[] = skillsEntries.map((entry) => entry.data);
+
+const projectsEntries = await getCollection("projects");
+const projects: PortfolioProject[] = projectsEntries.map((entry) => ({
+  ...entry.data,
+  slug: entry.id,
+}));
+
+const certificatesEntries = await getCollection("certificates");
+const certificates: Certificate[] = certificatesEntries.map((entry) => entry.data);
+
+const certificateGroupsEntries = await getCollection("certificateGroups");
+const certificateGroups: CertificateGroup[] = certificateGroupsEntries.map((entry) => entry.data);
+
+const capturesEntries = await getCollection("captures");
+const fieldCaptures: FieldCapture[] = capturesEntries.map((entry) => entry.data);
 
 const portrait = findImage("portrait");
 const aboutMe = findImage("about-me");
@@ -74,6 +103,9 @@ const ticker = [
   title={`${profile.name} | ${profile.role}`}
   description={`${profile.tagline} Portfolio of ${profile.name}, ${profile.role}.`}
 >
+  <IntroSequence slot="overlays" />
+  <InteractiveToggleLanding profile={profile} />
+
   <section id="top" class="hero" aria-labelledby="hero-title">
     <div class="hero-world" aria-hidden="true">
       <span class="hero-stars hero-stars--far" data-parallax data-depth="1.5"></span>
@@ -88,6 +120,19 @@ const ticker = [
         <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
       </span>
       <span class="hero-floor"></span>
+      <span class="hero-8bit hero-8bit--clouds" aria-hidden="true">
+        <PixelArt name="clouds" size={220} />
+      </span>
+      <span
+        class="hero-8bit hero-8bit--speedometer"
+        aria-hidden="true"
+        data-decor
+        data-decor-amplitude="8"
+        data-decor-duration="5.4"
+        data-decor-delay="-2.2"
+      >
+        <PixelArt name="speedometer" size={68} />
+      </span>
       <span class="hero-slab hero-slab--red" aria-hidden="true"></span>
       <span class="hero-slab hero-slab--blue" aria-hidden="true"></span>
       <span class="hero-slab hero-slab--yellow" aria-hidden="true"></span>
@@ -95,6 +140,8 @@ const ticker = [
       <span class="hero-airdrone" data-parallax data-depth="6"><PixelSprite name="drone" /></span>
       <span class="hero-airbird"><PixelSprite name="bird" /></span>
     </div>
+
+    <SceneAtmosphere scene="top" tone="title" variant="hero" />
 
     <div class="shell hero-shell">
       <div class="hero-chrome">
@@ -243,6 +290,20 @@ const ticker = [
   <SceneSeam label="ZONE 02 // ABOUT & BRIEFING" tone="archive" />
 
   <section id="about" class="sec sec-briefing" aria-labelledby="about-title" data-zone="archive">
+    <SceneAtmosphere scene="about" tone="archive" />
+    <div class="zone-props" aria-hidden="true">
+      <span
+        class="zone-prop zone-prop--notebook"
+        data-decor
+        data-decor-amplitude="9"
+        data-decor-duration="5"
+      >
+        <PixelArt name="notebook" size={118} />
+      </span>
+      <span class="zone-prop zone-prop--book" aria-hidden="true">
+        <PixelArt name="book" size={92} />
+      </span>
+    </div>
     <div class="shell">
       <SectionHeading
         id="about-title"
@@ -256,6 +317,7 @@ const ticker = [
       <div class="about-grid">
         <div class="about-col-info">
           <div class="dialogue px-panel" data-reveal>
+            <span class="dossier-scan" aria-hidden="true"></span>
             <div class="dialogue-bar">
               <p class="dialogue-speaker">
                 <span class="dialogue-avatar"><PixelSprite name="archivist" /></span>
@@ -365,6 +427,21 @@ const ticker = [
   <SceneSeam label="ZONE 03 // EXPERIENCE JOURNEY" tone="quest" />
 
   <section id="experience" class="sec sec-quest" aria-labelledby="experience-title" data-zone="quest">
+    <SceneAtmosphere scene="experience" tone="quest" />
+    <div class="zone-props zone-props--quest" aria-hidden="true">
+      <span class="zone-prop zone-prop--stone-castle">
+        <PixelArt name="stoneCastle" size={148} />
+      </span>
+      <span
+        class="zone-prop zone-prop--alarm"
+        data-decor
+        data-decor-amplitude="10"
+        data-decor-duration="4.4"
+        data-decor-delay="-1.1"
+      >
+        <PixelArt name="alarm" size={66} />
+      </span>
+    </div>
     <div class="shell">
       <SectionHeading
         id="experience-title"
@@ -382,6 +459,20 @@ const ticker = [
   <SceneSeam label="ZONE 04 // CORE SKILLS" tone="inventory" />
 
   <section id="skills" class="sec sec-inventory" aria-labelledby="skills-title" data-zone="inventory">
+    <SceneAtmosphere scene="skills" tone="inventory" />
+    <div class="zone-props" aria-hidden="true">
+      <span
+        class="zone-prop zone-prop--potion"
+        data-decor
+        data-decor-amplitude="11"
+        data-decor-duration="4.8"
+      >
+        <PixelArt name="potion" size={74} />
+      </span>
+      <span class="zone-prop zone-prop--dumbbell">
+        <PixelArt name="dumbbell" size={96} />
+      </span>
+    </div>
     <div class="shell">
       <SectionHeading
         id="skills-title"
@@ -399,6 +490,24 @@ const ticker = [
   <SceneSeam label="ZONE 05 // FEATURED PROJECTS" tone="vault" />
 
   <section id="projects" class="sec sec-multiverse" aria-labelledby="projects-title" data-zone="vault">
+    <SceneAtmosphere scene="projects" tone="portal" motif="portal" />
+    <div class="zone-props zone-props--vault" aria-hidden="true">
+      <span
+        class="zone-prop zone-prop--computer"
+        data-decor
+        data-decor-amplitude="7"
+        data-decor-duration="5.8"
+        data-decor-delay="-1.6"
+      >
+        <PixelArt name="computer" size={132} />
+      </span>
+      <span class="zone-prop zone-prop--floppy">
+        <PixelArt name="floppy" size={64} />
+      </span>
+      <span class="zone-prop zone-prop--sword">
+        <PixelArt name="sword" size={58} />
+      </span>
+    </div>
     <div class="shell">
       <ProjectMultiverse projects={featured} />
     </div>
@@ -407,6 +516,21 @@ const ticker = [
   <SceneSeam label="ZONE 06 // CREDENTIAL VAULT" tone="vault" />
 
   <section id="certificates" class="sec sec-archive" aria-labelledby="certificates-title" data-zone="vault">
+    <SceneAtmosphere scene="certificates" tone="vault" />
+    <div class="zone-props zone-props--archive" aria-hidden="true">
+      <span
+        class="zone-prop zone-prop--shield"
+        data-decor
+        data-decor-amplitude="9"
+        data-decor-duration="5.2"
+        data-decor-delay="-0.8"
+      >
+        <PixelArt name="shield" size={78} />
+      </span>
+      <span class="zone-prop zone-prop--coin">
+        <PixelArt name="coin" size={56} />
+      </span>
+    </div>
     <div class="shell">
       <SectionHeading
         id="certificates-title"
@@ -418,6 +542,7 @@ const ticker = [
       />
 
       <div class="cert-workbench">
+        <span class="vault-scan" aria-hidden="true"></span>
         <aside class="cert-sidebar">
           <details class="cert-index" data-cert-index open>
             <summary class="cert-index-summary">
@@ -490,7 +615,13 @@ const ticker = [
                   </p>
                 </header>
 
-                <ol class="archive-grid">
+                <div class="archive-grid-zone" data-horizontal-zone>
+                  <ol
+                    class="archive-grid"
+                    data-horizontal-scroll
+                    tabindex="0"
+                    aria-label={`${group.label} certificates`}
+                  >
                   {group.items.map((certificate) => {
                     const number = certificateNumbers.get(certificate.id);
                     const thumb = `/certificates/thumbs/${certificate.id}.jpg`;
@@ -589,6 +720,9 @@ const ticker = [
                     );
                   })}
                 </ol>
+                  <span class="gallery-pos" data-gallery-pos>0%</span>
+                  <span class="gallery-meter" data-gallery-meter aria-hidden="true"><i></i></span>
+                </div>
               </section>
             ))
           }
@@ -598,6 +732,7 @@ const ticker = [
       {
         captures.length > 0 && (
           <div class="field-captures-wrap">
+            <span class="capture-flash" aria-hidden="true"></span>
             <div class="field-captures-head" data-reveal>
               <div>
                 <p class="archive-group-kicker">Visual Archive</p>
@@ -606,7 +741,21 @@ const ticker = [
               <p class="field-captures-note">Photographic documentation from campus, stage & events</p>
             </div>
 
-            <div class="archive-captures">
+            <span class="field-captures-camera" aria-hidden="true" data-decor data-decor-amplitude="8">
+              <PixelArt name="camera" size={72} />
+            </span>
+
+            <div class="archive-captures-zone" data-horizontal-zone>
+              <button
+                type="button"
+                class="gallery-nav gallery-nav--prev"
+                data-gallery-prev
+                aria-label="Scroll field captures left"
+                disabled
+              >
+                ◀
+              </button>
+              <div class="archive-captures" data-horizontal-scroll>
               {captures.map((capture, index) => (
                 <figure class="archive-capture paper-panel" data-reveal>
                   <Picture
@@ -640,6 +789,18 @@ const ticker = [
                 </figure>
               ))}
             </div>
+            <button
+              type="button"
+              class="gallery-nav gallery-nav--next"
+              data-gallery-next
+              aria-label="Scroll field captures right"
+              disabled
+            >
+              ▶
+            </button>
+            <span class="gallery-pos" data-gallery-pos>0%</span>
+            <span class="gallery-meter" data-gallery-meter aria-hidden="true"><i></i></span>
+            </div>
           </div>
         )
       }
@@ -649,6 +810,21 @@ const ticker = [
   <SceneSeam label="ZONE 07 // DIRECT CONTACT" tone="comms" />
 
   <section id="contact" class="sec sec-terminal" aria-labelledby="contact-title" data-zone="comms">
+    <SceneAtmosphere scene="contact" tone="comms" />
+    <div class="zone-props zone-props--comms" aria-hidden="true">
+      <span
+        class="zone-prop zone-prop--terminal-computer"
+        data-decor
+        data-decor-amplitude="8"
+        data-decor-duration="5.6"
+        data-decor-delay="-2.4"
+      >
+        <PixelArt name="computer" size={118} />
+      </span>
+      <span class="zone-prop zone-prop--terminal-floppy">
+        <PixelArt name="floppy" size={58} />
+      </span>
+    </div>
     <div class="shell">
       <SectionHeading
         id="contact-title"
@@ -659,74 +835,104 @@ const ticker = [
         note="Direct email & social profiles"
       />
 
-      <div class="terminal" data-reveal>
-        <div class="terminal-bar">
-          <span class="terminal-dots" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span class="terminal-title">GET IN TOUCH // SAYID RAFI A'THAYA</span>
-          <span class="terminal-status"><i aria-hidden="true"></i> Online</span>
-        </div>
-
-        <div class="terminal-screen">
-          <div class="terminal-operator" aria-hidden="true">
-            <span class="operator-frame">
-              <PixelSprite name="archivist" />
-              <span class="operator-scan"></span>
-            </span>
-            <p class="operator-name">SRA–01</p>
-            <p class="operator-state"><i></i> Available</p>
-            <span class="operator-bars">
-              <i></i><i></i><i></i><i></i><i></i><i></i>
-            </span>
+      <div class="terminal-stage comms-stage" data-reveal>
+        <span class="signal-rings" aria-hidden="true"><i></i><i></i><i></i></span>
+        <div class="comms">
+          <div class="comms-bar">
+            <span class="comms-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="comms-channel">SRA Signal Deck // Channel 07</span>
+            <span class="comms-status"><i aria-hidden="true"></i> Signal locked</span>
           </div>
 
-          <div class="terminal-main">
-            <p class="terminal-line"><span class="terminal-prompt" aria-hidden="true">$</span> send message --direct</p>
-            <p class="terminal-copy">
-              Feel free to reach out for web development projects, speaking opportunities, or collaborations.
-            </p>
-            <a class="terminal-email" href={`mailto:${profile.email}`}>{profile.email}</a>
+          <span class="comms-scan" aria-hidden="true"></span>
 
-            <div class="terminal-actions">
-              <a class="px-btn px-btn--magenta" href={`mailto:${profile.email}`}>
-                <PixelIcon name="mail" />
-                Compose email
-                <span class="sr-only"> to {profile.name}</span>
-              </a>
-              <button
-                type="button"
-                class="copy-btn"
-                data-copy={profile.email}
-                aria-describedby="copy-help"
-              >
-                <PixelIcon name="copy" />
-                <span data-copy-text>Copy address</span>
-              </button>
+          <div class="comms-grid">
+            <aside class="comms-operator" aria-label="Operator profile">
+              <div class="comms-operator-head">
+                <span class="comms-operator-tag">Operator</span>
+                <span class="comms-operator-code">SRA–01</span>
+              </div>
+
+              <span class="comms-operator-frame">
+                <PixelSprite name="archivist" />
+                <span class="comms-operator-scan" aria-hidden="true"></span>
+              </span>
+
+              <div class="comms-operator-id">
+                <p class="comms-operator-name">{profile.name}</p>
+                <p class="comms-operator-role">{profile.role}</p>
+                <p class="comms-operator-state"><i aria-hidden="true"></i> Available for transmissions</p>
+              </div>
+
+              <dl class="comms-stats">
+                <div><dt>Base</dt><dd>{profile.location}</dd></div>
+                <div><dt>Channel</dt><dd>Open</dd></div>
+                <div><dt>Response</dt><dd>&lt; 24 h</dd></div>
+              </dl>
+            </aside>
+
+            <div class="comms-main">
+              <p class="comms-kicker"><span aria-hidden="true">▚</span> Incoming transmission</p>
+              <h3 class="comms-title">Send a signal.<br /> I answer.</h3>
+              <p class="comms-copy">
+                Feel free to reach out for web development projects, speaking opportunities,
+                or collaborations.
+              </p>
+
+              <div class="comms-email-row">
+                <span class="comms-email-label">Direct line</span>
+                <a class="comms-email" href={`mailto:${profile.email}`}>{profile.email}</a>
+              </div>
+
+              <div class="comms-actions">
+                <a class="px-btn px-btn--signal" href={`mailto:${profile.email}`}>
+                  <PixelIcon name="mail" />
+                  Compose email
+                  <span class="sr-only"> to {profile.name}</span>
+                </a>
+                <button
+                  type="button"
+                  class="copy-btn"
+                  data-copy={profile.email}
+                  aria-describedby="copy-help"
+                >
+                  <PixelIcon name="copy" />
+                  <span data-copy-text>Copy address</span>
+                </button>
+              </div>
+
+              <p id="copy-help" class="comms-foot">
+                Open your mail client, or copy the address for later.
+              </p>
+              <p class="sr-only" role="status" data-copy-status></p>
+
+              {
+                hasLinks && (
+                  <nav class="comms-links" aria-label="External profiles">
+                    {profile.links.map((link, index) => (
+                      <a class="comms-link" href={link.href}>
+                        <span class="comms-link-index" aria-hidden="true">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+                        <span class="comms-link-body">
+                          <span class="comms-link-label">{link.label}</span>
+                          {link.caption && <span class="comms-link-caption">{link.caption}</span>}
+                        </span>
+                        <PixelIcon name="external" />
+                      </a>
+                    ))}
+                  </nav>
+                )
+              }
             </div>
-
-            <p id="copy-help" class="terminal-foot">
-              Click to open your mail client or copy the address.
-            </p>
-            <p class="sr-only" role="status" data-copy-status></p>
-
-            {
-              hasLinks && (
-                <nav class="terminal-links" aria-label="External profiles">
-                  {profile.links.map((link) => (
-                    <a href={link.href}>
-                      <span>{link.label}</span>
-                      <PixelIcon name="external" />
-                    </a>
-                  ))}
-                </nav>
-              )
-            }
           </div>
-        </div>
 
-        <div class="terminal-meta">
-          <span>Direct Email</span>
-          <span>Fast Response</span>
-          <span>Samarinda, Indonesia</span>
+          <div class="comms-footer">
+            <span>Direct email</span>
+            <span>Fast response</span>
+            <span>{profile.location}</span>
+            <span class="comms-footer-live"><i aria-hidden="true"></i> Channel open</span>
+          </div>
         </div>
       </div>
     </div>
@@ -734,7 +940,7 @@ const ticker = [
 
   <SceneSeam label="END OF DOSSIER // THANKS FOR VISITING" tone="end" />
 
-  <dialog class="cert-modal" data-cert-modal aria-label="Certificate preview lightbox">
+  <dialog class="cert-modal" data-cert-modal slot="overlays" aria-label="Certificate preview lightbox">
     <div class="cert-modal-frame paper-panel">
       <header class="cert-modal-head">
         <div class="cert-modal-kicker-wrap">

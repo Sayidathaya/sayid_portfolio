@@ -627,12 +627,18 @@
     width: 7px;
     height: 7px;
     background: var(--color-accent-red);
+    transition: filter 180ms steps(4, end);
   }
   .monitor-lights i:nth-child(2) {
     background: var(--color-accent-yellow);
   }
   .monitor-lights i:nth-child(3) {
     background: var(--color-accent-blue);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .monitor-lights:hover i {
+      filter: brightness(1.9) drop-shadow(0 0 6px rgb(255 255 255 / 0.35));
+    }
   }
   .monitor-title {
     color: var(--color-paper);

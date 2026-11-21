@@ -1,0 +1,44 @@
+---
+import { Image } from "astro:assets";
+import { findPixelAsset, type PixelAssetName } from "../utils/pixelAssets";
+
+interface Props {
+  name: PixelAssetName;
+  /** Display width in CSS pixels. */
+  size?: number;
+  width?: number;
+  height?: number;
+  class?: string;
+  loading?: "eager" | "lazy";
+  alt?: string;
+  fetchpriority?: "high" | "low" | "auto";
+}
+
+const {
+  name,
+  size = 64,
+  width,
+  height,
+  class: className,
+  loading = "lazy",
+  alt = "",
+  fetchpriority = "auto",
+} = Astro.props;
+
+const asset = findPixelAsset(name);
+const displayWidth = width ?? size;
+const displayHeight =
+  height ?? Math.max(1, Math.round(displayWidth * (asset.height / asset.width)));
+---
+<Image
+  src={asset}
+  alt={alt}
+  width={displayWidth}
+  height={displayHeight}
+  densities={[1, 2]}
+  loading={loading}
+  decoding={loading === "eager" ? "sync" : "async"}
+  fetchpriority={fetchpriority}
+  class:list={["pixel-art", className]}
+  aria-hidden={alt ? undefined : "true"}
+/>

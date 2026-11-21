@@ -1,0 +1,1166 @@
+/* ==========================================================================
+   Landing — SRA attract-mode title screen
+   One composition, two authored states: STANDBY and LINK ONLINE.
+   Asymmetric arcade stage: marquee title left, operator cameo right, the
+   physical power switch sits on the console rail beneath the title.
+   CSS owns the switch knob and all ambient art. GSAP owns only the avatar,
+   marquee reveal and the optional title re-entry.
+   ========================================================================== */
+
+@layer components {
+  .landing {
+    --landing-void: #050507;
+    --landing-panel: #0b0c16;
+    --landing-panel-raised: #12142a;
+    --landing-line: rgb(247 245 255 / 0.16);
+    --landing-line-strong: rgb(247 245 255 / 0.34);
+    --landing-hairline: rgb(247 245 255 / 0.055);
+    --landing-ink: #f7f5ff;
+    --landing-muted: #c6c2ce;
+    --landing-dim: #9a96a4;
+    --landing-screen: #070812;
+    --landing-deep: #08090f;
+    --landing-slot: #090a12;
+    --landing-sky-1: #090914;
+    --landing-sky-2: #050507;
+    --landing-sky-3: #0b0714;
+    --landing-panel-grad: linear-gradient(160deg, #0d1020 0%, #080912 64%, #0b0714 100%);
+    --landing-shadow: rgb(5 5 7 / 0.62);
+    --landing-shadow-soft: rgb(5 5 7 / 0.3);
+    --landing-standby: #3c3a4d;
+    --landing-rule: rgb(247 245 255 / 0.34);
+    --landing-title-ink: var(--color-paper);
+    --landing-title-shadow-1: var(--color-accent-blue);
+    --landing-title-shadow-2: var(--color-accent-red);
+    --landing-accent-ink: var(--color-accent-yellow);
+    --landing-accent-shadow-1: var(--color-accent-red);
+    --landing-accent-shadow-2: var(--color-accent-purple);
+    --landing-live: var(--color-accent-yellow);
+    --landing-note-accent: var(--color-accent-red);
+    --landing-knob-top: #ff5964;
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    min-height: calc(100svh - var(--hud-height, 5.4rem));
+    padding: clamp(4.8rem, 11vh, 8rem) var(--gutter) clamp(2.4rem, 6vh, 4.2rem);
+    overflow: clip;
+    background: var(--landing-void);
+    color: var(--landing-ink);
+  }
+
+  /* Light mode is authored, not inverted: warm paper sky, dark ink, and
+     deeper accent inks wherever text must stay readable on cream. */
+  :root[data-theme="light"] .landing {
+    --landing-void: #fffdf7;
+    --landing-panel: #ffffff;
+    --landing-panel-raised: #f6f0df;
+    --landing-line: rgb(10 10 13 / 0.22);
+    --landing-line-strong: rgb(10 10 13 / 0.58);
+    --landing-hairline: rgb(10 10 13 / 0.07);
+    --landing-ink: #0a0a0d;
+    --landing-muted: #49454f;
+    --landing-dim: #6d6774;
+    --landing-screen: #fffdf7;
+    --landing-deep: #f2eee2;
+    --landing-slot: #ece5d6;
+    --landing-sky-1: #fffdf7;
+    --landing-sky-2: #fffdf7;
+    --landing-sky-3: #f6f0df;
+    --landing-panel-grad: linear-gradient(160deg, #ffffff 0%, #fffdf7 64%, #f6f0df 100%);
+    --landing-shadow: rgb(10 10 13 / 0.26);
+    --landing-shadow-soft: rgb(10 10 13 / 0.12);
+    --landing-standby: #b0a99a;
+    --landing-rule: rgb(10 10 13 / 0.32);
+    --landing-title-ink: #0a0a0d;
+    --landing-title-shadow-1: var(--color-accent-blue-ink);
+    --landing-title-shadow-2: var(--color-accent-red-ink);
+    --landing-accent-ink: var(--color-accent-yellow-ink);
+    --landing-accent-shadow-1: var(--color-accent-red-ink);
+    --landing-accent-shadow-2: var(--color-accent-purple-ink);
+    --landing-live: var(--color-accent-yellow-ink);
+    --landing-note-accent: var(--color-accent-red-ink);
+    --landing-knob-top: #ff5964;
+  }
+
+  /* ---------- Background scene ------------------------------------------- */
+  .landing-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    opacity: 0;
+    background:
+      radial-gradient(58% 42% at 74% 2%, color-mix(in srgb, var(--color-accent-red) 20%, transparent), transparent 70%),
+      radial-gradient(46% 38% at 12% 68%, color-mix(in srgb, var(--color-accent-blue) 16%, transparent), transparent 72%),
+      linear-gradient(180deg, var(--landing-sky-1) 0%, var(--landing-sky-2) 58%, var(--landing-sky-3) 100%);
+  }
+
+  .landing-grid {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, color-mix(in srgb, var(--landing-ink) 4%, transparent) 1px, transparent 1px) 0 0 / 50px 50px,
+      linear-gradient(color-mix(in srgb, var(--landing-ink) 3.4%, transparent) 1px, transparent 1px) 0 0 / 50px 50px;
+    mask-image: radial-gradient(72% 64% at 50% 42%, #000 8%, transparent 82%);
+    opacity: 0.7;
+  }
+
+  .landing-stars {
+    position: absolute;
+    inset: 0 0 26%;
+    background-image:
+      radial-gradient(circle, var(--landing-ink) 0 1px, transparent 1.4px),
+      radial-gradient(circle, var(--color-accent-blue) 0 1px, transparent 1.4px);
+    background-size: 89px 79px, 137px 113px;
+    background-position: 11px 17px, 53px 41px;
+    opacity: 0.38;
+    animation: star-blink 8s steps(1, end) infinite;
+  }
+  .landing-stars--far {
+    opacity: 0.18;
+    animation-delay: -3s;
+  }
+  :root[data-theme="light"] .landing-stars {
+    opacity: 0.14;
+  }
+  :root[data-theme="light"] .landing-stars--far {
+    opacity: 0.08;
+  }
+
+  .landing-sun {
+    position: absolute;
+    top: 9%;
+    left: 68%;
+    width: clamp(4.4rem, 8vw, 6.4rem);
+    aspect-ratio: 1;
+    background:
+      repeating-linear-gradient(0deg, transparent 0 12%, var(--landing-void) 12% 15%),
+      linear-gradient(180deg, var(--color-accent-yellow) 0 30%, var(--color-accent-red) 30% 100%);
+    clip-path: polygon(
+      12% 0, 88% 0, 88% 6%, 94% 6%, 94% 12%, 100% 12%, 100% 88%, 94% 88%, 94% 94%,
+      88% 94%, 88% 100%, 12% 100%, 12% 94%, 6% 94%, 6% 88%, 0 88%, 0 12%, 6% 12%,
+      6% 6%, 12% 6%
+    );
+    box-shadow: 6px 6px 0 var(--color-accent-purple);
+    opacity: 0.72;
+    transform: translateX(-50%);
+    transition: opacity 420ms steps(3, end);
+  }
+  :root[data-theme="light"] .landing-sun {
+    opacity: 0.6;
+  }
+
+  .landing-horizon {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 32%;
+    background:
+      linear-gradient(180deg, transparent, color-mix(in srgb, var(--color-accent-purple) 18%, transparent) 58%, transparent),
+      repeating-linear-gradient(90deg, transparent 0 78px, color-mix(in srgb, var(--landing-ink) 5%, transparent) 78px 80px);
+    mask-image: linear-gradient(180deg, transparent, #000 44%);
+    opacity: 0.5;
+    transition: opacity 500ms steps(4, end);
+  }
+
+  .landing-scene {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+  .landing-clouds,
+  .landing-castle,
+  .landing-bird,
+  .landing-drone,
+  .landing-glint {
+    position: absolute;
+    display: block;
+  }
+  .landing-clouds {
+    top: 8%;
+    left: -1.5rem;
+    width: clamp(8rem, 16vw, 13rem);
+    opacity: 0.22;
+    animation: cloud-drift 34s steps(7, end) infinite alternate;
+  }
+  .landing-castle {
+    right: 1%;
+    bottom: 4%;
+    width: clamp(7rem, 14vw, 11.5rem);
+    opacity: 0.46;
+    filter: drop-shadow(6px 6px 0 var(--landing-shadow-soft));
+    rotate: -1deg;
+  }
+  .landing-bird {
+    top: 13%;
+    left: 55%;
+    width: 2rem;
+    height: 2rem;
+    color: var(--color-accent-blue);
+    opacity: 0.72;
+    animation: float-step 6.5s steps(2, end) infinite;
+  }
+  .landing-drone {
+    top: 20%;
+    right: 4%;
+    width: 2.3rem;
+    height: 2.3rem;
+    color: var(--color-accent-red);
+    opacity: 0.85;
+    animation: float-step 5.4s steps(2, end) infinite;
+    animation-delay: -1.6s;
+  }
+  .landing-glint {
+    top: 16%;
+    left: 4%;
+    width: 1.7rem;
+    height: 1.7rem;
+    color: var(--color-accent-yellow);
+    opacity: 0.65;
+    animation: hover-step 7s steps(2, end) infinite;
+  }
+  :root[data-theme="light"] .landing-glint {
+    color: var(--color-accent-yellow-ink);
+  }
+  .landing-clouds .pixel-art,
+  .landing-castle .pixel-art {
+    width: 100%;
+    height: auto;
+  }
+  .landing-bird .pixel-sprite,
+  .landing-drone .pixel-sprite,
+  .landing-glint .px-icon {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Activated scene: the light comes up without touching GSAP-owned layers. */
+  .landing[data-landing-state="active"] .landing-sun {
+    opacity: 1;
+  }
+  .landing[data-landing-state="active"] .landing-horizon {
+    opacity: 1;
+  }
+  .landing[data-landing-state="active"] .landing-castle {
+    opacity: 0.72;
+  }
+  .landing[data-landing-state="active"] .landing-grid {
+    opacity: 1;
+  }
+
+  /* ---------- Shell + stage ---------------------------------------------- */
+  .landing-shell {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(1.3rem, 3vh, 2.2rem);
+    width: 100%;
+  }
+
+  .landing-stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1.18fr) minmax(17rem, 0.72fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "masthead portrait"
+      "control portrait";
+    gap: clamp(1.2rem, 2.2vh, 2rem) clamp(2rem, 5vw, 4.4rem);
+    align-items: start;
+  }
+
+  .landing-masthead {
+    grid-area: masthead;
+    display: grid;
+    gap: clamp(0.7rem, 1.6vh, 1.1rem);
+    align-content: start;
+    min-width: 0;
+  }
+
+  .landing-kicker {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.55rem 0.8rem;
+    margin: 0;
+  }
+  .landing-kicker-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.24rem 0.52rem;
+    border: 2px solid var(--landing-note-accent);
+    color: var(--landing-ink);
+    background: color-mix(in srgb, var(--color-accent-red) 12%, transparent);
+    box-shadow: 3px 3px 0 var(--landing-shadow);
+    font-family: var(--font-pixel);
+    font-size: 0.54rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .landing-kicker-badge i {
+    width: 6px;
+    height: 6px;
+    background: var(--color-accent-red);
+    animation: blink-step 1.6s steps(1, end) infinite;
+  }
+  .landing-kicker-rule {
+    flex: 0 0 clamp(2rem, 7vw, 5.5rem);
+    height: 3px;
+    background: repeating-linear-gradient(90deg, var(--landing-rule) 0 6px, transparent 6px 12px);
+    opacity: 0.65;
+  }
+  .landing-kicker-note {
+    color: var(--landing-dim);
+    font-family: var(--font-pixel);
+    font-size: 0.48rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .landing-title {
+    margin: 0;
+    font-family: var(--font-pixel);
+    font-size: clamp(2.4rem, 6.6vw, 5.2rem);
+    font-weight: 700;
+    line-height: 0.99;
+    letter-spacing: 0.002em;
+    text-align: left;
+    text-transform: uppercase;
+  }
+  .landing-title-line {
+    position: relative;
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    color: var(--landing-title-ink);
+    text-shadow:
+      5px 5px 0 var(--landing-title-shadow-1),
+      10px 10px 0 var(--landing-title-shadow-2);
+    animation: title-in 700ms steps(7, end) both;
+  }
+  .landing-title-line--accent {
+    color: var(--landing-accent-ink);
+    text-shadow:
+      5px 5px 0 var(--landing-accent-shadow-1),
+      10px 10px 0 var(--landing-accent-shadow-2);
+    animation-delay: 140ms;
+  }
+
+  .landing-subtitle {
+    margin: 0;
+    color: var(--landing-muted);
+    font-family: var(--font-mono);
+    font-size: clamp(0.68rem, 0.95vw, 0.78rem);
+    line-height: 1.6;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .landing-subtitle span {
+    color: var(--landing-note-accent);
+  }
+
+  .landing-tagline {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+    max-width: 34ch;
+    margin: 0;
+    color: var(--landing-muted);
+    font-size: clamp(0.98rem, 0.35vw + 0.9rem, 1.12rem);
+    line-height: 1.55;
+  }
+  .landing-tagline::before {
+    content: "";
+    flex: none;
+    width: 7px;
+    height: 7px;
+    background: var(--color-accent-red);
+    box-shadow: 3px 3px 0 var(--color-accent-yellow);
+    transform: translateY(-1px);
+  }
+
+  /* ---------- Operator cameo --------------------------------------------- */
+  .landing-portrait {
+    position: relative;
+    grid-area: portrait;
+    justify-self: end;
+    width: min(100%, 22rem);
+    padding: 1.55rem 0 0 1.55rem;
+  }
+  .landing-portrait::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    inset: 2.15rem -0.55rem 1.4rem 2.2rem;
+    background: var(--color-accent-purple);
+    clip-path: var(--pixel-cut-lg);
+    opacity: 0.92;
+  }
+  .landing-portrait-frame {
+    position: relative;
+    z-index: 1;
+    padding: 0.7rem;
+    border: 3px solid var(--color-accent-blue);
+    background: var(--landing-panel-grad);
+    clip-path: var(--pixel-cut-lg);
+    box-shadow: 8px 8px 0 var(--landing-shadow);
+  }
+  .landing-portrait-index {
+    position: absolute;
+    top: 0;
+    left: 1.9rem;
+    z-index: 3;
+    color: var(--landing-accent-ink);
+    font-family: var(--font-pixel);
+    font-size: clamp(1.7rem, 3vw, 2.3rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    text-shadow: 4px 4px 0 var(--landing-accent-shadow-2);
+  }
+
+  .landing-player-screen {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 5;
+    min-width: 0;
+    overflow: hidden;
+    border: 2px solid var(--landing-line);
+    background:
+      repeating-linear-gradient(0deg, transparent 0 3px, var(--landing-hairline) 3px 4px),
+      var(--landing-screen);
+  }
+
+  .landing-standby {
+    display: grid;
+    justify-items: center;
+    gap: 0.5rem;
+    padding: 1.1rem;
+    transition: opacity 260ms steps(3, end), transform 260ms steps(3, end);
+  }
+  .landing-standby-frame {
+    display: block;
+    width: clamp(6rem, 12vw, 8.5rem);
+    color: var(--landing-standby);
+    filter: grayscale(1);
+  }
+  .landing-standby-frame .pixel-sprite {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .landing-standby-label {
+    color: var(--landing-dim);
+    font-family: var(--font-pixel);
+    font-size: 0.46rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .landing[data-landing-state="active"] .landing-standby {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  .landing-avatar {
+    position: absolute;
+    inset: 0.55rem;
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    transform: translateY(16px) scale(0.95);
+    transition:
+      opacity 500ms steps(4, end),
+      transform 500ms steps(4, end);
+  }
+  .landing:not([data-landing-engine="gsap"])[data-landing-state="active"] .landing-avatar {
+    opacity: 1;
+    transform: none;
+  }
+  .landing-avatar-img {
+    display: block;
+    width: min(15rem, 100%);
+    max-height: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    border: 3px solid var(--color-accent-blue);
+    background: var(--color-surface);
+    box-shadow: 6px 6px 0 var(--color-accent-purple);
+  }
+  .landing:not([data-landing-engine="gsap"])[data-landing-state="active"] .landing-avatar-img {
+    animation: landing-dissolve 520ms steps(6, end) both;
+  }
+  @keyframes landing-dissolve {
+    from {
+      clip-path: inset(0 0 100% 0);
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .landing-player-scan {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: linear-gradient(
+      180deg,
+      transparent 0 44%,
+      rgb(40 100 255 / 0.12) 44% 48%,
+      transparent 48% 100%
+    );
+    pointer-events: none;
+    animation: scan-down 7s steps(10, end) infinite;
+  }
+
+  .landing-portrait-plate {
+    margin-top: 0.7rem;
+    padding: 0.62rem 0.75rem 0.68rem;
+    background: var(--color-accent-yellow);
+    clip-path: var(--pixel-cut-sm);
+    box-shadow: 4px 4px 0 var(--landing-shadow);
+  }
+  .landing-player-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.35rem 0.8rem;
+    min-width: 0;
+  }
+  .landing-player-name {
+    margin: 0;
+    color: var(--color-on-yellow);
+    font-family: var(--font-pixel);
+    font-size: clamp(0.66rem, 1vw, 0.8rem);
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+  .landing-player-role {
+    margin: 0.12rem 0 0;
+    color: color-mix(in srgb, var(--color-on-yellow) 78%, var(--color-accent-yellow));
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    line-height: 1.4;
+  }
+  .landing-player-state {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0;
+    color: color-mix(in srgb, var(--color-on-yellow) 82%, var(--color-accent-yellow));
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .landing-player-state i {
+    width: 5px;
+    height: 5px;
+    background: currentColor;
+    animation: blink-step 1.8s steps(1, end) infinite;
+  }
+  .landing-state-active {
+    display: none;
+  }
+  .landing[data-landing-state="active"] .landing-state-idle {
+    display: none;
+  }
+  .landing[data-landing-state="active"] .landing-state-active {
+    display: inline;
+  }
+
+  /* ---------- Console rail + the switch ---------------------------------- */
+  .landing-control {
+    grid-area: control;
+    align-self: end;
+    display: grid;
+    gap: 0.8rem;
+    max-width: 35rem;
+    min-width: 0;
+    padding-top: 0.95rem;
+    border-top: 2px dashed var(--landing-line);
+  }
+  .landing-control-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem 0.9rem;
+  }
+  .landing-console-id {
+    color: var(--landing-muted);
+    font-family: var(--font-pixel);
+    font-size: 0.46rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .landing-signal {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 0.85rem;
+    padding-left: 0.7rem;
+    border-left: 2px dashed var(--landing-line);
+  }
+  .landing-signal i {
+    width: 4px;
+    background: var(--landing-dim);
+    transition: height 220ms steps(2, end), background-color 220ms steps(2, end);
+  }
+  .landing-signal i:nth-child(1) { height: 30%; }
+  .landing-signal i:nth-child(2) { height: 45%; }
+  .landing-signal i:nth-child(3) { height: 60%; }
+  .landing-signal i:nth-child(4) { height: 78%; }
+  .landing-signal i:nth-child(5) { height: 100%; }
+  .landing[data-landing-state="active"] .landing-signal i {
+    background: var(--color-accent-blue);
+    animation: signal-pulse 1.2s steps(4, end) infinite;
+  }
+  .landing[data-landing-state="active"] .landing-signal i:nth-child(2) { animation-delay: 120ms; }
+  .landing[data-landing-state="active"] .landing-signal i:nth-child(3) { animation-delay: 240ms; }
+  .landing[data-landing-state="active"] .landing-signal i:nth-child(4) { animation-delay: 360ms; }
+  .landing[data-landing-state="active"] .landing-signal i:nth-child(5) { animation-delay: 480ms; }
+
+  .landing-readout {
+    margin-left: auto;
+    color: var(--landing-dim);
+    font-family: var(--font-pixel);
+    font-size: 0.46rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .landing-readout-active {
+    display: none;
+    color: var(--landing-live);
+  }
+  .landing[data-landing-state="active"] .landing-readout-idle {
+    display: none;
+  }
+  .landing[data-landing-state="active"] .landing-readout-active {
+    display: inline;
+  }
+
+  .landing-brief {
+    max-width: 46ch;
+    margin: 0;
+    color: var(--landing-muted);
+    font-size: clamp(0.86rem, 0.2vw + 0.82rem, 0.96rem);
+    line-height: 1.62;
+  }
+
+  .landing-toggle-zone {
+    display: grid;
+    justify-items: start;
+    gap: 0.6rem;
+  }
+
+  .landing-toggle {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    max-width: 100%;
+    gap: 0.65rem;
+    padding: 0;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+  .landing-toggle-track {
+    position: relative;
+    display: block;
+    width: min(15.5rem, 76vw);
+    max-width: 100%;
+    height: 4.3rem;
+    border: 3px solid var(--landing-ink);
+    background: linear-gradient(180deg, var(--landing-panel-raised) 0%, var(--landing-slot) 100%);
+    box-shadow:
+      7px 7px 0 var(--landing-shadow),
+      inset 0 0 0 2px var(--landing-hairline);
+    transition:
+      border-color 180ms steps(2, end),
+      box-shadow 180ms steps(2, end),
+      transform 180ms steps(2, end);
+  }
+  .landing-toggle-track::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 0.7rem;
+    left: 0.7rem;
+    height: 0.72rem;
+    transform: translateY(-50%);
+    background: var(--landing-slot);
+    border-block: 2px solid var(--landing-line);
+    box-shadow: inset 0 3px 0 var(--landing-shadow-soft);
+  }
+  .landing-toggle:hover .landing-toggle-track {
+    border-color: var(--landing-accent-ink);
+    box-shadow:
+      9px 9px 0 var(--landing-shadow),
+      inset 0 0 0 2px var(--landing-hairline);
+    transform: translate(-1px, -1px);
+  }
+  .landing-toggle:active .landing-toggle-track {
+    transform: translate(3px, 3px);
+    box-shadow:
+      3px 3px 0 var(--landing-shadow),
+      inset 0 0 0 2px var(--landing-hairline);
+  }
+  .landing-toggle:focus-visible {
+    outline: none;
+  }
+  .landing-toggle:focus-visible .landing-toggle-track {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 5px;
+    box-shadow:
+      0 0 0 9px var(--color-focus-halo),
+      7px 7px 0 var(--landing-shadow);
+  }
+
+  .landing-toggle-screw {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    background: var(--landing-dim);
+    box-shadow: inset 0 -2px 0 var(--landing-shadow-soft);
+  }
+  .landing-toggle-screw--a {
+    top: 0.4rem;
+    left: 0.45rem;
+  }
+  .landing-toggle-screw--b {
+    right: 0.45rem;
+    bottom: 0.4rem;
+  }
+
+  .landing-toggle-word {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--font-pixel);
+    font-size: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition: color 220ms steps(2, end), opacity 220ms steps(2, end);
+  }
+  .landing-toggle-word--off {
+    right: 0.95rem;
+    color: var(--landing-dim);
+  }
+  .landing-toggle-word--on {
+    left: 0.95rem;
+    color: var(--landing-live);
+    opacity: 0;
+  }
+  .landing[data-landing-state="active"] .landing-toggle-word--off {
+    opacity: 0;
+  }
+  .landing[data-landing-state="active"] .landing-toggle-word--on {
+    opacity: 1;
+  }
+
+  /* CSS is the only owner of the knob's horizontal position. The knob is a
+     chunky throw-handle riding a routed slot, not a pill on a track. */
+  .landing-toggle-knob {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 4.2%;
+    width: 3rem;
+    height: 3.3rem;
+    transform: translateY(-50%);
+    background: linear-gradient(180deg, var(--landing-knob-top) 0 15%, var(--color-accent-red) 15% 100%);
+    border: 2px solid var(--landing-ink);
+    box-shadow:
+      0 5px 0 var(--landing-shadow),
+      0 0 0 3px var(--landing-hairline);
+    transition:
+      left 260ms steps(3, end),
+      background 200ms steps(2, end),
+      border-color 200ms steps(2, end);
+  }
+  .landing-toggle-grip {
+    position: absolute;
+    top: 0.55rem;
+    bottom: 0.55rem;
+    left: 50%;
+    width: 0.55rem;
+    transform: translateX(-50%);
+    background: repeating-linear-gradient(
+      180deg,
+      var(--landing-shadow-soft) 0 3px,
+      var(--landing-hairline) 3px 6px,
+      transparent 6px 9px
+    );
+    border-inline: 2px solid var(--landing-shadow-soft);
+  }
+  .landing[data-landing-state="active"] .landing-toggle-knob {
+    left: calc(95.8% - 3rem);
+    background: linear-gradient(180deg, #fff0a8 0 15%, var(--color-accent-yellow) 15% 100%);
+  }
+
+  .landing-toggle-caption {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+  .landing-toggle-led {
+    width: 9px;
+    height: 9px;
+    background: var(--landing-dim);
+    box-shadow: 2px 2px 0 var(--landing-shadow);
+    transition: background-color 180ms steps(2, end), box-shadow 180ms steps(2, end);
+  }
+  .landing[data-landing-state="active"] .landing-toggle-led {
+    background: var(--color-accent-yellow);
+    box-shadow:
+      2px 2px 0 var(--color-accent-red),
+      0 0 0 4px color-mix(in srgb, var(--color-accent-yellow) 22%, transparent);
+  }
+  .landing-toggle-label {
+    color: var(--landing-muted);
+    font-family: var(--font-pixel);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    transition: color 180ms steps(2, end);
+  }
+  .landing[data-landing-state="active"] .landing-toggle-label {
+    color: var(--landing-live);
+  }
+  .landing-toggle-hint {
+    margin: 0;
+    color: var(--landing-dim);
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    line-height: 1.5;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  /* ---------- Marquee + bottomline --------------------------------------- */
+  .landing-marquee {
+    display: flex;
+    width: 100%;
+    overflow: hidden;
+    border-block: 2px solid var(--color-accent-blue);
+    background: var(--landing-deep);
+    opacity: 0;
+    transform: translateY(12px);
+    mask-image: linear-gradient(90deg, transparent, #000 2.5%, #000 97.5%, transparent);
+    transition:
+      opacity 500ms steps(4, end),
+      transform 500ms steps(4, end);
+  }
+  .landing:not([data-landing-engine="gsap"])[data-landing-state="active"] .landing-marquee {
+    opacity: 1;
+    transform: none;
+  }
+  .landing-marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee 30s linear infinite;
+  }
+  .landing:not([data-landing-engine="gsap"]):hover .landing-marquee-track {
+    animation-play-state: paused;
+  }
+  .landing-marquee-group {
+    display: flex;
+    align-items: center;
+  }
+  .landing-marquee-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.62rem 1.2rem;
+    color: var(--landing-muted);
+    font-family: var(--font-pixel);
+    font-size: 0.54rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .landing-marquee-item i {
+    flex: none;
+    width: 5px;
+    height: 5px;
+    background: var(--color-accent-red);
+    transform: translate(-2px, -2px);
+  }
+  .landing-marquee-item:nth-child(3n + 2) i {
+    background: var(--color-accent-yellow);
+    box-shadow:
+      5px 0 var(--color-accent-purple),
+      0 5px var(--color-accent-purple);
+  }
+  .landing-marquee-item:nth-child(3n) i {
+    background: var(--color-accent-purple);
+    box-shadow:
+      5px 0 var(--color-accent-red),
+      0 5px var(--color-accent-red);
+  }
+  .landing-marquee-item b {
+    color: var(--landing-ink);
+  }
+
+  .landing-bottomline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem 1.2rem;
+  }
+  .landing-scroll {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2.4rem;
+    color: var(--landing-muted);
+    border-bottom: 2px dotted var(--landing-rule);
+    font-family: var(--font-pixel);
+    font-size: 0.54rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+  .landing-scroll:hover,
+  .landing-scroll:focus-visible {
+    color: var(--landing-ink);
+    border-color: var(--landing-accent-ink);
+  }
+  .landing-scroll span:last-child {
+    color: var(--landing-live);
+    animation: hover-step 1.6s steps(2, end) infinite;
+  }
+  .landing-build {
+    color: var(--landing-dim);
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+    letter-spacing: 0.08em;
+  }
+
+  /* ---------- GSAP ownership hand-off ------------------------------------
+     Once the GSAP controller is live it owns avatar + marquee opacity and
+     transform. The CSS fallback rules above only apply when the engine marker
+     is absent. The knob stays CSS-owned in every mode. */
+  .landing[data-landing-engine="gsap"] .landing-avatar,
+  .landing[data-landing-engine="gsap"] .landing-marquee {
+    transition: none;
+  }
+  .landing[data-landing-engine="gsap"] .landing-avatar-img {
+    animation: none !important;
+  }
+  .landing[data-landing-engine="gsap"] .landing-marquee-track {
+    animation: none;
+  }
+
+  /* No-JS: the switch cannot work, so show the completed operator state and
+     remove the non-functional control instead of presenting a dead switch. */
+  html:not(.js) .landing-toggle-zone {
+    display: none;
+  }
+  html:not(.js) .landing-standby {
+    display: none;
+  }
+  html:not(.js) .landing-avatar {
+    position: static;
+    opacity: 1;
+    transform: none;
+  }
+  html:not(.js) .landing-marquee {
+    opacity: 1;
+    transform: none;
+  }
+  html:not(.js) .landing-readout-idle,
+  html:not(.js) .landing-state-idle {
+    display: none;
+  }
+  html:not(.js) .landing-readout-active,
+  html:not(.js) .landing-state-active {
+    display: inline;
+  }
+
+  @keyframes signal-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  /* ---------- Responsive ------------------------------------------------ */
+  @media (max-width: 63.99rem) {
+    .landing-stage {
+      grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.66fr);
+      grid-template-rows: auto auto;
+      grid-template-areas:
+        "masthead masthead"
+        "control portrait";
+      gap: clamp(1.3rem, 2.8vh, 2rem) clamp(1.6rem, 4vw, 3rem);
+    }
+    .landing-control {
+      align-self: start;
+      max-width: none;
+    }
+    .landing-portrait {
+      width: min(100%, 20rem);
+    }
+    .landing-title {
+      font-size: clamp(2.4rem, 7.4vw, 4.6rem);
+    }
+  }
+
+  @media (max-width: 47.99rem) {
+    .landing {
+      justify-content: flex-start;
+      min-height: calc(100svh - var(--hud-height, 5.4rem));
+      padding-top: clamp(4.4rem, 10vh, 5.6rem);
+      padding-bottom: 2.2rem;
+      text-align: left;
+    }
+    .landing-stage {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto auto auto;
+      grid-template-areas:
+        "masthead"
+        "control"
+        "portrait";
+      gap: 1.4rem;
+    }
+    .landing-title {
+      font-size: clamp(2rem, 10.2vw, 2.9rem);
+    }
+    .landing-kicker-rule {
+      flex-basis: 1.6rem;
+    }
+    .landing-kicker-note {
+      display: none;
+    }
+    .landing-subtitle {
+      font-size: 0.68rem;
+    }
+    .landing-tagline {
+      font-size: 0.95rem;
+    }
+    .landing-control {
+      padding-top: 0.85rem;
+    }
+    .landing-brief {
+      font-size: 0.86rem;
+      line-height: 1.58;
+    }
+    .landing-toggle-track {
+      width: min(14.5rem, 76vw);
+      height: 4rem;
+    }
+    .landing-toggle-knob {
+      width: 2.7rem;
+      height: 3.05rem;
+    }
+    .landing[data-landing-state="active"] .landing-toggle-knob {
+      left: calc(95.8% - 2.7rem);
+    }
+    .landing-portrait {
+      justify-self: end;
+      width: min(100%, 19rem);
+      padding-top: 1.5rem;
+    }
+    .landing-marquee-item {
+      padding: 0.55rem 1rem;
+      font-size: 0.5rem;
+    }
+  }
+
+  @media (max-width: 25rem) {
+    .landing-title {
+      font-size: clamp(1.85rem, 10.4vw, 2.3rem);
+    }
+    .landing-kicker-rule {
+      display: none;
+    }
+    .landing-portrait {
+      width: 100%;
+      padding-left: 0;
+    }
+    .landing-portrait::before {
+      left: 0.8rem;
+    }
+  }
+
+  @media (min-width: 64rem) and (max-height: 58rem) {
+    .landing {
+      padding-top: clamp(2.2rem, 5vh, 3.4rem);
+      padding-bottom: clamp(1rem, 2.4vh, 1.6rem);
+    }
+    .landing-shell {
+      gap: clamp(0.9rem, 2.2vh, 1.4rem);
+    }
+    .landing-title {
+      font-size: clamp(2rem, 5.6vw, 4.4rem);
+    }
+    .landing-portrait {
+      width: min(100%, 18.5rem);
+    }
+    .landing-brief {
+      font-size: 0.85rem;
+      line-height: 1.55;
+    }
+    .landing-toggle-track {
+      height: 3.8rem;
+    }
+    .landing-toggle-knob {
+      width: 2.6rem;
+      height: 2.95rem;
+    }
+    .landing[data-landing-state="active"] .landing-toggle-knob {
+      left: calc(95.8% - 2.6rem);
+    }
+    .landing-marquee-item {
+      padding-block: 0.5rem;
+    }
+  }
+
+  @media (min-width: 64rem) and (max-height: 50rem) {
+    .landing-title {
+      font-size: clamp(1.8rem, 4.8vw, 3.4rem);
+    }
+    .landing-portrait {
+      width: min(100%, 16.5rem);
+    }
+    .landing-portrait::before {
+      inset: 2.15rem -0.45rem 2.4rem 2.15rem;
+    }
+    .landing-brief {
+      font-size: 0.82rem;
+    }
+    .landing-toggle-track {
+      height: 3.5rem;
+    }
+    .landing-toggle-knob {
+      width: 2.35rem;
+      height: 2.7rem;
+    }
+    .landing[data-landing-state="active"] .landing-toggle-knob {
+      left: calc(95.8% - 2.35rem);
+    }
+    .landing-standby-frame {
+      width: 4.8rem;
+    }
+  }
+}

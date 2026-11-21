@@ -1,0 +1,285 @@
+/* ==========================================================================
+   Journey cinematics
+   Smooth-scroll shell contracts, fixed scene curtains, and the per-zone
+   scanners that give each section its own physical transition.
+
+   Ownership: GSAP writes only transform / opacity / clip-path on the elements
+   below. No layout property is animated, and every effect is decorative and
+   aria-hidden, so no content can be lost if motion is disabled.
+   ========================================================================== */
+
+/* ---------- Smooth-scroll shell ----------------------------------------- */
+/* The HUD is fixed outside the transformed content; reserve its measured
+   height so the title screen starts directly beneath it in every motion mode. */
+#smooth-content {
+  padding-top: var(--hud-height, 5.375rem);
+}
+
+html[data-smooth="on"] #smooth-wrapper {
+  overflow: hidden;
+}
+
+/* CSS sticky cannot survive inside transformed smooth content. Cinematics
+   marks the exact element it is pinning; everything else keeps native sticky. */
+html[data-smooth="on"] [data-sticky-pin] {
+  position: static !important;
+  top: auto !important;
+}
+
+/* ---------- Fixed scene curtains ---------------------------------------- */
+.scene-curtains {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-curtain, 50);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.scene-curtain {
+  --curtain-a: var(--color-accent-blue);
+  --curtain-b: var(--color-accent-yellow);
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+  will-change: clip-path, opacity;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 3px,
+      rgb(255 255 255 / 0.045) 3px 4px
+    ),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--curtain-a) 24%, #050507) 0%,
+      #050507 48%,
+      color-mix(in srgb, var(--curtain-b) 20%, #050507) 100%
+    );
+}
+
+.scene-curtain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--curtain-a) 32%, transparent) 0 2px,
+    transparent 2px 24px
+  );
+  opacity: 0.4;
+  mask-image: linear-gradient(90deg, #000, transparent 68%);
+}
+
+.scene-curtain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    58% 46% at 50% 50%,
+    color-mix(in srgb, var(--curtain-b) 14%, transparent),
+    transparent 72%
+  );
+}
+
+.scene-curtain--archive {
+  --curtain-a: var(--color-accent-yellow);
+  --curtain-b: var(--color-accent-blue);
+}
+
+.scene-curtain--quest {
+  --curtain-a: var(--color-accent-blue);
+  --curtain-b: var(--color-accent-red);
+}
+
+.scene-curtain--inventory {
+  --curtain-a: var(--color-accent-purple);
+  --curtain-b: var(--color-accent-yellow);
+}
+
+.scene-curtain--vault {
+  --curtain-a: var(--color-accent-red);
+  --curtain-b: var(--color-accent-yellow);
+}
+
+.scene-curtain--comms {
+  --curtain-a: var(--color-accent-blue);
+  --curtain-b: var(--color-accent-purple);
+}
+
+.scene-curtain--end {
+  --curtain-a: var(--color-accent-yellow);
+  --curtain-b: var(--color-accent-purple);
+}
+
+.scene-curtain-label {
+  position: relative;
+  z-index: 1;
+  max-width: min(88vw, 42rem);
+  padding: 0.55rem 0.9rem;
+  border: 3px solid var(--curtain-b);
+  color: var(--color-foreground);
+  background: color-mix(in srgb, #050507 82%, transparent);
+  box-shadow: 5px 5px 0 var(--curtain-a);
+  font-family: var(--font-pixel);
+  font-size: clamp(0.54rem, 1.3vw, 0.72rem);
+  font-weight: 700;
+  line-height: 1.6;
+  letter-spacing: 0.14em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* ---------- Zone scanners ------------------------------------------------ */
+.dossier-scan,
+.quest-sweep,
+.ability-charge,
+.vault-scan {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.dossier-scan {
+  z-index: 4;
+  height: 20%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgb(40 100 255 / 0.08) 34%,
+    rgb(157 180 255 / 0.34) 49%,
+    rgb(255 216 61 / 0.1) 58%,
+    transparent 100%
+  );
+  mix-blend-mode: screen;
+}
+
+.quest-sweep {
+  z-index: 6;
+  height: 15%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgb(255 48 63 / 0.08) 34%,
+    rgb(247 245 255 / 0.26) 50%,
+    rgb(40 100 255 / 0.12) 64%,
+    transparent 100%
+  );
+  mix-blend-mode: screen;
+}
+
+.ability-charge {
+  z-index: 5;
+  height: 18%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgb(135 59 255 / 0.12) 32%,
+    rgb(255 216 61 / 0.32) 50%,
+    rgb(135 59 255 / 0.14) 68%,
+    transparent 100%
+  );
+  mix-blend-mode: screen;
+}
+
+.cert-workbench {
+  position: relative;
+}
+
+.vault-scan {
+  z-index: 2;
+  height: 14%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgb(255 48 63 / 0.07) 34%,
+    rgb(255 216 61 / 0.26) 50%,
+    rgb(255 48 63 / 0.08) 66%,
+    transparent 100%
+  );
+  mix-blend-mode: screen;
+}
+
+/* Capture flash */
+.field-captures-wrap {
+  position: relative;
+}
+
+.capture-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(
+      46% 40% at 50% 42%,
+      rgb(255 255 255 / 0.72),
+      rgb(255 216 61 / 0.22) 46%,
+      transparent 74%
+    ),
+    linear-gradient(180deg, transparent 24%, rgb(255 255 255 / 0.28) 50%, transparent 76%);
+  will-change: opacity;
+}
+
+/* Contact signal rings */
+.signal-rings {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.signal-rings i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  width: min(86%, 46rem);
+  aspect-ratio: 1;
+  border: 2px solid color-mix(in srgb, var(--color-accent-blue) 48%, transparent);
+  border-radius: 50%;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.signal-rings i:nth-child(2) {
+  border-color: color-mix(in srgb, var(--color-accent-yellow) 38%, transparent);
+}
+
+.signal-rings i:nth-child(3) {
+  border-color: color-mix(in srgb, var(--color-accent-purple) 42%, transparent);
+}
+
+.comms {
+  z-index: 1;
+}
+
+/* ---------- Calm / reduced motion --------------------------------------- */
+html[data-motion="calm"] .dossier-scan,
+html[data-motion="calm"] .quest-sweep,
+html[data-motion="calm"] .ability-charge,
+html[data-motion="calm"] .vault-scan,
+html[data-motion="calm"] .capture-flash,
+html[data-motion="calm"] .console-scanline,
+html[data-motion="calm"] .signal-rings {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .dossier-scan,
+  html:not([data-motion="full"]) .quest-sweep,
+  html:not([data-motion="full"]) .ability-charge,
+  html:not([data-motion="full"]) .vault-scan,
+  html:not([data-motion="full"]) .capture-flash,
+  html:not([data-motion="full"]) .console-scanline,
+  html:not([data-motion="full"]) .signal-rings,
+  html:not([data-motion="full"]) .scene-curtains {
+    display: none;
+  }
+}

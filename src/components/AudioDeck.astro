@@ -1,0 +1,68 @@
+---
+import PixelArt from "./PixelArt.astro";
+---
+
+<aside
+  class="audio-deck"
+  data-audio-deck
+  data-audio-power="off"
+  data-audio-muted="false"
+  aria-label="Press Start audio deck"
+>
+  <audio data-audio src="/audio/press_start.mp3" preload="metadata"></audio>
+
+  <details class="audio-deck-details" data-audio-details>
+    <summary class="audio-deck-toggle" aria-label="Press Start audio controls">
+      <span class="audio-deck-toggle-key" aria-hidden="true">SND</span>
+      <span class="audio-deck-led" aria-hidden="true"></span>
+    </summary>
+
+    <div class="audio-deck-panel" data-audio-panel>
+      <div class="audio-deck-head">
+        <span class="audio-deck-mark" aria-hidden="true">
+          <PixelArt name="floppy" size={26} />
+        </span>
+        <span class="audio-deck-title">
+          <span class="audio-deck-kicker">SRA SOUND SYSTEM</span>
+          <span class="audio-deck-track">MDK — PRESS START</span>
+        </span>
+        <span class="audio-deck-led" data-audio-led aria-hidden="true"></span>
+      </div>
+
+      <div class="audio-deck-body">
+        <button
+          type="button"
+          class="audio-deck-btn audio-deck-btn--power"
+          data-audio-power
+          aria-pressed="false"
+          aria-label="Power on Press Start audio"
+        >
+          <span class="audio-deck-btn-key" aria-hidden="true">PWR</span>
+          <span class="audio-deck-btn-value" data-audio-power-state>OFF</span>
+        </button>
+
+        <button
+          type="button"
+          class="audio-deck-btn audio-deck-btn--mute"
+          data-audio-mute
+          aria-pressed="false"
+          aria-label="Mute Press Start audio"
+        >
+          <span class="audio-deck-btn-key" data-audio-mute-key>MUTE</span>
+          <span class="audio-deck-btn-value" data-audio-mute-state>SOUND ON</span>
+        </button>
+
+        <span class="audio-eq" data-audio-eq aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i></i>
+        </span>
+      </div>
+
+      <div class="audio-deck-foot">
+        <span class="audio-deck-status" data-audio-status role="status" aria-live="polite">
+          Power off · press PWR
+        </span>
+        <span class="audio-deck-clock" data-audio-clock aria-hidden="true">00:00 / 00:00</span>
+      </div>
+    </div>
+  </details>
+</aside>

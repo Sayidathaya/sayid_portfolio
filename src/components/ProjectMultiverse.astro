@@ -156,10 +156,19 @@ const destinations = projects.map((project, index) => {
           </div>
         </section>
 
-        <div class="mv-worlds">
-          {projects.map((project, index) => (
-            <ProjectWorld project={project} index={index} total={total} />
-          ))}
+        <div class="mv-worlds" data-mv-worlds>
+          <div class="mv-reel-hud" data-mv-reel-hud aria-hidden="true">
+            <span class="mv-reel-hud-label">
+              World <b data-mv-reel-current>01</b> / <span data-mv-reel-total>{totalLabel}</span>
+            </span>
+            <span class="mv-reel-meter"><i data-mv-reel-progress></i></span>
+            <span class="mv-reel-hint">Scroll to traverse</span>
+          </div>
+          <div class="mv-worlds-track" data-mv-worlds-track>
+            {projects.map((project, index) => (
+              <ProjectWorld project={project} index={index} total={total} />
+            ))}
+          </div>
         </div>
       </>
     ) : (
@@ -167,7 +176,7 @@ const destinations = projects.map((project, index) => {
         <PixelBadge tone="yellow" stamp>Atlas empty</PixelBadge>
         <h3>No worlds charted</h3>
         <p>
-          Mark a project as featured in <code>src/data/portfolio.ts</code> to place it on the
+          Mark a project as featured in <code>src/content.config.ts</code> to place it on the
           multiverse map.
         </p>
       </div>

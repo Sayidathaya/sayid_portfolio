@@ -1,3 +1,4 @@
+@config "../../tailwind.config.mjs";
 @import "tailwindcss";
 @import "./tokens.css";
 @import "./chrome.css";
@@ -7,19 +8,31 @@
 @import "./multiverse-art.css";
 @import "./multiverse-dossier.css";
 @import "./certificates.css";
+@import "./intro.css";
+@import "./landing.css";
+@import "./animations.css";
+@import "./cinematics.css";
+@import "./journey.css";
 
 /* ==========================================================================
    Base
    ========================================================================== */
 @layer base {
   html {
-    scroll-padding-top: 6.5rem;
+    scroll-padding-top: calc(var(--hud-height, 5.375rem) + 0.5rem);
+    /* Scroll position belongs to the user. Anchors jump directly to their
+       target; no CSS-driven catch-up animation is layered over native input. */
+    scroll-behavior: auto;
     -webkit-text-size-adjust: 100%;
   }
-  @media (prefers-reduced-motion: no-preference) {
-    html:not([data-motion="calm"]) {
-      scroll-behavior: smooth;
-    }
+  /* The fullscreen intro gate owns the scroll lock until it unmounts. */
+  html.intro-lock {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+  html.intro-lock body {
+    overflow: hidden;
+    overscroll-behavior: none;
   }
   body {
     min-height: 100dvh;
@@ -141,6 +154,14 @@
     letter-spacing: 0.13em;
     text-transform: uppercase;
     color: var(--color-muted);
+    transition:
+      color 180ms steps(4, end),
+      text-shadow 180ms steps(4, end);
+  }
+  .micro:hover,
+  .micro:focus-visible {
+    color: var(--color-accent-yellow);
+    text-shadow: 0 0 12px color-mix(in srgb, var(--color-accent-yellow) 55%, transparent);
   }
   .meta {
     font-family: var(--font-mono);
@@ -514,6 +535,7 @@
     text-transform: uppercase;
     transform: translateY(-220%);
   }
+  .skip-link:focus,
   .skip-link:focus-visible {
     transform: none;
   }
@@ -883,9 +905,7 @@ html[data-motion="calm"] .ability-stage {
 html[data-motion="calm"] .ability-stage__scan {
   display: none;
 }
-html[data-motion="calm"] .console-title-mark,
-html[data-motion="calm"] .console-timer-digit,
-html[data-motion="calm"] .console-coin-prompt {
+html[data-motion="calm"] .console-title-mark {
   animation: none !important;
 }
 

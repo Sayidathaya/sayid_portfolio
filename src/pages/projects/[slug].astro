@@ -1,11 +1,12 @@
 ---
+import { getCollection } from "astro:content";
 import type { InferGetStaticPropsType } from "astro";
 import PixelBadge from "../../components/PixelBadge.astro";
 import PixelIcon from "../../components/PixelIcon.astro";
 import ProjectArt from "../../components/ProjectArt.astro";
 import SceneSeam from "../../components/SceneSeam.astro";
 import WorldGlyph from "../../components/WorldGlyph.astro";
-import { profile, projects } from "../../data/portfolio";
+import type { PortfolioProject, Profile } from "../../types/portfolio";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import {
   projectDetailHref,
@@ -15,16 +16,29 @@ import {
   worldStyle,
 } from "../../utils/world";
 
-export function getStaticPaths() {
-  return projects.map((project, index) => ({
-    params: { slug: project.slug },
-    props: { project, index, total: projects.length },
-  }));
+const projectsEntries = await getCollection("projects");
+const projects: PortfolioProject[] = projectsEntries.map((entry) => ({
+  ...entry.data,
+  slug: entry.id,
+}));
+
+export async function getStaticPaths() {
+  const projectsEntries = await getCollection("projects");
+  const paths = projectsEntries.map((entry, index) => {
+    const project: PortfolioProject = { ...entry.data, slug: entry.id };
+    return {
+      params: { slug: project.slug },
+      props: { project, index, total: projectsEntries.length },
+    };
+  });
+  return paths;
 }
 
 type Props = InferGetStaticPropsType<typeof getStaticPaths>;
 
 const { project, index, total } = Astro.props;
+const profileEntries = await getCollection("profile");
+const profile: Profile = (profileEntries[0]?.data ?? {}) as Profile;
 const direction = resolveWorld(project, index);
 const { variant, tone, accent } = direction;
 const { worldNo, caseNo } = projectNumbers(index);

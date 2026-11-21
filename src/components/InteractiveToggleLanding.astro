@@ -1,0 +1,182 @@
+---
+import { Picture } from "astro:assets";
+import type { Profile } from "../types/portfolio";
+import { findImage } from "../utils/images";
+import PixelArt from "./PixelArt.astro";
+import PixelIcon from "./PixelIcon.astro";
+import PixelSprite from "./PixelSprite.astro";
+
+interface Props {
+  profile: Profile;
+}
+
+const { profile } = Astro.props;
+
+const portrait = findImage("portrait");
+const nameParts = profile.name.trim().split(/\s+/);
+const givenName = nameParts.slice(0, -1).join(" ");
+const familyName = nameParts.at(-1) ?? profile.name;
+const marqueeItems = [
+  "SAYID RAFI A'THAYA",
+  "CREATIVE DEVELOPER",
+  "DIGITAL ARTIST",
+  "INFORMATION SYSTEMS",
+  "SAMARINDA · ID",
+  "PIXEL WORLD",
+];
+---
+
+<section class="landing" data-landing data-landing-state="idle" aria-labelledby="landing-title">
+  <div class="landing-bg" data-landing-bg aria-hidden="true">
+    <span class="landing-grid"></span>
+    <span class="landing-stars landing-stars--far"></span>
+    <span class="landing-stars"></span>
+    <span class="landing-sun"></span>
+    <span class="landing-horizon"></span>
+  </div>
+
+  <div class="landing-scene" aria-hidden="true">
+    <span class="landing-clouds"><PixelArt name="clouds" size={216} /></span>
+    <span class="landing-castle"><PixelArt name="castle" size={172} /></span>
+    <span class="landing-bird"><PixelSprite name="bird" /></span>
+    <span class="landing-drone"><PixelSprite name="drone" /></span>
+    <span class="landing-glint"><PixelIcon name="star" /></span>
+  </div>
+
+  <div class="shell landing-shell">
+    <div class="landing-stage">
+      <header class="landing-masthead">
+        <p class="landing-kicker">
+          <span class="landing-kicker-badge"><i aria-hidden="true"></i>Player 01</span>
+          <span class="landing-kicker-rule" aria-hidden="true"></span>
+          <span class="landing-kicker-note">Attract mode</span>
+        </p>
+
+        <h2 id="landing-title" class="landing-title" aria-label={profile.name} data-landing-title>
+          <span class="landing-title-line" data-text={givenName}>{givenName}</span>
+          <span class="landing-title-line landing-title-line--accent" data-text={familyName}
+            >{familyName}</span
+          >
+        </h2>
+
+        <p class="landing-subtitle">
+          {profile.role}<span aria-hidden="true"> // </span>{profile.location}
+        </p>
+        <p class="landing-tagline">{profile.tagline}</p>
+      </header>
+
+      <aside class="landing-portrait" aria-label="Operator file">
+        <span class="landing-portrait-index" aria-hidden="true">01</span>
+        <div class="landing-portrait-frame">
+          <div class="landing-player-screen">
+            <span class="landing-standby" aria-hidden="true">
+              <span class="landing-standby-frame"><PixelSprite name="archivist" /></span>
+              <span class="landing-standby-label">No signal</span>
+            </span>
+
+            <div class="landing-avatar" data-landing-avatar>
+              {
+                portrait && (
+                  <Picture
+                    src={portrait}
+                    alt={profile.portraitAlt}
+                    formats={["avif", "webp"]}
+                    widths={[320, 640]}
+                    sizes="(min-width: 64rem) 22rem, 70vw"
+                    loading="lazy"
+                    class="landing-avatar-img"
+                  />
+                )
+              }
+            </div>
+
+            <span class="landing-player-scan" aria-hidden="true"></span>
+          </div>
+
+          <div class="landing-portrait-plate">
+            <div class="landing-player-meta">
+              <div>
+                <p class="landing-player-name">{profile.name}</p>
+                <p class="landing-player-role">{profile.role}</p>
+              </div>
+              <p class="landing-player-state">
+                <i aria-hidden="true"></i>
+                <span class="landing-state-idle">Standing by</span>
+                <span class="landing-state-active">Channel open</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="landing-control">
+        <div class="landing-control-bar" aria-hidden="true">
+          <span class="landing-console-id">Power</span>
+          <span class="landing-signal"><i></i><i></i><i></i><i></i><i></i></span>
+          <span class="landing-readout">
+            <span class="landing-readout-idle">Standby</span>
+            <span class="landing-readout-active">Link online</span>
+          </span>
+        </div>
+
+        <p class="landing-brief">
+          One switch wakes the dossier. Throw it to open the channel, meet the operator,
+          and roll the title reel.
+        </p>
+
+        <div class="landing-toggle-zone" data-landing-toggle-zone>
+          <button
+            type="button"
+            class="landing-toggle"
+            id="landing-toggle"
+            data-landing-toggle
+            role="switch"
+            aria-checked="false"
+            aria-labelledby="landing-toggle-label"
+            aria-describedby="landing-toggle-hint"
+          >
+            <span class="landing-toggle-track" aria-hidden="true">
+              <span class="landing-toggle-screw landing-toggle-screw--a"></span>
+              <span class="landing-toggle-screw landing-toggle-screw--b"></span>
+              <span class="landing-toggle-word landing-toggle-word--off">Off</span>
+              <span class="landing-toggle-word landing-toggle-word--on">On</span>
+              <span class="landing-toggle-knob"><span class="landing-toggle-grip"></span></span>
+            </span>
+            <span class="landing-toggle-caption">
+              <span class="landing-toggle-led" aria-hidden="true"></span>
+              <span class="landing-toggle-label" id="landing-toggle-label">ENGAGE</span>
+            </span>
+          </button>
+          <p class="landing-toggle-hint" id="landing-toggle-hint">
+            Activate the switch to go live.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="landing-marquee" data-landing-marquee aria-hidden="true">
+      <div class="landing-marquee-track" data-landing-marquee-track>
+        {
+          [0, 1].map(() => (
+            <div class="landing-marquee-group">
+              {marqueeItems.map((item) => (
+                <span class="landing-marquee-item">
+                  <i aria-hidden="true" />
+                  <b>{item}</b>
+                </span>
+              ))}
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="landing-bottomline">
+      <a class="landing-scroll" href="#about" data-landing-scroll>
+        <span>Scroll to dossier</span>
+        <span aria-hidden="true">↓</span>
+      </a>
+      <span class="landing-build" aria-hidden="true">SRA · 9.0 / 2026</span>
+    </div>
+  </div>
+</section>

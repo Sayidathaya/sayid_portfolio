@@ -169,6 +169,7 @@
   /* ---- Layers --------------------------------------------------------- */
   --z-world: 0;
   --z-content: 2;
+  --z-curtain: 50;
   --z-header: 60;
   --z-rail: 35;
   --z-menu: 70;
@@ -189,6 +190,9 @@
   --shell-max: 84rem;
   --section-pad: clamp(4.5rem, 9vw, 8rem);
   --gutter: clamp(1.15rem, 4vw, 2.75rem);
+  /* Measured from the live HUD during boot and overwritten in px. The unified
+     single-row navbar is roughly 86px tall (4.9rem content + spectrum + frame). */
+  --hud-height: 5.4rem;
 }
 
 :root[data-theme="light"] {

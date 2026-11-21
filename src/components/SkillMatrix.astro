@@ -70,6 +70,7 @@ const links = groupVisuals.flatMap((visual) => {
     group: visual.group.id,
     tone: visual.tone,
     kind: "bus",
+    node: "",
     path: stepPath(core.x, core.y, visual.hub.x, visual.hub.y),
   };
   const branches = visual.items.map((item) => ({
@@ -77,6 +78,7 @@ const links = groupVisuals.flatMap((visual) => {
     group: visual.group.id,
     tone: visual.tone,
     kind: "branch",
+    node: item.name,
     path: stepPath(visual.hub.x, visual.hub.y, item.x, item.y),
   }));
   return [bus, ...branches];
@@ -98,6 +100,7 @@ const initialSiblings = initial
   data-tone={initial?.tone ?? "blue"}
 >
   <div class="ability-board" data-reveal data-skill-board>
+    <span class="ability-charge" aria-hidden="true"></span>
     <div class="ability-hud">
       <p class="ability-hud__title">
         <span class="ability-hud__icon" aria-hidden="true"><PixelIcon name="spark" /></span>
@@ -133,10 +136,10 @@ const initialSiblings = initial
       >
         {
           links.map((link) => (
-            <g class="ability-link" data-link-group={link.group} data-link-kind={link.kind}>
+            <g class="ability-link" data-link-group={link.group} data-link-kind={link.kind} data-link-node={link.node || undefined}>
               <path class="ability-link__under" d={link.path} vector-effect="non-scaling-stroke" />
-              <path class="ability-link__line" d={link.path} vector-effect="non-scaling-stroke" data-tone={link.tone} />
-              <path class="ability-link__signal" d={link.path} vector-effect="non-scaling-stroke" />
+              <path class="ability-link__line" d={link.path} vector-effect="non-scaling-stroke" data-tone={link.tone} data-link-node={link.node || undefined} />
+              <path class="ability-link__signal" d={link.path} vector-effect="non_scaling-stroke" data-link-node={link.node || undefined} />
             </g>
           ))
         }

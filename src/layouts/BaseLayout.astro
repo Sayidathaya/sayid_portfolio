@@ -5,13 +5,70 @@ import "@fontsource/silkscreen/400.css";
 import "@fontsource/silkscreen/700.css";
 import "../styles/global.css";
 import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import AudioDeck from "../components/AudioDeck.astro";
+import MicroSlatsBackground from "../components/MicroSlatsBackground.astro";
+import PixelArt from "../components/PixelArt.astro";
 import PixelIcon from "../components/PixelIcon.astro";
 import PixelSprite from "../components/PixelSprite.astro";
 import Seal from "../components/Seal.astro";
-import { navigation, profile } from "../data/portfolio";
+import type { Profile } from "../types/portfolio";
 import { findImage } from "../utils/images";
 
+const profileEntries = await getCollection("profile");
+const profile: Profile = (profileEntries[0]?.data ?? {}) as Profile;
+
 const brandPhoto = findImage("brand-photo");
+
+/**
+ * One authoritative chapter list for the unified navbar.
+ *
+ * Every chapter is a single source of truth for the fixed navigation:
+ * the same mapping drives the active state, the journey progress meter and
+ * the programmatic anchor scrolling. Titles and finales are part of the
+ * journey even though they live outside the content-driven section flow.
+ */
+interface JourneyChapter {
+  /** Scene id used by the journey director (also the stop hook value). */
+  id: string;
+  /** Hash destination, e.g. `#about`. */
+  href: string;
+  /** Two-digit chapter number shown on the stop. */
+  number: string;
+  /** Short chapter label. */
+  label: string;
+  /** Chromatic tone used by the chapter state. */
+  tone: "red" | "yellow" | "blue" | "purple";
+}
+
+const journeyChapters: JourneyChapter[] = [
+  { id: "top", href: "#top", number: "01", label: "Title", tone: "red" },
+  { id: "about", href: "#about", number: "02", label: "About", tone: "blue" },
+  { id: "experience", href: "#experience", number: "03", label: "Experience", tone: "red" },
+  { id: "skills", href: "#skills", number: "04", label: "Skills", tone: "purple" },
+  { id: "projects", href: "#projects", number: "05", label: "Projects", tone: "purple" },
+  {
+    id: "certificates",
+    href: "#certificates",
+    number: "06",
+    label: "Certificates",
+    tone: "yellow",
+  },
+  { id: "contact", href: "#contact", number: "07", label: "Contact", tone: "blue" },
+  { id: "footer", href: "#footer-title", number: "08", label: "Finale", tone: "yellow" },
+];
+
+/* Plain-language aliases for the command palette search. */
+const chapterKeywords: Record<string, string> = {
+  top: "home start hero intro title screen",
+  about: "profile dossier brief archive",
+  experience: "career work quest timeline history",
+  skills: "inventory abilities ability stack tools",
+  projects: "vault case files multiverse work",
+  certificates: "archive credentials licenses records",
+  contact: "comms email terminal reach",
+  footer: "finale end credits save ending",
+};
 
 interface Props {
   title: string;
@@ -71,8 +128,43 @@ const familyName = nameParts.at(-1) ?? profile.name;
         root.dataset.motion = motion;
       })();
     </script>
+    <noscript>
+      <style>
+        [data-intro] {
+          display: none !important;
+        }
+        html.intro-lock,
+        html.intro-lock body {
+          overflow: auto !important;
+        }
+      </style>
+    </noscript>
+    <script is:inline>
+      // If the animation bundle never arrives, the intro gate must not trap the page.
+      // A watchdog is safer than relying on a single module to clean up after itself.
+      window.setTimeout(() => {
+        const root = document.documentElement;
+        const intro = document.querySelector("[data-intro]");
+        if (!intro) return;
+        const phase = intro.getAttribute("data-intro-phase");
+        const engine = intro.getAttribute("data-intro-engine");
+        const ready = root.dataset.animations === "ready";
+        if (ready && (phase === "ready" || phase === "go" || phase === "exit")) return;
+        /* The intro module writes this marker only after its GSAP timeline and
+           exit handlers are live. A slow first paint can push the READY phase
+           past this watchdog; removing the gate then would flash the landing
+           page and throw away the authored entrance. Trust a live intro. */
+        if (engine === "gsap") return;
+        intro.remove();
+        root.classList.remove("intro-lock");
+        root.dataset.introFallback = "true";
+        root.dataset.introDone = "true";
+        document.dispatchEvent(new CustomEvent("sra:intro-complete"));
+      }, 9000);
+    </script>
   </head>
   <body>
+    <MicroSlatsBackground />
     <div class="fx" aria-hidden="true">
       <span class="fx-grain"></span>
       <span class="fx-scan"></span>
@@ -106,64 +198,99 @@ const familyName = nameParts.at(-1) ?? profile.name;
           </span>
         </a>
 
-        <nav aria-label="Primary" class="hud-nav">
-          <ul id="site-menu" class="nav-list" data-menu>
-            {
-              navigation.map((item, index) => (
-                <li>
-                  <a class="nav-link" href={item.href} data-nav-link>
-                    <span class="nav-cursor" aria-hidden="true"></span>
-                    <span class="nav-no" aria-hidden="true">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                    <span>{item.label}</span>
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
+        <nav class="hud-nav" data-journey aria-label="Chapters">
+          <div class="shell hud-journey-inner">
+            <p class="journey-now journey-now--live" data-journey-now aria-live="polite">
+              <span class="journey-zone" aria-hidden="true">
+                <b data-journey-zone>01</b>
+              </span>
+              <span class="journey-copy">
+                <span class="journey-title" data-journey-title>Title</span>
+                <span class="journey-chapter" data-journey-chapter>
+                  Title screen · Player 01 online
+                </span>
+              </span>
+            </p>
 
-          <div class="hud-actions">
-            <button
-              type="button"
-              class="icon-btn has-tip"
-              data-theme-toggle
-              data-tip="Switch theme"
-              aria-pressed="false"
-              aria-label="Switch to light theme"
-            >
-              <PixelIcon name="sun" class="theme-icon theme-icon--sun" />
-              <PixelIcon name="moon" class="theme-icon theme-icon--moon" />
-            </button>
-            <button
-              type="button"
-              class="icon-btn has-tip"
-              data-motion-toggle
-              data-tip="Reduce motion"
-              aria-pressed="false"
-              aria-label="Reduce motion"
-            >
-              <PixelIcon name="spark" />
-            </button>
-            <button
-              type="button"
-              class="icon-btn menu-btn"
-              data-menu-button
-              aria-expanded="false"
-              aria-controls="site-menu"
-              aria-label="Open menu"
-            >
-              <PixelIcon name="menu" class="menu-icon" />
-              <span data-menu-label>Menu</span>
-            </button>
+            <div class="journey-stops">
+              <ul id="site-menu" class="nav-list" data-menu>
+                {
+                  journeyChapters.map((chapter) => (
+                    <li>
+                      <a
+                        class="nav-link journey-stop"
+                        href={chapter.href}
+                        data-nav-link
+                        data-journey-stop={chapter.id}
+                        data-tone={chapter.tone}
+                        data-state="next"
+                      >
+                        <span class="nav-cursor" aria-hidden="true"></span>
+                        <span class="nav-no journey-stop-no" aria-hidden="true">
+                          {chapter.number}
+                        </span>
+                        <span class="journey-stop-name">{chapter.label}</span>
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+            </div>
           </div>
+
+          <p class="journey-meter">
+            <span class="journey-count">
+              <b data-journey-index>01</b><span aria-hidden="true">/08</span>
+            </span>
+            <span class="journey-track" aria-hidden="true">
+              <i data-journey-progress></i>
+            </span>
+            <span class="journey-percent" data-journey-percent>0%</span>
+          </p>
         </nav>
+
+        <div class="hud-actions">
+          <button
+            type="button"
+            class="icon-btn has-tip"
+            data-theme-toggle
+            data-tip="Switch theme"
+            aria-pressed="false"
+            aria-label="Switch to light theme"
+          >
+            <PixelIcon name="sun" class="theme-icon theme-icon--sun" />
+            <PixelIcon name="moon" class="theme-icon theme-icon--moon" />
+          </button>
+          <button
+            type="button"
+            class="icon-btn has-tip"
+            data-motion-toggle
+            data-tip="Reduce motion"
+            aria-pressed="false"
+            aria-label="Reduce motion"
+          >
+            <PixelIcon name="spark" />
+          </button>
+          <button
+            type="button"
+            class="icon-btn menu-btn"
+            data-menu-button
+            aria-expanded="false"
+            aria-controls="site-menu"
+            aria-label="Open menu"
+          >
+            <PixelIcon name="menu" class="menu-icon" />
+            <span data-menu-label>Menu</span>
+          </button>
+        </div>
       </div>
     </header>
 
-    <main id="main"><slot /></main>
+    <div id="smooth-wrapper">
+      <div id="smooth-content">
+        <main id="main"><slot /></main>
 
-    <footer class="console" aria-labelledby="footer-title">
+        <footer class="console" aria-labelledby="footer-title">
       <div class="console-scene" aria-hidden="true">
         <span class="console-stars"></span>
         <span class="console-sun"></span>
@@ -171,60 +298,220 @@ const familyName = nameParts.at(-1) ?? profile.name;
           <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
         </span>
         <span class="console-ground"></span>
+        <span class="console-castle" aria-hidden="true"><PixelArt name="castle" size={136} /></span>
+        <span class="console-clouds" aria-hidden="true"><PixelArt name="clouds" size={190} /></span>
+        <span class="console-scanline" aria-hidden="true"></span>
         <span class="console-cat"><PixelSprite name="cat" /></span>
         <span class="console-drone"><PixelSprite name="drone" /></span>
       </div>
 
       <div class="shell console-top">
-        <div class="console-continue">
-          <p class="console-kicker" data-reveal>
-            <Seal class="console-seal" />
-            <span>PLAYER 01 · MISSION FINALE</span>
-          </p>
+        <div class="console-epilogue">
+          <div class="console-save">
+            <p class="console-kicker" data-reveal>
+              <Seal class="console-seal" />
+              <span>POST-CREDITS · SAVE POINT</span>
+            </p>
 
-          <h2 id="footer-title" class="console-title" data-reveal style="--d:80ms">
-            CONTINUE<span class="console-title-mark" aria-hidden="true">?</span>
-          </h2>
+            <h2 id="footer-title" class="console-title" data-reveal style="--d:80ms">
+              The world is still open<span class="console-title-mark" aria-hidden="true">_</span>
+            </h2>
 
-          <div class="console-arcade-hud" aria-hidden="true" data-reveal style="--d:160ms">
-            <span class="console-timer-frame">
-              <span class="console-timer-digit">9</span>
-            </span>
-            <span class="console-coin-prompt">INSERT COIN · PRESS START</span>
+            <p class="console-subtitle" data-reveal style="--d:140ms">
+              The dossier is saved. Every case file stays on the record.
+            </p>
+
+            <p class="console-progress" data-reveal style="--d:200ms">
+              <span class="console-progress-label">Journey complete</span>
+              <span class="console-progress-count">08 chapters</span>
+            </p>
+
+            <p class="console-note" data-reveal style="--d:260ms">
+              Every project is a case file: the brief, the code, and the verified evidence.
+            </p>
+
+            <div class="console-actions" data-reveal style="--d:320ms">
+              <a class="px-btn px-btn--start console-cta" href="#top">
+                <span class="px-btn-caret" aria-hidden="true">▲</span>
+                <span>Restart Mission</span>
+                <span class="px-btn-meta">Chapter 01</span>
+              </a>
+              <a class="px-btn console-cta" href="#contact">
+                <PixelIcon name="mail" />
+                <span>Contact Sayid</span>
+              </a>
+              <a class="px-btn console-cta console-cta--quiet" href="#certificates">
+                <PixelIcon name="file" />
+                <span>Certificates</span>
+              </a>
+            </div>
+
+            <p class="console-return" data-reveal style="--d:360ms">
+              Or scroll up to re-read the record.
+            </p>
           </div>
 
-          <p class="console-note" data-reveal style="--d:240ms">
-            Every project is a case file: the brief, the code, and the verified evidence.
-            Return to the title screen or reach out to start the next mission.
-          </p>
-
-          <div class="console-actions" data-reveal style="--d:320ms">
-            <a class="px-btn px-btn--start console-cta" href="#top">
-              <span class="px-btn-caret" aria-hidden="true">▲</span>
-              <span>Restart Mission</span>
-              <span class="px-btn-meta">Top</span>
-            </a>
-            <a class="px-btn console-cta" href="#contact">
-              <PixelIcon name="mail" />
-              <span>Contact Sayid</span>
-            </a>
-            <a class="px-btn console-cta" href="#certificates">
-              <PixelIcon name="file" />
-              <span>Certificates</span>
-            </a>
-          </div>
-
+          <aside class="console-credits" aria-labelledby="credits-title" data-reveal style="--d:180ms">
+            <div class="console-credits-head">
+              <p id="credits-title" class="console-credits-kicker">Colophon</p>
+              <span class="console-credits-no" aria-hidden="true">SRA–01</span>
+            </div>
+            <dl class="console-credits-list">
+              <div>
+                <dt>Direction &amp; build</dt>
+                <dd>{profile.name}</dd>
+              </div>
+              <div>
+                <dt>Engine</dt>
+                <dd>Astro · GSAP · TypeScript</dd>
+              </div>
+              <div>
+                <dt>Type</dt>
+                <dd>Space Grotesk · Silkscreen · IBM Plex Mono</dd>
+              </div>
+              <div>
+                <dt>Record</dt>
+                <dd>{profile.location} · {year}</dd>
+              </div>
+            </dl>
+            <p class="console-thanks">Thanks for playing.</p>
+            <p class="console-credits-foot">SRA · 9.0 / 2026</p>
+          </aside>
         </div>
       </div>
 
       <div class="shell console-bottom">
         <p>© {year} {profile.name}</p>
       </div>
-    </footer>
+        </footer>
+      </div>
+    </div>
+
+    <div class="scene-curtains" data-scene-curtains aria-hidden="true"></div>
+
+    <slot name="overlays" />
+
+    <dialog
+      class="cmd-palette"
+      data-command-palette
+      aria-labelledby="cmd-title"
+      aria-describedby="cmd-hint"
+    >
+      <div class="cmd-frame">
+        <span class="cmd-spectrum" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+
+        <header class="cmd-head">
+          <div class="cmd-heading">
+            <p class="cmd-kicker">SRA // COMMAND DECK</p>
+            <h2 class="cmd-title" id="cmd-title">Jump anywhere</h2>
+          </div>
+          <button type="button" class="cmd-close" data-cmd-close aria-label="Close command palette">
+            <PixelIcon name="close" />
+            <span>ESC</span>
+          </button>
+        </header>
+
+        <div class="cmd-search">
+          <span class="cmd-prompt" aria-hidden="true">&gt;</span>
+          <label class="sr-only" for="cmd-input">Search chapters and commands</label>
+          <input
+            id="cmd-input"
+            class="cmd-input"
+            type="search"
+            placeholder="TYPE A CHAPTER OR COMMAND…"
+            autocomplete="off"
+            spellcheck="false"
+            role="combobox"
+            aria-haspopup="listbox"
+            aria-expanded="true"
+            aria-controls="cmd-list"
+            aria-autocomplete="list"
+            data-cmd-input
+          />
+        </div>
+
+        <ul class="cmd-list" id="cmd-list" role="listbox" aria-label="Chapters and commands" data-cmd-list>
+          {
+            journeyChapters.map((chapter) => (
+              <li role="presentation">
+                <a
+                  id={`cmd-${chapter.id}`}
+                  class="cmd-item"
+                  href={chapter.href}
+                  role="option"
+                  tabindex="-1"
+                  aria-selected="false"
+                  data-cmd-item
+                  data-cmd-nav
+                  data-search={`${chapter.number} ${chapter.label} ${chapter.id} ${chapterKeywords[chapter.id] ?? ""}`}
+                >
+                  <span class="cmd-item-no" aria-hidden="true">{chapter.number}</span>
+                  <span class="cmd-item-name">{chapter.label}</span>
+                  <span class="cmd-item-kind">CHAPTER</span>
+                </a>
+              </li>
+            ))
+          }
+          <li role="presentation">
+            <button
+              id="cmd-theme"
+              type="button"
+              class="cmd-item"
+              role="option"
+              tabindex="-1"
+              aria-selected="false"
+              data-cmd-item
+              data-cmd-theme
+              data-search="theme appearance toggle dark light mode switch"
+            >
+              <span class="cmd-item-no" aria-hidden="true">T</span>
+              <span class="cmd-item-name" data-cmd-theme-label>Switch to light theme</span>
+              <span class="cmd-item-kind">THEME</span>
+            </button>
+          </li>
+          <li role="presentation">
+            <button
+              id="cmd-motion"
+              type="button"
+              class="cmd-item"
+              role="option"
+              tabindex="-1"
+              aria-selected="false"
+              data-cmd-item
+              data-cmd-motion
+              data-search="motion animation reduce calm full toggle"
+            >
+              <span class="cmd-item-no" aria-hidden="true">M</span>
+              <span class="cmd-item-name" data-cmd-motion-label>Reduce motion</span>
+              <span class="cmd-item-kind">MOTION</span>
+            </button>
+          </li>
+        </ul>
+
+        <p class="cmd-empty" data-cmd-empty hidden>No matching command. Try “contact” or “theme”.</p>
+
+        <footer class="cmd-foot">
+          <p class="cmd-hint" id="cmd-hint">
+            <kbd>↑</kbd><kbd>↓</kbd> move <kbd>ENTER</kbd> run <kbd>ESC</kbd> close
+          </p>
+          <p class="cmd-shortcut"><kbd>CTRL</kbd><span>/</span><kbd>⌘</kbd><span>+</span><kbd>K</kbd></p>
+        </footer>
+      </div>
+    </dialog>
+
+    <AudioDeck />
 
     <script>
       import "../scripts/theme";
+    </script>
+    <script>
+      import "../scripts/animations/index";
+    </script>
+    <script>
       import "../scripts/interactions";
+    </script>
+    <script>
+      import "../scripts/palette";
     </script>
   </body>
 </html>

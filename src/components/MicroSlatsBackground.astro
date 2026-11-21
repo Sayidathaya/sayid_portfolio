@@ -1,0 +1,10 @@
+---
+// The visual layer sits behind every page. The WebGL module is progressive:
+// without WebGL2 the CSS gradient below remains as a quiet fallback.
+---
+
+<div class="micro-slats" data-micro-slats data-micro-slats-theme="dark" aria-hidden="true">
+  <div class="micro-slats-fallback"></div>
+  <div class="micro-slats-canvas" data-micro-slats-canvas></div>
+  <span class="micro-slats-vignette"></span>
+</div>

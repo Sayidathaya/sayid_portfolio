@@ -1,0 +1,71 @@
+---
+/**
+ * A single decorative atmosphere layer for one scene.
+ *
+ * The layer sits above the section background and below the shell content, so
+ * it can tint the world without touching text, cards, images or controls. The
+ * scene director owns the `--fx-*` variables at runtime; without JavaScript
+ * (or with Calm Motion) this stays a quiet static wash.
+ */
+interface Props {
+  /** Scene id consumed by the scene director (`data-scene-fx`). */
+  scene: string;
+  /** Palette family from the SRA six-colour universe. */
+  tone:
+    | "title"
+    | "archive"
+    | "quest"
+    | "inventory"
+    | "portal"
+    | "vault"
+    | "captures"
+    | "comms"
+    | "end";
+  /** Optional scene-specific motif. */
+  motif?: "portal";
+  variant?: "section" | "hero";
+}
+
+const { scene, tone, motif, variant = "section" } = Astro.props;
+
+/* Deterministic pixel motes: six per scene is enough to feel alive without
+   turning the background into a particle benchmark. */
+const motes = [
+  { x: 7, y: 16, size: 3, duration: 9, delay: -2 },
+  { x: 21, y: 64, size: 2, duration: 11, delay: -5 },
+  { x: 37, y: 30, size: 4, duration: 13, delay: -1 },
+  { x: 58, y: 76, size: 2, duration: 10, delay: -7 },
+  { x: 73, y: 22, size: 3, duration: 12, delay: -3 },
+  { x: 89, y: 55, size: 2, duration: 8, delay: -6 },
+];
+---
+
+<div
+  class:list={[
+    "scene-atmosphere",
+    `scene-atmosphere--${tone}`,
+    variant === "hero" && "scene-atmosphere--hero",
+  ]}
+  data-scene-fx={scene}
+  aria-hidden="true"
+>
+  <span class="scene-atmo-wash"></span>
+  <span class="scene-atmo-grid"></span>
+  <span class="scene-atmo-beam"></span>
+  {
+    motif === "portal" && (
+      <span class="scene-atmo-portal">
+        <i></i>
+      </span>
+    )
+  }
+  <span class="scene-atmo-motes">
+    {
+      motes.map((mote) => (
+        <i
+          style={`--x:${mote.x}%;--y:${mote.y}%;--s:${mote.size}px;--dur:${mote.duration}s;--delay:${mote.delay}s`}
+        />
+      ))
+    }
+  </span>
+</div>

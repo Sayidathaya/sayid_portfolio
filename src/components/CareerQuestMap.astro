@@ -85,6 +85,7 @@ const statusTone = (status: ExperienceEntry["status"]): "red" | "blue" | "purple
 
 <div class="quest-map" data-career-map data-latest={activeId}>
   <div class="quest-shell" data-reveal>
+    <span class="quest-sweep" aria-hidden="true"></span>
     <div class="quest-hud">
       <p class="quest-hud__title">
         <span class="quest-hud__icon" aria-hidden="true"><PixelIcon name="pin" /></span>
@@ -177,38 +178,40 @@ const statusTone = (status: ExperienceEntry["status"]): "red" | "blue" | "purple
                 class="quest-node-wrap"
                 style={`--x:${x}%;--y:${y}%;--scale:${scale};--i:${index}`}
               >
-                <a
-                  class="quest-node"
-                  href={`#quest-detail-${entry.id}`}
-                  data-quest-node={entry.id}
-                  data-tone={tone}
-                  data-structure={structure}
-                  aria-current={active ? "true" : undefined}
-                  aria-label={`${entry.role} at ${entry.organization}, ${entry.period}. Open field dossier.`}
-                >
-                  <span class="quest-prop" aria-hidden="true">
-                    <span class="quest-prop__beacon"></span>
-                    <span class="quest-prop__antenna"></span>
-                    <span class="quest-prop__flag"></span>
-                    <span class="quest-prop__roof"></span>
-                    <span class="quest-prop__body">
-                      <i></i><i></i><i></i><i></i><i></i><i></i>
+                <div class="quest-node-reveal">
+                  <a
+                    class="quest-node"
+                    href={`#quest-detail-${entry.id}`}
+                    data-quest-node={entry.id}
+                    data-tone={tone}
+                    data-structure={structure}
+                    aria-current={active ? "true" : undefined}
+                    aria-label={`${entry.role} at ${entry.organization}, ${entry.period}. Open field dossier.`}
+                  >
+                    <span class="quest-prop" aria-hidden="true">
+                      <span class="quest-prop__beacon"></span>
+                      <span class="quest-prop__antenna"></span>
+                      <span class="quest-prop__flag"></span>
+                      <span class="quest-prop__roof"></span>
+                      <span class="quest-prop__body">
+                        <i></i><i></i><i></i><i></i><i></i><i></i>
+                      </span>
+                      <span class="quest-prop__door"></span>
+                      <span class="quest-prop__base"></span>
                     </span>
-                    <span class="quest-prop__door"></span>
-                    <span class="quest-prop__base"></span>
-                  </span>
 
-                  <span class="quest-node__plaque">
-                    <span class="quest-node__no">
-                      <i aria-hidden="true"></i>
-                      Chapter {chapter}
-                      <b class="quest-node__state" aria-hidden="true">{active ? "VIEWING" : "OPEN"}</b>
+                    <span class="quest-node__plaque">
+                      <span class="quest-node__no">
+                        <i aria-hidden="true"></i>
+                        Chapter {chapter}
+                        <b class="quest-node__state" aria-hidden="true">{active ? "VIEWING" : "OPEN"}</b>
+                      </span>
+                      <span class="quest-node__role">{entry.role}</span>
+                      <span class="quest-node__org">{entry.organization}</span>
+                      <span class="quest-node__period">{entry.period}</span>
                     </span>
-                    <span class="quest-node__role">{entry.role}</span>
-                    <span class="quest-node__org">{entry.organization}</span>
-                    <span class="quest-node__period">{entry.period}</span>
-                  </span>
-                </a>
+                  </a>
+                </div>
               </li>
             );
           })

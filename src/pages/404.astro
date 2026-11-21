@@ -1,10 +1,14 @@
 ---
+import { getCollection } from "astro:content";
 import PixelBadge from "../components/PixelBadge.astro";
 import PixelIcon from "../components/PixelIcon.astro";
 import PixelSprite from "../components/PixelSprite.astro";
 import Seal from "../components/Seal.astro";
-import { profile } from "../data/portfolio";
+import type { Profile } from "../types/portfolio";
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+const profileEntries = await getCollection("profile");
+const profile: Profile = (profileEntries[0]?.data ?? {}) as Profile;
 ---
 
 <BaseLayout

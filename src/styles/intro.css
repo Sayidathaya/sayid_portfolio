@@ -1,0 +1,196 @@
+/* ==========================================================================
+   Intro sequence — 8-bit boot overlay, ARE YOU READY? gate, pixel dissolve
+   ========================================================================== */
+
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(58% 42% at 50% 0%, color-mix(in srgb, var(--color-accent-purple) 16%, transparent), transparent 70%),
+    radial-gradient(52% 40% at 50% 100%, color-mix(in srgb, var(--color-accent-blue) 14%, transparent), transparent 70%),
+    var(--color-background-deep);
+  color: var(--color-foreground);
+}
+
+.intro-scan {
+  position: absolute;
+  inset: 0;
+  background: var(--scanline);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.intro-frame {
+  position: relative;
+  z-index: 2;
+  width: min(92vw, 46rem);
+  padding: clamp(1.5rem, 4vw, 2.75rem);
+  border: 3px solid var(--color-accent-blue);
+  background: color-mix(in srgb, var(--color-surface) 90%, transparent);
+  clip-path: var(--pixel-cut);
+  box-shadow: 8px 8px 0 var(--color-accent-red);
+  text-align: center;
+}
+
+.intro-lines {
+  display: grid;
+  gap: 0.3rem;
+  min-height: 8.5rem;
+}
+
+.intro-line {
+  margin: 0;
+  opacity: 0.72;
+  color: var(--color-accent-blue-ink);
+  font-family: var(--font-mono);
+  font-size: clamp(0.56rem, 1.5vw, 0.68rem);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.intro[data-intro-phase="boot"] .intro-line:nth-child(1) {
+  animation: intro-line-in 260ms steps(4, end) 0ms both;
+}
+.intro[data-intro-phase="boot"] .intro-line:nth-child(2) {
+  animation: intro-line-in 260ms steps(4, end) 380ms both;
+}
+.intro[data-intro-phase="boot"] .intro-line:nth-child(3) {
+  animation: intro-line-in 260ms steps(4, end) 760ms both;
+}
+.intro[data-intro-phase="boot"] .intro-line:nth-child(4) {
+  animation: intro-line-in 260ms steps(4, end) 1140ms both;
+}
+.intro[data-intro-phase="boot"] .intro-line:nth-child(5) {
+  animation: intro-line-in 260ms steps(4, end) 1520ms both;
+}
+
+@keyframes intro-line-in {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.intro-bar {
+  margin-top: 1.2rem;
+  height: 12px;
+  border: 2px solid var(--color-border-strong);
+  background: var(--color-surface-sunken);
+}
+
+.intro-bar-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--color-accent-red) 0 10px,
+    var(--color-accent-yellow) 10px 18px,
+    var(--color-accent-blue) 18px 28px,
+    var(--color-accent-purple) 28px 36px
+  );
+  animation: intro-bar-fill 2.6s steps(6, end) forwards;
+}
+
+@keyframes intro-bar-fill {
+  to {
+    width: 100%;
+  }
+}
+
+.intro-title {
+  margin: 0.7rem 0 0;
+  color: var(--color-paper);
+  font-family: var(--font-pixel);
+  font-size: clamp(2rem, 7.2vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  text-shadow:
+    5px 5px 0 var(--color-accent-blue),
+    10px 10px 0 var(--color-accent-red);
+}
+
+.intro[data-intro-phase="title"] .intro-title {
+  animation: title-in 640ms steps(7, end) 200ms both;
+}
+
+.intro-ready {
+  margin-top: 1.5rem;
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition:
+    opacity 300ms steps(3, end),
+    transform 300ms steps(3, end);
+}
+
+.intro[data-intro-phase="ready"] .intro-ready {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.intro-ready-btn {
+  min-height: 3.4rem;
+  font-size: 0.8rem;
+}
+
+.intro-hint {
+  margin: 0.8rem 0 0;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.intro[data-intro-phase="go"] .intro-ready-btn {
+  animation: intro-go 340ms steps(4, end);
+}
+
+@keyframes intro-go {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  30% {
+    transform: translate(2px, 2px) scale(0.92);
+  }
+  70% {
+    transform: translate(-2px, -2px) scale(1.07);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+.intro[data-intro-phase="exit"] {
+  animation: intro-pixel-out 420ms steps(6, end) forwards;
+}
+
+@keyframes intro-pixel-out {
+  0% {
+    clip-path: inset(0 0 0 0);
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  55% {
+    clip-path: inset(0 0 0 0);
+    transform: translateY(-2%) scale(0.99);
+    opacity: 1;
+  }
+  100% {
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(-8%) scale(0.96);
+    opacity: 0;
+  }
+}

@@ -64,22 +64,22 @@
 
 **Portfolio Sayid Rafi A'thaya** adalah website portfolio interaktif berbasis **Astro** dengan konsep visual **8-bit Chromatic Chaos / Playable Digital Archive**.
 
-Bayangkan layar permainan retro. Halaman pertama adalah *title screen*, pengalaman kerja menjadi *peta quest*, kemampuan menjadi *inventory*, sertifikat disimpan di *vault*, dan kontak ada di *terminal komunikasi*.
+Bayangkan layar permainan retro. Halaman pertama adalah _title screen_, pengalaman kerja menjadi _peta quest_, kemampuan menjadi _inventory_, sertifikat disimpan di _vault_, dan kontak ada di _terminal komunikasi_.
 
 LINK WEBSITE: https://sayidportfolio.vercel.app
 
 > [!NOTE]
-> Website ini dibangun sebagai **static site**. Astro menghasilkan halaman HTML statis, lalu JavaScript/TypeScript menambahkan interaksi. Tidak ada server atau database yang berjalan saat website dibuka, jadi mudah di-*hosting* dan cepat dimuat.
+> Website ini dibangun sebagai **static site**. Astro menghasilkan halaman HTML statis, lalu JavaScript/TypeScript menambahkan interaksi. Tidak ada server atau database yang berjalan saat website dibuka, jadi mudah di-_hosting_ dan cepat dimuat.
 
 ### 📊 Sekilas Angka
 
 | 🧱 Komponen Astro | 📄 Halaman/Rute | 🖼️ Gambar Sumber | 🏅 Sertifikat | 🚀 Proyek Utama |
-|:---:|:---:|:---:|:---:|:---:|
-| **14** | **4** | **24** | **23** | **3** |
+| :---------------: | :-------------: | :--------------: | :-----------: | :-------------: |
+|      **14**       |      **4**      |      **24**      |    **23**     |      **3**      |
 
 | 💼 Pengalaman | 🧰 Kelompok Skill | 📁 Proyek Arsip | 📸 Field Captures | 🗂️ Kategori Sertifikat |
-|:---:|:---:|:---:|:---:|:---:|
-| **4** | **3** | **3** | **10** | **4** |
+| :-----------: | :---------------: | :-------------: | :---------------: | :--------------------: |
+|     **4**     |       **3**       |      **3**      |      **10**       |         **4**          |
 
 > [!TIP]
 > Jumlah file fisik tidak selalu sama dengan jumlah item yang tampil, karena satu gambar bisa dipakai di lebih dari satu bagian website.
@@ -88,14 +88,14 @@ LINK WEBSITE: https://sayidportfolio.vercel.app
 
 ## 🤔 Masalah yang Diselesaikan
 
-| 😵 Portfolio Biasa | 😎 Dengan Portfolio Ini |
-|---|---|
-| Daftar teks panjang yang membosankan | Pengalaman tampil sebagai peta perjalanan interaktif |
-| Skill hanya berupa list atau bar persentase | Skill disajikan sebagai matriks visual ala inventory game |
-| Proyek hanya berupa kartu seragam | Setiap proyek tampil sebagai "dunia" dengan komposisi visual sendiri |
-| Sertifikat tersebar di berbagai tempat | Semua sertifikat terkumpul di vault, lengkap dengan kategori dan preview |
-| Mengubah konten berarti mengubah layout | Konten dipusatkan di satu file data, terpisah dari tampilan |
-| Gambar dan data sulit dikelola | Gambar dicari lewat nama sederhana, data dijaga tipe TypeScript |
+| 😵 Portfolio Biasa                          | 😎 Dengan Portfolio Ini                                                  |
+| ------------------------------------------- | ------------------------------------------------------------------------ |
+| Daftar teks panjang yang membosankan        | Pengalaman tampil sebagai peta perjalanan interaktif                     |
+| Skill hanya berupa list atau bar persentase | Skill disajikan sebagai matriks visual ala inventory game                |
+| Proyek hanya berupa kartu seragam           | Setiap proyek tampil sebagai "dunia" dengan komposisi visual sendiri     |
+| Sertifikat tersebar di berbagai tempat      | Semua sertifikat terkumpul di vault, lengkap dengan kategori dan preview |
+| Mengubah konten berarti mengubah layout     | Konten dipusatkan di satu file data, terpisah dari tampilan              |
+| Gambar dan data sulit dikelola              | Gambar dicari lewat nama sederhana, data dijaga tipe TypeScript          |
 
 ---
 
@@ -106,7 +106,7 @@ LINK WEBSITE: https://sayidportfolio.vercel.app
 - Latar pixel art, elemen kota, dan efek visual pada bagian Hero.
 - Komponen dekoratif bertema pixel: badge, ikon, sprite, sigil, segel, dan blade.
 - Palet enam warna utama: merah, kuning, biru, ungu, hitam, putih.
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
 ### 🗺️ 2. Peta Pengalaman (Career Quest Map)
 
 - Setiap pengalaman punya periode, jabatan, organisasi, ringkasan, teknologi, status, dan **posisi pada peta**.
@@ -143,17 +143,17 @@ LINK WEBSITE: https://sayidportfolio.vercel.app
 
 <div align="center">
 
-| Lapisan | Teknologi | Fungsi dalam Bahasa Sederhana |
-|---|---|---|
-| 🚀 **Framework** | Astro 6 | Membangun halaman dari komponen, lalu menghasilkan HTML statis |
-| 🔷 **Bahasa** | TypeScript (strict) | JavaScript dengan pengecekan tipe ketat, mengurangi bug |
-| 💅 **Styling** | Tailwind CSS v4 + CSS kustom | Utilitas desain, ditambah stylesheet terpisah per area |
-| ⚡ **Build Tool** | Vite | Dev server cepat dan proses build |
-| 🔤 **Font** | Fontsource (lokal) | Silkscreen, Space Grotesk, IBM Plex Mono tanpa layanan eksternal |
-| 🧹 **Kualitas Kode** | Biome | Pemeriksaan (lint) dan pemformatan kode |
-| 🔎 **Type Check** | Astro Check | Memeriksa Astro dan TypeScript |
-| 🖼️ **Gambar** | `astro:assets` | Optimasi gambar responsif dan format modern |
-| 📦 **Output** | Static (`dist/`) | Siap dipublikasikan di hosting statis |
+| Lapisan              | Teknologi                    | Fungsi dalam Bahasa Sederhana                                    |
+| -------------------- | ---------------------------- | ---------------------------------------------------------------- |
+| 🚀 **Framework**     | Astro 6                      | Membangun halaman dari komponen, lalu menghasilkan HTML statis   |
+| 🔷 **Bahasa**        | TypeScript (strict)          | JavaScript dengan pengecekan tipe ketat, mengurangi bug          |
+| 💅 **Styling**       | Tailwind CSS v4 + CSS kustom | Utilitas desain, ditambah stylesheet terpisah per area           |
+| ⚡ **Build Tool**    | Vite                         | Dev server cepat dan proses build                                |
+| 🔤 **Font**          | Fontsource (lokal)           | Silkscreen, Space Grotesk, IBM Plex Mono tanpa layanan eksternal |
+| 🧹 **Kualitas Kode** | Biome                        | Pemeriksaan (lint) dan pemformatan kode                          |
+| 🔎 **Type Check**    | Astro Check                  | Memeriksa Astro dan TypeScript                                   |
+| 🖼️ **Gambar**        | `astro:assets`               | Optimasi gambar responsif dan format modern                      |
+| 📦 **Output**        | Static (`dist/`)             | Siap dipublikasikan di hosting statis                            |
 
 </div>
 
@@ -165,7 +165,8 @@ Portfolio ini memakai pendekatan **Static Site**. Konten, tampilan, dan interaks
 
 ```text
    +-----------------------------------------------+
-   |  src/data/portfolio.ts   (SUMBER KONTEN)       |
+   |  src/content/  (SUMBER KONTEN — Content         |
+   |  Collections · src/content.config.ts)           |
    |  profil · pengalaman · skill · proyek ·        |
    |  sertifikat · arsip · field captures           |
    +----------------------+------------------------+
@@ -216,8 +217,8 @@ Portfolio ini memakai pendekatan **Static Site**. Konten, tampilan, dan interaks
    [2] Taruh thumbnail JPG di public/certificates/thumbs/
         |
         v
-   [3] Daftarkan entri baru di array `certificates`
-       (src/data/portfolio.ts)
+   [3] Daftarkan entri baru di collection `certificates`
+       (src/content/certificates/)
         |
         v
    [4] Pilih kategori: web | data | leadership | award
@@ -230,13 +231,13 @@ Portfolio ini memakai pendekatan **Static Site**. Konten, tampilan, dan interaks
        ikut diperbarui otomatis
 ```
 
-| # | Tahap | Apa yang Terjadi |
-|:-:|---|---|
-| 1 | **File** | Dokumen asli (PDF/gambar) disalin ke `public/certificates/` |
-| 2 | **Thumbnail** | Preview ringan disimpan di `public/certificates/thumbs/` |
-| 3 | **Data** | Entri baru ditambahkan ke `certificates` dengan ID, judul, penerbit, tanggal, kategori, path file, dan `fileType` |
-| 4 | **Render** | `index.astro` dan komponen menampilkan entri di vault |
-| 5 | **Verifikasi** | `npm run verify` memastikan tidak ada error |
+|  #  | Tahap          | Apa yang Terjadi                                                                                                  |
+| :-: | -------------- | ----------------------------------------------------------------------------------------------------------------- |
+|  1  | **File**       | Dokumen asli (PDF/gambar) disalin ke `public/certificates/`                                                       |
+|  2  | **Thumbnail**  | Preview ringan disimpan di `public/certificates/thumbs/`                                                          |
+|  3  | **Data**       | Entri baru ditambahkan ke `certificates` dengan ID, judul, penerbit, tanggal, kategori, path file, dan `fileType` |
+|  4  | **Render**     | `index.astro` dan komponen menampilkan entri di vault                                                             |
+|  5  | **Verifikasi** | `npm run verify` memastikan tidak ada error                                                                       |
 
 > [!IMPORTANT]
 > Menambahkan file ke folder saja **belum tentu** membuatnya tampil. File harus **didaftarkan di data** dan **dirender oleh halaman/komponen**.
@@ -244,7 +245,7 @@ Portfolio ini memakai pendekatan **Static Site**. Konten, tampilan, dan interaks
 ### Contoh: Menambah Proyek Baru
 
 1. Tambahkan gambar proyek ke `src/assets/images/`.
-2. Tambahkan entri baru di array `projects` (`slug`, judul, deskripsi, teknologi, tahun, peran, URL repo/demo, dan `world`).
+2. Tambahkan entri baru di collection `projects` (`slug`, judul, deskripsi, teknologi, tahun, peran, URL repo/demo, dan `world`) pada file markdown di `src/content/projects/`.
 3. Astro otomatis menghasilkan halaman `/projects/<slug>/` lewat dynamic route.
 4. Jalankan `npm run verify`.
 
@@ -281,7 +282,15 @@ porto_utama_sayid/
 │   │   ├── Seal.astro
 │   │   └── SectionHeading.astro
 │   │
-│   ├── data/portfolio.ts             # ⭐ Pusat semua konten
+│   ├── content/                      # ⭐ Sumber konten (Content Collections)
+│   │   ├── projects/                 # Data proyek (markdown)
+│   │   ├── certificates/             # Data sertifikat (markdown)
+│   │   ├── experience/               # Data pengalaman (markdown)
+│   │   ├── skills/                   # Data skill (markdown)
+│   │   ├── archive/                  # Data arsip (markdown)
+│   │   ├── captures/                 # Data field captures (markdown)
+│   │   └── profile/                  # Data profil (markdown)
+│   ├── content.config.ts             # Konfigurasi & skema koleksi
 │   ├── types/portfolio.ts            # Kontrak bentuk data
 │   ├── layouts/BaseLayout.astro      # Kerangka global
 │   │
@@ -321,65 +330,65 @@ porto_utama_sayid/
 
 ### 🧠 Siapa Mengerjakan Apa?
 
-| Bagian | Tanggung Jawab | Analogi Game 🎮 |
-|---|---|---|
-| **`data/portfolio.ts`** | Menyimpan seluruh isi konten | Buku cerita dan database item |
-| **`types/portfolio.ts`** | Menjaga bentuk data tetap benar | Aturan permainan |
-| **`pages/`** | Menentukan halaman dan urutan section | Daftar level |
-| **`components/`** | Mengubah data jadi tampilan | Sprite dan objek di layar |
-| **`layouts/`** | Header, navigasi, footer, SEO | Menu utama dan HUD |
-| **`styles/`** | Warna, tata letak, animasi | Grafis dan tema visual |
-| **`scripts/`** | Interaksi di browser | Kontrol pemain |
-| **`utils/`** | Fungsi bantu (cari gambar, dll.) | Kotak peralatan |
-| **`dist/`** | Hasil akhir siap rilis | Game versi rilis |
+| Bagian                   | Tanggung Jawab                        | Analogi Game 🎮               |
+| ------------------------ | ------------------------------------- | ----------------------------- |
+| **`src/content.config.ts`** + **`src/content/`** | Menyimpan seluruh isi konten | Buku cerita dan database item |
+| **`types/portfolio.ts`** | Menjaga bentuk data tetap benar       | Aturan permainan              |
+| **`pages/`**             | Menentukan halaman dan urutan section | Daftar level                  |
+| **`components/`**        | Mengubah data jadi tampilan           | Sprite dan objek di layar     |
+| **`layouts/`**           | Header, navigasi, footer, SEO         | Menu utama dan HUD            |
+| **`styles/`**            | Warna, tata letak, animasi            | Grafis dan tema visual        |
+| **`scripts/`**           | Interaksi di browser                  | Kontrol pemain                |
+| **`utils/`**             | Fungsi bantu (cari gambar, dll.)      | Kotak peralatan               |
+| **`dist/`**              | Hasil akhir siap rilis                | Game versi rilis              |
 
 ---
 
 ## 🗃️ Konten dan Data
 
-Semua konten dikelola di `src/data/portfolio.ts`, lalu diberi tipe oleh `src/types/portfolio.ts`.
+Semua konten dikelola di **Content Collections** (`src/content/` + `src/content.config.ts`), lalu diberi tipe oleh `src/types/portfolio.ts`.
 
 ### 🧱 Tipe Data Utama
 
-| Tipe | Isi |
-|---|---|
-| `Profile` | Identitas, peran, lokasi, pengantar, kontak, link |
-| `ExperienceEntry` | Jabatan, organisasi, periode, ringkasan, teknologi, status, posisi peta |
-| `SkillGroup` | Kategori, item skill, warna, glyph, koordinat visual |
+| Tipe               | Isi                                                                        |
+| ------------------ | -------------------------------------------------------------------------- |
+| `Profile`          | Identitas, peran, lokasi, pengantar, kontak, link                          |
+| `ExperienceEntry`  | Jabatan, organisasi, periode, ringkasan, teknologi, status, posisi peta    |
+| `SkillGroup`       | Kategori, item skill, warna, glyph, koordinat visual                       |
 | `PortfolioProject` | Slug, judul, deskripsi, teknologi, tahun, peran, repo, demo, arahan visual |
-| `Certificate` | ID, judul, penerbit, tanggal, kategori, file, `fileType`, detail |
-| `CertificateGroup` | Kelompok sertifikat dan keterangannya |
-| `ArchiveProject` | Proyek tambahan dalam arsip |
-| `FieldCapture` | Dokumentasi foto, alt text, caption, metadata, sumber |
+| `Certificate`      | ID, judul, penerbit, tanggal, kategori, file, `fileType`, detail           |
+| `CertificateGroup` | Kelompok sertifikat dan keterangannya                                      |
+| `ArchiveProject`   | Proyek tambahan dalam arsip                                                |
+| `FieldCapture`     | Dokumentasi foto, alt text, caption, metadata, sumber                      |
 
 > [!NOTE]
 > `fileType` pada sertifikat membedakan `pdf` dari `image`, sehingga UI memperlakukan keduanya dengan benar. Atribut `world` pada proyek hanya mengatur **presentasi visual**, bukan fakta teknis proyek.
 
 ### 👤 Profil
 
-| Item | Isi |
-|---|---|
-| **Nama** | Sayid Rafi A'thaya |
-| **Peran** | Web developer & public speaker |
-| **Lokasi** | Samarinda, Indonesia |
-| **Pendidikan** | S1 Sistem Informasi (2024 sampai sekarang) |
-| **IPK (di narasi)** | 3,85 / 4,00 |
+| Item                | Isi                                        |
+| ------------------- | ------------------------------------------ |
+| **Nama**            | Sayid Rafi A'thaya                         |
+| **Peran**           | Web developer & public speaker             |
+| **Lokasi**          | Samarinda, Indonesia                       |
+| **Pendidikan**      | S1 Sistem Informasi (2024 sampai sekarang) |
+| **IPK (di narasi)** | 3,85 / 4,00                                |
 
 ### 💼 Pengalaman (4 entri)
 
-| Periode | Peran | Organisasi/Konteks |
-|:---:|---|---|
-| 2026 | QA Automation Engineer (PKL) | PT Telkom Indonesia, Witel Kaltimtara |
-| 2025 | Staff, Departemen PSD, Divisi SE | INFORSA, Universitas Mulawarman |
-| 2025 | Participant, AI Upskilling Program | Remote Skills Academy × Yayasan Infradigital |
-| 2025 | Moderator, Seminar Magang dan Studi Independen | Universitas Mulawarman |
+| Periode | Peran                                          | Organisasi/Konteks                           |
+| :-----: | ---------------------------------------------- | -------------------------------------------- |
+|  2026   | QA Automation Engineer (PKL)                   | PT Telkom Indonesia, Witel Kaltimtara        |
+|  2025   | Staff, Departemen PSD, Divisi SE               | INFORSA, Universitas Mulawarman              |
+|  2025   | Participant, AI Upskilling Program             | Remote Skills Academy × Yayasan Infradigital |
+|  2025   | Moderator, Seminar Magang dan Studi Independen | Universitas Mulawarman                       |
 
 ### 🧰 Skill (3 kelompok)
 
-| Kelompok | Isi |
-|---|---|
-| 🔨 **Build** | HTML & CSS, JavaScript, PHP |
-| 📊 **Data** | MySQL, Data visualization, Microsoft Fabric |
+| Kelompok     | Isi                                            |
+| ------------ | ---------------------------------------------- |
+| 🔨 **Build** | HTML & CSS, JavaScript, PHP                    |
+| 📊 **Data**  | MySQL, Data visualization, Microsoft Fabric    |
 | 🎤 **Voice** | Digital art, Public speaking, Event moderation |
 
 > [!NOTE]
@@ -387,45 +396,44 @@ Semua konten dikelola di `src/data/portfolio.ts`, lalu diberi tipe oleh `src/typ
 
 ### 🚀 Proyek Utama (3 proyek)
 
-| Proyek | Slug | Tahun | Deskripsi Singkat | Peran |
-|---|---|:---:|---|---|
-| **HeartCalm** | `heartcalm` | 2026 | Website produk satu halaman untuk acne water gel (HTML, CSS, JavaScript, Bootstrap 5) | Front-end developer |
-| **Purrfect Community** | `purrfect-community` | 2026 | Website komunitas pecinta kucing: galeri ras, forum, favorit, kontak (PHP, PDO, MySQL) | Full-stack developer |
-| **Tic Tac Toe** | `tic-tac-toe` | 2025 | Game browser dengan skor, deteksi kemenangan, reset (capstone Student Developer Initiative) | Developer |
+| Proyek                 | Slug                 | Tahun | Deskripsi Singkat                                                                           | Peran                |
+| ---------------------- | -------------------- | :---: | ------------------------------------------------------------------------------------------- | -------------------- |
+| **HeartCalm**          | `heartcalm`          | 2026  | Website produk satu halaman untuk acne water gel (HTML, CSS, JavaScript, Bootstrap 5)       | Front-end developer  |
+| **Purrfect Community** | `purrfect-community` | 2026  | Website komunitas pecinta kucing: galeri ras, forum, favorit, kontak (PHP, PDO, MySQL)      | Full-stack developer |
+| **Tic Tac Toe**        | `tic-tac-toe`        | 2025  | Game browser dengan skor, deteksi kemenangan, reset (capstone Student Developer Initiative) | Developer            |
 
 Rute detail yang dihasilkan:
-
 - `/projects/heartcalm/`
 - `/projects/purrfect-community/`
 - `/projects/tic-tac-toe/`
 
 ### 📁 Proyek Arsip (3 entri)
 
-| Karya | Keterangan |
-|---|---|
+| Karya                      | Keterangan                                                                                                              |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | **Management Surat (AMS)** | Workspace admin untuk surat masuk, disposisi, pembuatan dokumen, dan riwayat revisi. Tidak ada repo/demo publik di data |
-| **Meteorite Strike Map** | Visualisasi pendaratan meteorit berbasis data NASA, terhubung ke profil CodePen |
-| **Digital Illustration** | Karya ilustrasi digital, terhubung ke profil DeviantArt |
+| **Meteorite Strike Map**   | Visualisasi pendaratan meteorit berbasis data NASA, terhubung ke profil CodePen                                         |
+| **Digital Illustration**   | Karya ilustrasi digital, terhubung ke profil DeviantArt                                                                 |
 
 ### 🏅 Sertifikat (23 entri, 4 kategori)
 
-| Kode | Kategori | Isi |
-|---|---|---|
-| `web` | Web engineering | Web/software engineering, front-end, JavaScript, responsive design, mobile app development, QA Automation |
-| `data` | Data & AI | Data analytics, data visualization, Microsoft Fabric, Responsible AI |
-| `leadership` | Leadership & speaking | Asisten praktikum, kepanitiaan, publikasi & dokumentasi, sekretaris-bendahara, moderator |
-| `award` | Competition record | Olimpiade Bahasa Inggris nasional, olimpiade kedokteran dasar pelajar |
+| Kode         | Kategori              | Isi                                                                                                       |
+| ------------ | --------------------- | --------------------------------------------------------------------------------------------------------- |
+| `web`        | Web engineering       | Web/software engineering, front-end, JavaScript, responsive design, mobile app development, QA Automation |
+| `data`       | Data & AI             | Data analytics, data visualization, Microsoft Fabric, Responsible AI                                      |
+| `leadership` | Leadership & speaking | Asisten praktikum, kepanitiaan, publikasi & dokumentasi, sekretaris-bendahara, moderator                  |
+| `award`      | Competition record    | Olimpiade Bahasa Inggris nasional, olimpiade kedokteran dasar pelajar                                     |
 
 ### 🔗 Tautan Eksternal
 
-| Platform | Tujuan |
-|---|---|
-| GitHub | Repositori kode |
-| LinkedIn | Profil profesional dan dokumentasi organisasi |
-| Instagram | Dokumentasi aktivitas dan penampilan |
-| DeviantArt | Galeri seni digital |
-| CodePen | Eksperimen web dan demo interaktif |
-| Google Drive | Dokumen CV |
+| Platform     | Tujuan                                        |
+| ------------ | --------------------------------------------- |
+| GitHub       | Repositori kode                               |
+| LinkedIn     | Profil profesional dan dokumentasi organisasi |
+| Instagram    | Dokumentasi aktivitas dan penampilan          |
+| DeviantArt   | Galeri seni digital                           |
+| CodePen      | Eksperimen web dan demo interaktif            |
+| Google Drive | Dokumen CV                                    |
 
 ---
 
@@ -433,26 +441,26 @@ Rute detail yang dihasilkan:
 
 Halaman utama (`index.astro`) tersusun dari beberapa **zona**. Istilah game di sini adalah cara penyajian, bukan sekadar hiasan.
 
-| Zona | Nama | Isi |
-|:---:|---|---|
-| **01** | Hero / Title Screen | Identitas, status portfolio, latar pixel art, ajakan menjelajah |
-| **02** | About & Briefing | Profil, latar pendidikan, ringkasan, highlight, foto |
-| **03** | Experience Journey | Peta pengalaman interaktif (`CareerQuestMap`) |
-| **04** | Skill Matrix | Kelompok skill ala inventory (`SkillMatrix`) |
-| **05** | Featured Projects | Proyek sebagai dunia berbeda (`ProjectMultiverse`) |
-| **06** | Credential Vault | Sertifikat per kategori + Field Captures |
-| **07** | Direct Contact / Comms Terminal | Email (`mailto:`) dan link sosial |
+|  Zona  | Nama                            | Isi                                                             |
+| :----: | ------------------------------- | --------------------------------------------------------------- |
+| **01** | Hero / Title Screen             | Identitas, status portfolio, latar pixel art, ajakan menjelajah |
+| **02** | About & Briefing                | Profil, latar pendidikan, ringkasan, highlight, foto            |
+| **03** | Experience Journey              | Peta pengalaman interaktif (`CareerQuestMap`)                   |
+| **04** | Skill Matrix                    | Kelompok skill ala inventory (`SkillMatrix`)                    |
+| **05** | Featured Projects               | Proyek sebagai dunia berbeda (`ProjectMultiverse`)              |
+| **06** | Credential Vault                | Sertifikat per kategori + Field Captures                        |
+| **07** | Direct Contact / Comms Terminal | Email (`mailto:`) dan link sosial                               |
 
-Di akhir halaman ada footer bergaya *end screen*: lanjut menjelajah, kembali ke awal, menghubungi pemilik, atau membuka sertifikat.
+Di akhir halaman ada footer bergaya _end screen_: lanjut menjelajah, kembali ke awal, menghubungi pemilik, atau membuka sertifikat.
 
 ### 🔀 Rute
 
-| Rute | Fungsi |
-|---|---|
-| `/` | Halaman utama |
+| Rute                | Fungsi                        |
+| ------------------- | ----------------------------- |
+| `/`                 | Halaman utama                 |
 | `/projects/[slug]/` | Detail proyek (dynamic route) |
-| `/archive/` | Redirect ke `/#certificates` |
-| `/404` | Halaman tidak ditemukan |
+| `/archive/`         | Redirect ke `/#certificates`  |
+| `/404`              | Halaman tidak ditemukan       |
 
 ---
 
@@ -460,10 +468,10 @@ Di akhir halaman ada footer bergaya *end screen*: lanjut menjelajah, kembali ke 
 
 ### Dua Lokasi, Dua Tujuan
 
-| Lokasi | Dipakai untuk | Diproses Astro? |
-|---|---|:---:|
-| `src/assets/images/` | Gambar sumber (profil, proyek, dokumentasi) | ✅ Ya (dioptimalkan) |
-| `public/` | File yang butuh URL tetap (sertifikat, favicon, robots.txt) | ❌ Tidak (disalin apa adanya) |
+| Lokasi               | Dipakai untuk                                               |        Diproses Astro?        |
+| -------------------- | ----------------------------------------------------------- | :---------------------------: |
+| `src/assets/images/` | Gambar sumber (profil, proyek, dokumentasi)                 |     ✅ Ya (dioptimalkan)      |
+| `public/`            | File yang butuh URL tetap (sertifikat, favicon, robots.txt) | ❌ Tidak (disalin apa adanya) |
 
 > [!WARNING]
 > Beberapa gambar punya nama yang sama di `src/assets/images/` dan `public/` (misalnya `dirjen_informasi_kominfo_bemkm_unmul.png`, `koor_humas_pdd_pkkmb2026.png`, `magang_telkom.jpeg`). Jangan hapus salah satunya sebelum memeriksa semua referensi.
@@ -474,44 +482,44 @@ Di akhir halaman ada footer bergaya *end screen*: lanjut menjelajah, kembali ke 
 
 ```ts
 // Di data:
-image: "digital-art"
+image: "digital-art";
 // Dicocokkan dengan: src/assets/images/digital-art.jpg
 ```
 
 > [!CAUTION]
-> Halaman utama **memfilter** gambar yang tidak ditemukan. Jika nama di data salah, item bisa **hilang diam-diam** tanpa membuat build gagal. Selalu cek tampilan setelah menambah atau mengganti nama gambar.
+> Halaman utama**memfilter** gambar yang tidak ditemukan. Jika nama di data salah, item bisa **hilang diam-diam** tanpa membuat build gagal. Selalu cek tampilan setelah menambah atau mengganti nama gambar.
 
 ### 🖼️ Inventaris `src/assets/images/` (24 file)
 
 <details>
 <summary><strong>Klik untuk melihat daftar gambar</strong></summary>
 
-| File | Peran |
-|---|---|
-| `about-me.jpg` | Foto dokumentasi berbicara di acara kampus |
-| `background.jpg` | Foto latar dokumentasi kampus |
-| `brand-photo.jpg` | Identitas visual brand di header |
-| `canva-profile.jpg` | Foto terkait profil Canva |
-| `capture-campus.jpg` | Dokumentasi suasana kampus |
-| `capture-cosplay.jpg` | Dokumentasi kegiatan kreatif/kostum |
-| `capture-event.jpg` | Dokumentasi acara |
-| `capture-faculty.jpg` | Dokumentasi kegiatan fakultas |
-| `capture-inforsa.jpg` | Dokumentasi INFORSA |
-| `capture-night.jpg` | Dokumentasi kegiatan malam hari |
-| `capture-speaking.jpg` | Dokumentasi public speaking |
-| `capture-stage.jpg` | Dokumentasi penampilan panggung |
-| `codepen-profile.jpg` | Foto untuk profil CodePen |
-| `cv-profile.jpg` | Foto terkait CV |
-| `deviant-art.jpg` | Foto untuk profil DeviantArt |
-| `digital-art.jpg` | Karya visual digital |
+| File                                       | Peran                                           |
+| ------------------------------------------ | ----------------------------------------------- |
+| `about-me.jpg`                             | Foto dokumentasi berbicara di acara kampus      |
+| `background.jpg`                           | Foto latar dokumentasi kampus                   |
+| `brand-photo.jpg`                          | Identitas visual brand di header                |
+| `canva-profile.jpg`                        | Foto terkait profil Canva                       |
+| `capture-campus.jpg`                       | Dokumentasi suasana kampus                      |
+| `capture-cosplay.jpg`                      | Dokumentasi kegiatan kreatif/kostum             |
+| `capture-event.jpg`                        | Dokumentasi acara                               |
+| `capture-faculty.jpg`                      | Dokumentasi kegiatan fakultas                   |
+| `capture-inforsa.jpg`                      | Dokumentasi INFORSA                             |
+| `capture-night.jpg`                        | Dokumentasi kegiatan malam hari                 |
+| `capture-speaking.jpg`                     | Dokumentasi public speaking                     |
+| `capture-stage.jpg`                        | Dokumentasi penampilan panggung                 |
+| `codepen-profile.jpg`                      | Foto untuk profil CodePen                       |
+| `cv-profile.jpg`                           | Foto terkait CV                                 |
+| `deviant-art.jpg`                          | Foto untuk profil DeviantArt                    |
+| `digital-art.jpg`                          | Karya visual digital                            |
 | `dirjen_informasi_kominfo_bemkm_unmul.png` | Dokumentasi peran Dirjen Informasi BEM KM Unmul |
-| `heartcalm.png` | Gambar proyek HeartCalm |
-| `instagram.jpg` | Foto untuk profil Instagram |
-| `koor_humas_pdd_pkkmb2026.png` | Dokumentasi Koordinator Humas & PDD PKKMB 2026 |
-| `linkedin.jpg` | Foto untuk profil LinkedIn |
-| `management-surat.png` | Gambar proyek Management Surat (AMS) |
-| `meteorite-strike-map.png` | Gambar proyek Meteorite Strike Map |
-| `portrait.jpg` | Foto potret profil |
+| `heartcalm.png`                            | Gambar proyek HeartCalm                         |
+| `instagram.jpg`                            | Foto untuk profil Instagram                     |
+| `koor_humas_pdd_pkkmb2026.png`             | Dokumentasi Koordinator Humas & PDD PKKMB 2026  |
+| `linkedin.jpg`                             | Foto untuk profil LinkedIn                      |
+| `management-surat.png`                     | Gambar proyek Management Surat (AMS)            |
+| `meteorite-strike-map.png`                 | Gambar proyek Meteorite Strike Map              |
+| `portrait.jpg`                             | Foto potret profil                              |
 
 </details>
 
@@ -526,11 +534,11 @@ Jumlah 10 entri vs 24 gambar tidak perlu sama, karena sebagian gambar dipakai se
 > [!IMPORTANT]
 > Ini **23 sertifikat**, bukan 46. Thumbnail hanyalah preview ringan dari dokumen yang sama.
 
-| Jenis | Jumlah |
-|---|:---:|
-| Gambar (PNG/JPG/JPEG) | 14 |
-| PDF | 9 |
-| Thumbnail JPG (`thumbs/`) | 23 |
+| Jenis                     | Jumlah |
+| ------------------------- | :----: |
+| Gambar (PNG/JPG/JPEG)     |   14   |
+| PDF                       |   9    |
+| Thumbnail JPG (`thumbs/`) |   23   |
 
 <details>
 <summary><strong>Klik untuk melihat daftar file sertifikat asli</strong></summary>
@@ -547,10 +555,10 @@ Judul yang tampil ke pengunjung berasal dari metadata di `portfolio.ts`, bukan d
 
 ### 🔤 Font (lokal via Fontsource)
 
-| Font | Dipakai untuk |
-|---|---|
-| **Silkscreen** | Judul dan teks display bergaya pixel |
-| **Space Grotesk** | Teks utama yang mudah dibaca |
+| Font              | Dipakai untuk                               |
+| ----------------- | ------------------------------------------- |
+| **Silkscreen**    | Judul dan teks display bergaya pixel        |
+| **Space Grotesk** | Teks utama yang mudah dibaca                |
 | **IBM Plex Mono** | Metadata, label teknis, elemen ala terminal |
 
 ### 🎨 Warna
@@ -559,24 +567,24 @@ Enam warna utama: **merah, kuning, biru, ungu, hitam, putih**. Semuanya diatur l
 
 ### 🗂️ Stylesheet
 
-| File | Peran |
-|---|---|
-| `global.css` | Style global dan fondasi elemen |
-| `tokens.css` | Token warna dan variabel desain |
-| `chrome.css` | Header, navigasi, rail, elemen antarmuka global |
-| `hero.css` | Tampilan dan animasi Hero |
-| `sections.css` | About, Experience, Skills, Contact |
-| `multiverse.css` | Layout area Projects |
-| `multiverse-art.css` | Ilustrasi dunia proyek |
-| `multiverse-dossier.css` | Tampilan dossier/detail proyek |
-| `certificates.css` | Galeri, indeks, dan preview sertifikat |
+| File                     | Peran                                           |
+| ------------------------ | ----------------------------------------------- |
+| `global.css`             | Style global dan fondasi elemen                 |
+| `tokens.css`             | Token warna dan variabel desain                 |
+| `chrome.css`             | Header, navigasi, rail, elemen antarmuka global |
+| `hero.css`               | Tampilan dan animasi Hero                       |
+| `sections.css`           | About, Experience, Skills, Contact              |
+| `multiverse.css`         | Layout area Projects                            |
+| `multiverse-art.css`     | Ilustrasi dunia proyek                          |
+| `multiverse-dossier.css` | Tampilan dossier/detail proyek                  |
+| `certificates.css`       | Galeri, indeks, dan preview sertifikat          |
 
 ### ⚙️ Script Interaksi
 
-| File | Fungsi |
-|---|---|
+| File              | Fungsi                                                        |
+| ----------------- | ------------------------------------------------------------- |
 | `interactions.ts` | Menu, navigasi, scroll progress, reveal, parallax, kontrol UI |
-| `theme.ts` | Ganti tema, simpan preferensi, perbarui kontrol terkait |
+| `theme.ts`        | Ganti tema, simpan preferensi, perbarui kontrol terkait       |
 
 ### ♿ Aksesibilitas
 
@@ -597,12 +605,12 @@ Enam warna utama: **merah, kuning, biru, ungu, hitam, putih**. Semuanya diatur l
 
 **Tidak.** Berdasarkan source code yang diperiksa:
 
-| Temuan | Status |
-|---|---|
-| Database saat runtime | ❌ Tidak ada |
-| REST API / server | ❌ Tidak ada |
-| Form kontak dengan backend | ❌ Tidak ada (memakai `mailto:`) |
-| Data portfolio | ✅ File TypeScript (`portfolio.ts`) |
+| Temuan                     | Status                              |
+| -------------------------- | ----------------------------------- |
+| Database saat runtime      | ❌ Tidak ada                        |
+| REST API / server          | ❌ Tidak ada                        |
+| Form kontak dengan backend | ❌ Tidak ada (memakai `mailto:`)    |
+| Data portfolio             | ✅ File TypeScript (`portfolio.ts`) |
 
 **Kesimpulan:** semua data dibaca saat **build**, lalu menjadi HTML statis. Walaupun salah satu proyek yang dipamerkan memakai PHP dan MySQL, website portfolio ini sendiri tidak.
 
@@ -661,35 +669,44 @@ Hanya ada satu variabel opsional:
 SITE_URL=https://domain-anda.example
 ```
 
-| Variable | Fungsi |
-|---|---|
+| Variable   | Fungsi                                                                                  |
+| ---------- | --------------------------------------------------------------------------------------- |
 | `SITE_URL` | Alamat domain produksi. Dibaca oleh `astro.config.mjs` untuk canonical URL dan metadata |
 
 > [!TIP]
 > Tidak ada password, token, atau API key yang dibutuhkan. Tetap jangan menaruh data rahasia di repository.
 
+### 📄 File Environment
+
+| File           | Isi                                                                 |
+| -------------- | ------------------------------------------------------------------ |
+| `.env.example` | Panduan variabel publik yang tersedia (`SITE_URL`)              |
+| `.env`         | Variabel lokal runtime (di-gitignore, tidak di-commit)         |
+
 ### 📋 Konfigurasi Penting
 
-| File | Isi |
-|---|---|
-| `package.json` | Nama package `sayid-rafi-athaya`, versi `0.1.0`, ES Modules, Node `>=22.12.0` |
-| `astro.config.mjs` | `output: "static"`, plugin Tailwind via Vite, `SITE_URL` opsional |
-| `tsconfig.json` | Memperluas preset **strict** Astro |
-| `biome.json` | Aturan lint dan format |
+| File                     | Isi                                                                           |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| `package.json`           | Nama package `sayid-rafi-athaya`, versi `0.1.0`, ES Modules, Node `>=22.12.0` |
+| `astro.config.mjs`       | `output: "static"`, plugin Tailwind via Vite, `SITE_URL` opsional             |
+| `src/content.config.ts`  | Konfigurasi Content Collections (koleksi, skema, loader)                    |
+| `tailwind.config.mjs`    | Design system Tailwind (font, warna, shadow, pixel geometry)                |
+| `tsconfig.json`          | Memperluas preset **strict** Astro                                            |
+| `biome.json`             | Aturan lint dan format                                                        |
 
 ---
 
 ## 🧪 Testing dan Kualitas Kode
 
-| Perintah | Fungsi |
-|---|---|
-| `npm run dev` | Server development lokal |
-| `npm run build` | Hasilkan website statis ke `dist/` |
-| `npm run preview` | Preview hasil build |
-| `npm run check` | Pemeriksaan Astro dan TypeScript |
-| `npm run lint` | Periksa kode dengan Biome |
-| `npm run format` | Format kode dengan Biome |
-| `npm run verify` | Lint, Astro check, lalu production build |
+| Perintah          | Fungsi                                   |
+| ----------------- | ---------------------------------------- |
+| `npm run dev`     | Server development lokal                 |
+| `npm run build`   | Hasilkan website statis ke `dist/`       |
+| `npm run preview` | Preview hasil build                      |
+| `npm run check`   | Pemeriksaan Astro dan TypeScript         |
+| `npm run lint`    | Periksa kode dengan Biome                |
+| `npm run format`  | Format kode dengan Biome                 |
+| `npm run verify`  | Lint, Astro check, lalu production build |
 
 > [!NOTE]
 > Project ini belum menyertakan test otomatis (unit/e2e). Kualitas dijaga lewat TypeScript strict, Biome, dan Astro Check.
@@ -752,16 +769,16 @@ dist/
 > [!WARNING]
 > Poin berikut membantu README tidak menyesatkan pembaca.
 
-| 📍 Temuan | 💡 Penjelasan |
-|---|---|
-| `/archive/` adalah redirect | `archive.astro` mengarahkan ke `/#certificates`, bukan halaman arsip mandiri. Data `archiveProjects` dan `fieldCaptures` memang ada, tetapi rute arsip tersendiri belum dibangun |
-| Tidak semua gambar otomatis tampil | Gambar harus dipetakan di data **dan** dirender oleh komponen. Cek lokasi file, kecocokan nama, dan rendering |
-| Gambar yang salah nama bisa hilang diam-diam | Halaman utama memfilter hasil `findImage()` yang kosong |
-| 23 sertifikat, bukan 46 | 23 file asli + 23 thumbnail |
-| Sebagian link hanya ke profil platform | CodePen dan DeviantArt mengarah ke profil karena URL karya individual belum tersedia di data |
-| Kontak memakai `mailto:` | Tidak ada form dengan backend pengirim pesan |
-| Nama gambar ganda di dua lokasi | `src/assets/images/` dan `public/` punya beberapa file bernama sama. Periksa referensi sebelum menghapus |
-| `dist/` bukan bukti build terbaru | Keberadaannya di ZIP tidak menjamin build terakhir sudah berhasil dan diuji |
+| 📍 Temuan                                    | 💡 Penjelasan                                                                                                                                                                    |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/archive/` adalah redirect                  | `archive.astro` mengarahkan ke `/#certificates`, bukan halaman arsip mandiri. Data `archiveProjects` dan `fieldCaptures` memang ada, tetapi rute arsip tersendiri belum dibangun |
+| Tidak semua gambar otomatis tampil           | Gambar harus dipetakan di data **dan** dirender oleh komponen. Cek lokasi file, kecocokan nama, dan rendering                                                                    |
+| Gambar yang salah nama bisa hilang diam-diam | Halaman utama memfilter hasil `findImage()` yang kosong                                                                                                                          |
+| 23 sertifikat, bukan 46                      | 23 file asli + 23 thumbnail                                                                                                                                                      |
+| Sebagian link hanya ke profil platform       | CodePen dan DeviantArt mengarah ke profil karena URL karya individual belum tersedia di data                                                                                     |
+| Kontak memakai `mailto:`                     | Tidak ada form dengan backend pengirim pesan                                                                                                                                     |
+| Nama gambar ganda di dua lokasi              | `src/assets/images/` dan `public/` punya beberapa file bernama sama. Periksa referensi sebelum menghapus                                                                         |
+| `dist/` bukan bukti build terbaru            | Keberadaannya di ZIP tidak menjamin build terakhir sudah berhasil dan diuji                                                                                                      |
 
 ---
 
@@ -769,15 +786,15 @@ dist/
 
 README ini disusun dari analisis source code. Beberapa hal sebaiknya dicek langsung pada website yang berjalan:
 
-| Area | Yang Perlu Diperiksa |
-|---|---|
-| 🖼️ Gambar | Semua `FieldCapture` dan gambar proyek benar-benar tampil |
-| 🏅 Sertifikat | Semua 23 file (PDF dan gambar) bisa dibuka dan thumbnail cocok |
-| 🔗 Tautan | Link repo, demo, dan sosial masih aktif |
-| ♿ Aksesibilitas | Keyboard navigation, reduced motion, kontras warna di kedua tema |
-| 📱 Responsif | Tampilan mobile untuk peta pengalaman dan skill matrix |
-| 🔎 SEO | Canonical URL, Open Graph, dan Twitter metadata setelah `SITE_URL` diisi |
-| 🏗️ Build | Hasil `npm run verify` terbaru |
+| Area             | Yang Perlu Diperiksa                                                     |
+| ---------------- | ------------------------------------------------------------------------ |
+| 🖼️ Gambar        | Semua `FieldCapture` dan gambar proyek benar-benar tampil                |
+| 🏅 Sertifikat    | Semua 23 file (PDF dan gambar) bisa dibuka dan thumbnail cocok           |
+| 🔗 Tautan        | Link repo, demo, dan sosial masih aktif                                  |
+| ♿ Aksesibilitas | Keyboard navigation, reduced motion, kontras warna di kedua tema         |
+| 📱 Responsif     | Tampilan mobile untuk peta pengalaman dan skill matrix                   |
+| 🔎 SEO           | Canonical URL, Open Graph, dan Twitter metadata setelah `SITE_URL` diisi |
+| 🏗️ Build         | Hasil `npm run verify` terbaru                                           |
 
 ### 🌱 Ide Pengembangan
 
@@ -792,29 +809,29 @@ README ini disusun dari analisis source code. Beberapa hal sebaiknya dicek langs
 
 ## 📖 Kamus Istilah untuk Pemula
 
-| Istilah | Arti Sederhana |
-|---|---|
-| **Astro** | Framework untuk membuat website dari komponen, lalu menghasilkan HTML statis |
-| **Static Site** | Website yang halamannya dibuat sekali saat build, tanpa server khusus |
-| **Komponen** | Potongan UI yang bisa dipakai ulang |
-| **Dynamic Route** | Satu template yang menghasilkan banyak halaman (mis. `[slug].astro`) |
-| **Slug** | Nama singkat di URL, mis. `heartcalm` |
-| **Design Token** | Variabel desain (warna, ukuran) yang dipakai konsisten di banyak tempat |
-| **TypeScript Strict** | JavaScript dengan pengecekan tipe yang ketat |
-| **Biome** | Alat untuk merapikan dan memeriksa kode |
-| **Vite** | Alat build dan dev server yang cepat |
-| **Fontsource** | Cara memasang font secara lokal lewat npm |
-| **Thumbnail** | Gambar kecil sebagai preview dokumen |
-| **`dist/`** | Folder hasil build yang siap dipublikasikan |
-| **`mailto:`** | Tautan yang membuka aplikasi email pengguna |
-| **Parallax** | Efek elemen bergerak dengan kecepatan berbeda saat scroll |
+| Istilah               | Arti Sederhana                                                               |
+| --------------------- | ---------------------------------------------------------------------------- |
+| **Astro**             | Framework untuk membuat website dari komponen, lalu menghasilkan HTML statis |
+| **Static Site**       | Website yang halamannya dibuat sekali saat build, tanpa server khusus        |
+| **Komponen**          | Potongan UI yang bisa dipakai ulang                                          |
+| **Dynamic Route**     | Satu template yang menghasilkan banyak halaman (mis. `[slug].astro`)         |
+| **Slug**              | Nama singkat di URL, mis. `heartcalm`                                        |
+| **Design Token**      | Variabel desain (warna, ukuran) yang dipakai konsisten di banyak tempat      |
+| **TypeScript Strict** | JavaScript dengan pengecekan tipe yang ketat                                 |
+| **Biome**             | Alat untuk merapikan dan memeriksa kode                                      |
+| **Vite**              | Alat build dan dev server yang cepat                                         |
+| **Fontsource**        | Cara memasang font secara lokal lewat npm                                    |
+| **Thumbnail**         | Gambar kecil sebagai preview dokumen                                         |
+| **`dist/`**           | Folder hasil build yang siap dipublikasikan                                  |
+| **`mailto:`**         | Tautan yang membuka aplikasi email pengguna                                  |
+| **Parallax**          | Efek elemen bergerak dengan kecepatan berbeda saat scroll                    |
 
 ---
 
 ## 👤 Developer
 
-| Nama | Peran | Kontak |
-|---|---|---|
+| Nama                   | Peran                          | Kontak                                   |
+| ---------------------- | ------------------------------ | ---------------------------------------- |
 | **Sayid Rafi A'thaya** | Web Developer & Public Speaker | [GitHub](https://github.com/Sayidathaya) |
 
 ---

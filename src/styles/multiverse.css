@@ -576,6 +576,13 @@
   .mv-stop-link:focus-visible {
     background-color: color-mix(in srgb, var(--world-tone) 9%, transparent);
   }
+  .mv-stop[data-current] .mv-stop-link {
+    background-color: color-mix(in srgb, var(--world-tone) 13%, transparent);
+  }
+  .mv-stop[data-current] .mv-stop-number,
+  .mv-stop[data-current] .mv-stop-enter {
+    color: var(--color-accent-yellow-ink);
+  }
   .mv-stop--artifact .mv-stop-link:hover,
   .mv-stop--artifact .mv-stop-link:focus-visible,
   .mv-stop--expedition .mv-stop-link:hover,
@@ -716,8 +723,119 @@
 
   /* ---------- World route + dossier shell --------------------------------- */
   .mv-worlds {
+    position: relative;
+    min-width: 0;
+  }
+  .mv-worlds-track {
     display: grid;
     gap: clamp(4.6rem, 10vw, 9rem);
+    min-width: 0;
+  }
+  /* The reel transform is meaningful only while the horizontal attribute is
+     live. If a breakpoint/motion rebuild removes it, any inline scale left on
+     the track from the previous layout must not shrink or shift the stacked
+     worlds off-canvas. */
+  .mv-worlds:not([data-mv-horizontal="true"]) .mv-worlds-track {
+    transform: none !important;
+    transform-origin: initial !important;
+  }
+
+  /* Reel instrumentation is only meaningful inside the pinned frame. */
+  .mv-reel-hud {
+    display: none;
+  }
+  .mv-worlds[data-mv-horizontal="true"] .mv-reel-hud {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 9;
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.45rem 0.15rem 0.55rem;
+    border-bottom: 2px solid var(--color-border-soft);
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition:
+      opacity 220ms steps(2, end),
+      transform 220ms steps(2, end);
+  }
+  .mv-worlds[data-mv-horizontal="true"] .mv-reel-hud[data-ready] {
+    opacity: 1;
+    transform: none;
+  }
+  .mv-reel-hud-label {
+    flex: none;
+    color: var(--color-foreground);
+  }
+  .mv-reel-hud-label b,
+  .mv-reel-hud-label span[data-mv-reel-total] {
+    color: var(--color-accent-yellow);
+    font-family: var(--font-pixel);
+    font-size: 0.62rem;
+    font-weight: 700;
+  }
+  .mv-reel-meter {
+    position: relative;
+    flex: 1;
+    height: 6px;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    background: var(--color-background-deep);
+  }
+  .mv-reel-meter i {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--color-accent-red) 0 10px,
+      var(--color-accent-yellow) 10px 18px,
+      var(--color-accent-blue) 18px 28px,
+      var(--color-accent-purple) 28px 36px
+    );
+  }
+  .mv-reel-hint {
+    flex: none;
+    color: var(--color-dim);
+    font-size: 0.52rem;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mv-worlds[data-mv-horizontal="true"] .mv-reel-hud {
+      transition: none;
+    }
+  }
+
+  /* Desktop cinematic showcase: the worlds become a pinned horizontal reel.
+     The attribute is only applied by GSAP when the motion contract is active. */
+  .mv-worlds[data-mv-horizontal="true"] {
+    /* The reel is pinned directly beneath the fixed HUD, so it owns exactly
+       the remaining viewport. `100svh` keeps mobile browser chrome out of the
+       measurement even though this branch is desktop-first. */
+    height: calc(100svh - var(--hud-height, 5.375rem));
+    overflow: hidden;
+  }
+  .mv-worlds[data-mv-horizontal="true"] .mv-worlds-track {
+    display: flex;
+    align-items: center;
+    gap: clamp(2.5rem, 4vw, 4rem);
+    width: max-content;
+    padding-inline: 0;
+    transform-origin: left center;
+  }
+  .mv-worlds[data-mv-horizontal="true"] .world {
+    flex: 0 0 var(--mv-world-w, min(76rem, 80vw));
+    width: var(--mv-world-w, min(76rem, 80vw));
+  }
+  .mv-worlds[data-mv-horizontal="true"] .world--expedition {
+    margin-left: 0;
   }
   .world {
     position: relative;
@@ -771,10 +889,12 @@
     height: 4px;
     background: var(--world-tone);
   }
-  .world:target .world-selected {
+  .world:target .world-selected,
+  .world[data-world-active] .world-selected {
     display: inline-flex;
   }
-  .world:target .world-strap-line {
+  .world:target .world-strap-line,
+  .world[data-world-active] .world-strap-line {
     border-color: var(--world-tone);
   }
   .world-atlas-link {
@@ -802,7 +922,22 @@
   }
   .world-visual {
     position: relative;
+    isolation: isolate;
     min-width: 0;
+  }
+  /* Pixel offset blocks replace expensive multi-layer drop-shadow filters on
+     the largest animated surfaces. */
+  .world--feature .world-visual::before,
+  .world--expedition .world-visual::before {
+    content: "";
+    position: absolute;
+    inset: 10px -10px -10px 10px;
+    z-index: -1;
+    background: var(--color-accent-blue);
+    pointer-events: none;
+  }
+  .world--expedition .world-visual::before {
+    background: var(--color-accent-purple);
   }
 
   /* ---------- Shared dossier panel --------------------------------------- */
@@ -1102,11 +1237,6 @@
   }
 
   /* ---------- World 01: cinematic feature --------------------------------- */
-  .world--feature .world-visual {
-    filter:
-      drop-shadow(8px 8px 0 var(--color-accent-blue))
-      drop-shadow(16px 16px 0 color-mix(in srgb, var(--color-accent-purple) 54%, transparent));
-  }
   .world--feature .world-panel {
     width: min(35rem, 44%);
     margin: clamp(-15rem, -13vw, -8rem) clamp(1rem, 4vw, 2.8rem) 0 auto;
@@ -1229,9 +1359,6 @@
   /* ---------- World 03: expedition rail ------------------------------------ */
   .world--expedition {
     margin-left: clamp(0rem, 5vw, 5.5rem);
-  }
-  .world--expedition .world-visual {
-    filter: drop-shadow(8px 8px 0 var(--color-accent-purple));
   }
   .world--expedition .world-panel {
     --panel-bg: #0b0c15;

@@ -7,9 +7,24 @@ type MotionMode = "full" | "calm";
 const currentMotion = (): MotionMode => (root.dataset.motion === "calm" ? "calm" : "full");
 const motionButton = document.querySelector<HTMLButtonElement>("[data-motion-toggle]");
 const motionState = document.querySelector<HTMLElement>("[data-motion-state]");
+const hud = document.querySelector<HTMLElement>("[data-hud]");
+const journeyDirector = (): boolean => root.dataset.journeyOn === "true";
+
+/* The smoother measures the HUD during boot. This mirror keeps content clear of
+   the fixed header even if the animation bundle never initializes. */
+const syncHudHeight = (): void => {
+  if (!hud) return;
+  const height = Math.round(hud.getBoundingClientRect().height);
+  if (height <= 0) return;
+  const current = root.style.getPropertyValue("--hud-height");
+  if (current !== `${height}px`) root.style.setProperty("--hud-height", `${height}px`);
+};
+syncHudHeight();
+window.addEventListener("resize", syncHudHeight, { passive: true });
+void document.fonts?.ready.then(syncHudHeight).catch(() => undefined);
 
 /* ---------- Motion preference -------------------------------------------- */
-const setMotionUI = (mode: MotionMode): void => {
+const setMotionUI = (mode: MotionMode, announce = true): void => {
   root.dataset.motion = mode;
   const calm = mode === "calm";
   if (motionButton) {
@@ -19,9 +34,15 @@ const setMotionUI = (mode: MotionMode): void => {
     motionButton.setAttribute("data-tip", label);
   }
   if (motionState) motionState.textContent = calm ? "Calm" : "Full";
+  /* The initial paint syncs the UI only. Dispatching here would tear down and
+     rebuild every scroll controller immediately after the animation bundle
+     finished constructing it. */
+  if (announce) {
+    document.dispatchEvent(new CustomEvent("sra:motion-change", { detail: { mode } }));
+  }
 };
 
-setMotionUI(currentMotion());
+setMotionUI(currentMotion(), false);
 
 /* ---------- Scroll reveals ----------------------------------------------- */
 const revealables = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
@@ -32,6 +53,9 @@ const revealAll = (): void => {
 };
 
 const startReveals = (): void => {
+  // GSAP owns the reveal timelines when the animation bundle is active. The
+  // old observer remains the fallback if that bundle failed to initialize.
+  if (root.dataset.gsap === "on") return;
   if (revealables.length === 0) return;
   if (currentMotion() === "calm" || !("IntersectionObserver" in window)) {
     revealAll();
@@ -107,7 +131,7 @@ if (menuButton && menu) {
     }
   });
 
-  const desktopQuery = window.matchMedia("(min-width: 62rem)");
+  const desktopQuery = window.matchMedia("(min-width: 75rem)");
   desktopQuery.addEventListener("change", (event) => {
     if (event.matches) setOpen(false);
   });
@@ -153,7 +177,11 @@ if (certIndex) {
   }
 }
 
-const markCurrentCertificate = (id: string | null): void => {
+let currentCertId: string | null = null;
+
+const applyCurrentCertificate = (id: string | null): void => {
+  if (id === currentCertId) return;
+  currentCertId = id;
   for (const link of certLinks) {
     if (link.dataset.certLink === id) {
       link.setAttribute("aria-current", "location");
@@ -163,20 +191,50 @@ const markCurrentCertificate = (id: string | null): void => {
   }
 };
 
-const updateCertificateIndex = (): void => {
-  if (certLinks.length === 0 || certCards.length === 0) return;
-  const line = window.innerHeight * 0.35;
-  if (!certSection || certSection.getBoundingClientRect().bottom < line) {
-    markCurrentCertificate(null);
-    return;
+/* Reads only. Layout writes happen later in `updateScrollState` so a single
+   scroll frame never interleaves measurements with style invalidations. */
+const findCurrentCertificate = (): { known: boolean; id: string | null } => {
+  if (certLinks.length === 0 || certCards.length === 0 || !certSection) {
+    return { known: false, id: null };
   }
+  const line = window.innerHeight * 0.35;
+  if (certSection.getBoundingClientRect().bottom < line) return { known: true, id: null };
   let currentId: string | null = null;
   for (const card of certCards) {
     if (card.getBoundingClientRect().top > line) break;
     currentId = card.dataset.certificate ?? null;
   }
-  markCurrentCertificate(currentId);
+  return { known: true, id: currentId };
 };
+
+/* The certificate ledger is only read while its scene is active, and at most
+   once per ~120 ms. Every other zone avoids the card measurements entirely. */
+let certificateScene = root.dataset.scene === "certificates";
+let certificateTimer = 0;
+
+const refreshCurrentCertificate = (): void => {
+  if (!certificateScene) {
+    applyCurrentCertificate(null);
+    return;
+  }
+  const certificate = findCurrentCertificate();
+  if (certificate.known) applyCurrentCertificate(certificate.id);
+};
+
+const requestCertificateUpdate = (): void => {
+  if (certificateTimer) return;
+  certificateTimer = window.setTimeout(() => {
+    certificateTimer = 0;
+    refreshCurrentCertificate();
+  }, 120);
+};
+
+document.addEventListener("sra:journey-state", (event) => {
+  const detail = (event as CustomEvent<{ id?: string }>).detail;
+  certificateScene = detail?.id === "certificates";
+  if (certificateScene) refreshCurrentCertificate();
+  else applyCurrentCertificate(null);
+});
 
 /* ---------- Certificate preview modal ------------------------------------- */
 const certModal = document.querySelector<HTMLDialogElement>("[data-cert-modal]");
@@ -296,62 +354,93 @@ if (certModal) {
   }
 }
 
-/* ---------- Current zone marker in the command bar ----------------------- */
+/* ---------- Current zone marker ------------------------------------------ */
 const navLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>("[data-nav-link]"));
 const navTargets = navLinks
   .map((link) => {
-    const id = link.hash.slice(1);
-    const target = id ? document.getElementById(id) : null;
-    return target ? { link, target } : null;
+    const targetId = link.hash.slice(1);
+    const target = targetId ? document.getElementById(targetId) : null;
+    /* The scene director names the finale scene `footer`, while its link points
+       at the heading (`#footer-title`). Use the chapter hook as the canonical
+       nav key so aria-current can follow the scene instead of the fragment. */
+    const id = link.dataset.journeyStop ?? targetId;
+    return target ? { link, target, id } : null;
   })
-  .filter((item): item is { link: HTMLAnchorElement; target: HTMLElement } => item !== null);
+  .filter(
+    (item): item is { link: HTMLAnchorElement; target: HTMLElement; id: string } => item !== null,
+  );
 
-const markCurrent = (id: string | null): void => {
-  for (const { link, target } of navTargets) {
-    if (target.id === id) {
-      link.setAttribute("aria-current", "location");
+let currentNavId: string | null = null;
+
+const applyCurrentSection = (id: string | null): void => {
+  if (id === currentNavId) return;
+  currentNavId = id;
+  for (const item of navTargets) {
+    if (item.id === id) {
+      item.link.setAttribute("aria-current", "location");
     } else {
-      link.removeAttribute("aria-current");
+      item.link.removeAttribute("aria-current");
     }
   }
 };
 
-if (navTargets.length > 0) {
-  const fromHash = (): void => {
-    const id = window.location.hash.slice(1);
-    if (navTargets.some((item) => item.target.id === id)) markCurrent(id);
-  };
+const sceneNavId = (id: string | null): string | null =>
+  id && navTargets.some((item) => item.id === id) ? id : null;
 
-  fromHash();
-  window.addEventListener("hashchange", fromHash);
-}
+/* The scene director is the single author of the active journey scene. This
+   listener mirrors its decision into the primary navigation. */
+document.addEventListener("sra:journey-state", (event) => {
+  const detail = (event as CustomEvent<{ id?: string; navId?: string | null }>).detail;
+  if (!detail) return;
+  applyCurrentSection(detail.navId ?? sceneNavId(detail.id ?? null));
+});
 
-// The sections are deliberately uneven in height, so intersection ratios mislead.
-// Instead, treat the last section whose top has crossed the command-line as current.
-function updateActiveSection(): void {
-  if (navTargets.length === 0) return;
+applyCurrentSection(sceneNavId(root.dataset.scene ?? null));
+
+/* The sections are deliberately uneven in height, so intersection ratios
+   mislead. This native fallback only runs when the scene director is absent —
+   for example when the animation bundle failed to initialize. */
+function findActiveSection(): string | null {
+  if (navTargets.length === 0) return null;
   const line = window.innerHeight * 0.35;
-  let current: (typeof navTargets)[number] | null = null;
+  let current: string | null = null;
   for (const item of navTargets) {
-    if (item.target.getBoundingClientRect().top <= line) current = item;
+    if (item.target.getBoundingClientRect().top <= line) current = item.id;
   }
-  markCurrent(current ? current.target.id : null);
+  return current;
 }
 
-/* ---------- Scroll progress + header state -------------------------------- */
+/* ---------- Scroll progress + header state (fallback) -------------------- */
 const progressBar = document.querySelector<HTMLElement>("[data-progress]");
-const hud = document.querySelector<HTMLElement>("[data-hud]");
 let scrollTicking = false;
+let lastProgress = -1;
+let lastScrolled: boolean | null = null;
 
 const updateScrollState = (): void => {
+  scrollTicking = false;
+  if (journeyDirector()) return;
+
   const doc = document.scrollingElement ?? document.documentElement;
   const max = doc.scrollHeight - window.innerHeight;
-  const ratio = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
-  root.style.setProperty("--progress", ratio.toFixed(4));
-  if (hud) hud.toggleAttribute("data-scrolled", window.scrollY > 8);
-  updateActiveSection();
-  updateCertificateIndex();
-  scrollTicking = false;
+  const scrollY = window.scrollY;
+  const ratio = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+
+  /* Measure everything first, then write. */
+  const activeId = findActiveSection();
+
+  if (progressBar && ratio !== lastProgress) {
+    lastProgress = ratio;
+    progressBar.style.setProperty("--progress", ratio.toFixed(4));
+  }
+
+  const scrolled = scrollY > 8;
+  if (hud && scrolled !== lastScrolled) {
+    lastScrolled = scrolled;
+    hud.toggleAttribute("data-scrolled", scrolled);
+  }
+
+  applyCurrentSection(activeId);
+  refreshCurrentCertificate();
 };
 
 const requestScrollState = (): void => {
@@ -360,10 +449,35 @@ const requestScrollState = (): void => {
   requestAnimationFrame(updateScrollState);
 };
 
-if (progressBar || hud) {
-  window.addEventListener("scroll", requestScrollState, { passive: true });
-  window.addEventListener("resize", requestScrollState, { passive: true });
+const onJourneyScroll = (): void => {
+  if (!journeyDirector()) {
+    requestScrollState();
+    return;
+  }
+  if (certificateScene) requestCertificateUpdate();
+};
+
+if (navTargets.length > 0 || progressBar || hud || certLinks.length > 0) {
+  window.addEventListener("scroll", onJourneyScroll, { passive: true });
+  /* ScrollSmoother moves the page on its own ticker after the native scroll
+     event. Re-read once more when it settles, otherwise the last native event
+     can leave a consumer one frame behind. */
+  document.addEventListener("sra:smooth-update", onJourneyScroll);
+  window.addEventListener("resize", onJourneyScroll, { passive: true });
+  onJourneyScroll();
   updateScrollState();
+}
+
+/* Native fallback for deep links if the animation bundle never attached its
+   resolver and scene director. */
+if (!journeyDirector() && navTargets.length > 0) {
+  const fromHash = (): void => {
+    const id = window.location.hash.slice(1);
+    if (navTargets.some((item) => item.target.id === id)) applyCurrentSection(id);
+  };
+
+  fromHash();
+  window.addEventListener("hashchange", fromHash);
 }
 
 /* ---------- Hero parallax (pointer devices, full motion only) ------------ */
@@ -539,6 +653,7 @@ if (skillMatrix) {
   const categoryTargets = Array.from(
     readout?.querySelectorAll<HTMLElement>("[data-skill-category]") ?? [],
   );
+  const abilityLinks = Array.from(skillMatrix.querySelectorAll<HTMLElement>(".ability-link"));
 
   const applySkill = (button: HTMLButtonElement, announce: boolean): void => {
     const name = button.dataset.skillName;
@@ -552,6 +667,15 @@ if (skillMatrix) {
     skillMatrix.dataset.selectedTone = tone;
     skillMatrix.dataset.tone = tone;
     if (readout) readout.dataset.tone = tone;
+
+    /* Cable choreography: the trunk of the selected group plus the branch that
+       leads to the clicked component light up. Any other cable stays dark. */
+    for (const link of abilityLinks) {
+      const lit =
+        link.dataset.linkGroup === group &&
+        (link.dataset.linkKind === "bus" || link.dataset.linkNode === name);
+      link.toggleAttribute("data-active", lit);
+    }
 
     for (const candidate of buttons) {
       const selected = candidate.dataset.skillName === name;
@@ -611,8 +735,83 @@ if (skillMatrix) {
     buttons.find((button) => button.getAttribute("aria-pressed") === "true") ?? buttons[0];
   if (initialButton) applySkill(initialButton, false);
 
+  let currentSkillName: string | null = initialButton?.dataset.skillName ?? null;
+
+  const buttonByName = new Map<string, HTMLButtonElement>();
   for (const button of buttons) {
-    button.addEventListener("click", () => applySkill(button, true));
+    const name = button.dataset.skillName;
+    if (name && !buttonByName.has(name)) buttonByName.set(name, button);
+  }
+
+  const clearCablePreview = (): void => {
+    for (const link of abilityLinks) link.removeAttribute("data-preview");
+    for (const item of indexItems) item.removeAttribute("data-preview");
+  };
+
+  const previewSkill = (name: string | null): void => {
+    clearCablePreview();
+    if (!name) return;
+    const group = buttonByName.get(name)?.dataset.skillGroup ?? null;
+    for (const link of abilityLinks) {
+      const hit =
+        link.dataset.linkNode === name ||
+        (group !== null && link.dataset.linkKind === "bus" && link.dataset.linkGroup === group);
+      link.toggleAttribute("data-preview", hit);
+    }
+    for (const item of indexItems) {
+      item.toggleAttribute("data-preview", item.dataset.indexSkill === name);
+    }
+  };
+
+  const findSkillName = (target: Element | null): string | null => {
+    const node = target?.closest<HTMLElement>("[data-skill-node], [data-index-skill]");
+    if (!node || !skillMatrix.contains(node)) return null;
+    return node.dataset.skillName ?? node.dataset.indexSkill ?? null;
+  };
+
+  if (finePointer) {
+    skillMatrix.addEventListener("pointerover", (event) => {
+      const target = event.target;
+      previewSkill(target instanceof Element ? findSkillName(target) : null);
+    });
+    skillMatrix.addEventListener("pointerleave", clearCablePreview);
+  }
+
+  skillMatrix.addEventListener("focusin", (event) => {
+    const target = event.target;
+    previewSkill(target instanceof Element ? findSkillName(target) : null);
+  });
+
+  skillMatrix.addEventListener("focusout", (event) => {
+    const next = event.relatedTarget;
+    if (next instanceof Node && skillMatrix.contains(next)) return;
+    clearCablePreview();
+  });
+
+  const deselectSkill = (): void => {
+    currentSkillName = null;
+    skillMatrix.dataset.selectedGroup = "";
+    skillMatrix.dataset.selectedTone = "";
+    skillMatrix.dataset.tone = "";
+    if (readout) readout.dataset.tone = "";
+    for (const candidate of buttons) {
+      candidate.setAttribute("aria-pressed", "false");
+      candidate.removeAttribute("data-selected");
+    }
+    for (const link of abilityLinks) link.removeAttribute("data-active");
+  };
+
+  for (const button of buttons) {
+    button.addEventListener("click", () => {
+      const name = button.dataset.skillName;
+      /* Toggle: pressing the already-selected component clears the selection. */
+      if (name && name === currentSkillName) {
+        deselectSkill();
+        return;
+      }
+      currentSkillName = name ?? null;
+      applySkill(button, true);
+    });
   }
 }
 
@@ -657,6 +856,32 @@ motionQuery.addEventListener("change", (event) => {
   }
 });
 
+/* ---------- Landing switch fallback --------------------------------------- */
+/* This module runs after the animation bundle. The GSAP controller writes the
+   `data-landing-engine="gsap"` marker as its final construction step, so this
+   branch only registers a handler when that controller genuinely never built —
+   never as a second listener while GSAP is still warming up. */
+const fallbackLanding = document.querySelector<HTMLElement>("[data-landing]");
+const fallbackToggle = document.querySelector<HTMLButtonElement>("[data-landing-toggle]");
+
+if (fallbackLanding && fallbackToggle && fallbackLanding.dataset.landingEngine !== "gsap") {
+  const label = fallbackToggle.querySelector<HTMLElement>(".landing-toggle-label");
+  const hint = fallbackLanding.querySelector<HTMLElement>("#landing-toggle-hint");
+
+  fallbackToggle.addEventListener("click", () => {
+    const active = fallbackToggle.getAttribute("aria-checked") !== "true";
+    fallbackLanding.dataset.landingState = active ? "active" : "idle";
+    fallbackToggle.setAttribute("aria-checked", String(active));
+    fallbackLanding.toggleAttribute("data-landing-active", active);
+    if (label) label.textContent = active ? "ENTER" : "ENGAGE";
+    if (hint) {
+      hint.textContent = active
+        ? "Console online. Operator link established."
+        : "Activate the switch to go live.";
+    }
+  });
+}
+
 /* ---------- Copy the email address ----------------------------------------- */
 const copyButton = document.querySelector<HTMLButtonElement>("[data-copy]");
 const copyStatus = document.querySelector<HTMLElement>("[data-copy-status]");
@@ -678,38 +903,72 @@ if (copyButton) {
   };
 
   copyButton.addEventListener("click", () => {
-    const fallback = (): void => {
-      const field = document.createElement("textarea");
-      field.value = address;
-      field.setAttribute("readonly", "");
-      field.style.position = "fixed";
-      field.style.opacity = "0";
-      document.body.append(field);
-      field.select();
-      let ok = false;
-      try {
-        ok = document.execCommand("copy");
-      } catch {
-        ok = false;
-      }
-      field.remove();
-      settle(
-        ok
-          ? "Email address copied to clipboard."
-          : "Could not copy automatically. Select the address to copy it.",
-        ok,
-      );
-    };
-
     if (navigator.clipboard?.writeText) {
       navigator.clipboard
         .writeText(address)
         .then(() => settle("Email address copied to clipboard.", true))
-        .catch(fallback);
+        .catch(() => settle("Could not copy automatically. Select the address to copy it.", false));
     } else {
-      fallback();
+      settle("Could not copy automatically. Select the address to copy it.", false);
     }
   });
+}
+
+/* ---------- Horizontal galleries (certificates & field captures) ----------- */
+const horizontalZones = Array.from(
+  document.querySelectorAll<HTMLElement>("[data-horizontal-zone]"),
+);
+
+const runGalleryUpdate = (): void => {
+  for (const zone of horizontalZones) {
+    const scroller = zone.querySelector<HTMLElement>("[data-horizontal-scroll]");
+    const indicator = zone.querySelector<HTMLElement>("[data-gallery-pos]");
+    const prev = zone.querySelector<HTMLButtonElement>("[data-gallery-prev]");
+    const next = zone.querySelector<HTMLButtonElement>("[data-gallery-next]");
+    if (!scroller) continue;
+
+    const max = scroller.scrollWidth - scroller.clientWidth;
+    const ratio = max > 0 ? Math.min(1, Math.max(0, scroller.scrollLeft / max)) : 0;
+    zone.style.setProperty("--gallery-progress", ratio.toFixed(4));
+    if (indicator) indicator.textContent = `${String(Math.round(ratio * 100)).padStart(2, "0")}%`;
+    if (prev) prev.disabled = scroller.scrollLeft <= 8;
+    if (next) next.disabled = max - scroller.scrollLeft <= 8;
+  }
+};
+
+let galleryTicking = false;
+const requestGalleryUpdate = (): void => {
+  if (galleryTicking) return;
+  galleryTicking = true;
+  requestAnimationFrame(() => {
+    galleryTicking = false;
+    runGalleryUpdate();
+  });
+};
+
+if (horizontalZones.length > 0) {
+  for (const zone of horizontalZones) {
+    const scroller = zone.querySelector<HTMLElement>("[data-horizontal-scroll]");
+    const prev = zone.querySelector<HTMLButtonElement>("[data-gallery-prev]");
+    const next = zone.querySelector<HTMLButtonElement>("[data-gallery-next]");
+    if (!scroller) continue;
+
+    if (prev && next) {
+      const scrollGallery = (direction: number): void => {
+        scroller.scrollBy({
+          left: direction * Math.max(scroller.clientWidth * 0.8, 240),
+          behavior: currentMotion() === "calm" ? "auto" : "smooth",
+        });
+      };
+
+      prev.addEventListener("click", () => scrollGallery(-1));
+      next.addEventListener("click", () => scrollGallery(1));
+    }
+
+    scroller.addEventListener("scroll", requestGalleryUpdate, { passive: true });
+  }
+  window.addEventListener("resize", requestGalleryUpdate, { passive: true });
+  requestGalleryUpdate();
 }
 
 export {};
