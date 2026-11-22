@@ -1,8 +1,8 @@
-import { gsap } from "../core/gsap";
+import { gsap, ScrollTrigger } from "../core/gsap";
 import { isCalmMotion, onMotionChange } from "../core/motion";
 import { getHudOffset } from "../core/smoother";
 import { q } from "../core/utils";
-import { createSectionSequence, markMotion } from "./sequences";
+import { clearMotionStyles, createSectionSequence, markMotion } from "./sequences";
 
 type Disposer = () => void;
 
@@ -44,6 +44,14 @@ export function initHeroCinematic(): Disposer | null {
 
   const build = (): void => {
     if (isCalmMotion()) return;
+    if (ScrollTrigger.isTouch === 1) {
+      /* The scroll-driven camera is a precision-pointer cinematic: it pushes
+         the hero world, copy, monitor and ticker while the reader scrolls.
+         Touch devices keep the authored title-screen presentation instead, so
+         native touch scrolling never drags or fades the hero copy mid-read. */
+      clearMotionStyles([world, shell, copy, visual, ticker].filter(Boolean) as Element[]);
+      return;
+    }
 
     context = gsap.context(() => {
       const makeTimeline = (distance: {
