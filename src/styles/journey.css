@@ -180,6 +180,10 @@ html:not(.js) .hud-nav[data-journey] .journey-meter {
 .journey-stop-name {
   display: none;
   white-space: nowrap;
+  /* The stop box owns the compact mono rhythm, but the chapter label must stay
+     readable. Chrome's `.nav-link` size is layered, so this unlayered declaration
+     carries the intent for both the desktop bar and the mobile drawer. */
+  font-size: 0.68rem;
 }
 
 .journey-stop[data-state="done"] {
@@ -374,6 +378,34 @@ html:not(.js) .hud-nav[data-journey] .journey-meter {
 
   .journey-track {
     width: 2.6rem;
+  }
+}
+
+/* The collapsed HUD turns the chapter list into a full-width drawer. Inside
+   that drawer the labels are the navigation, so they must be visible and every
+   row must meet the 44px touch target even though the inline desktop bar keeps
+   its compact number-only treatment. This block intentionally comes last: the
+   journey styles are unlayered and would otherwise beat the drawer rules in
+   chrome.css. */
+@media (max-width: 74.99rem) {
+  .js .hud-nav .nav-list {
+    grid-auto-rows: min-content;
+  }
+
+  .js .hud-nav .nav-link.journey-stop {
+    min-height: 2.75rem;
+    padding: 0.65rem 0.55rem;
+    gap: 0.55rem;
+  }
+
+  .js .hud-nav .journey-stop-name {
+    display: inline;
+  }
+
+  .js .hud-nav .journey-stop-no {
+    width: 1.35rem;
+    height: 1.35rem;
+    font-size: 0.44rem;
   }
 }
 

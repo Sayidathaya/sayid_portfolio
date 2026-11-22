@@ -87,7 +87,10 @@ const familyName = nameParts.at(-1) ?? profile.name;
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="author" content={profile.name} />
@@ -224,6 +227,7 @@ const familyName = nameParts.at(-1) ?? profile.name;
                         data-journey-stop={chapter.id}
                         data-tone={chapter.tone}
                         data-state="next"
+                        aria-label={`Chapter ${chapter.number}: ${chapter.label}`}
                       >
                         <span class="nav-cursor" aria-hidden="true"></span>
                         <span class="nav-no journey-stop-no" aria-hidden="true">

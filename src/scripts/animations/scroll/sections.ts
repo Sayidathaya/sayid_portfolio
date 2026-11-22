@@ -379,10 +379,17 @@ const revealProjects = (media: ReturnType<typeof gsap.matchMedia> | null): void 
   const atlas = q<HTMLElement>(".mv-atlas", projects);
   if (atlas) {
     markRevealed([atlas]);
+    /* The atlas is a tall, readable panel. Completing its reveal while the
+       panel top is still entering the upper-middle of the viewport keeps every
+       paragraph legible after a direct #projects jump; the old `bottom 58%`
+       end left the whole panel at ~33% opacity until the reader scrolled much
+       further. The end edge sits above the HUD-adjusted landing position, so a
+       fragment jump that parks the panel top in the upper third is instantly
+       fully revealed instead of catching the panel mid-wipe. */
     const atlasTimeline = createSectionSequence({
       trigger: atlas,
-      start: "top 84%",
-      end: "bottom 58%",
+      start: "top 92%",
+      end: "top 62%",
     });
 
     addReveal(atlasTimeline, atlas, { y: 28, scale: 0.994, duration: 0.7 });

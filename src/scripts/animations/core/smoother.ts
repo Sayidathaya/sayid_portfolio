@@ -72,6 +72,25 @@ export function getJourneyScrollMax(): number {
 }
 
 /**
+ * Document offset based on untransformed layout boxes.
+ *
+ * Scroll choreography translates reveal targets while they enter the viewport.
+ * Measuring `getBoundingClientRect()` at that moment includes the transient
+ * translate, so a programmatic jump would aim too high and the target would
+ * settle underneath the HUD once the reveal finished. Offset parents describe
+ * the authored layout position and ignore those painted transforms.
+ */
+function layoutTop(target: HTMLElement): number {
+  let top = 0;
+  let node: HTMLElement | null = target;
+  while (node) {
+    top += node.offsetTop;
+    node = node.offsetParent instanceof HTMLElement ? node.offsetParent : null;
+  }
+  return top;
+}
+
+/**
  * Absolute journey offset of an element. When the smoother is live this uses
  * the instance's own layout resolver, so pinned spacers and transformed content
  * are measured in the same coordinate space the HUD reads.
@@ -81,10 +100,10 @@ export function getJourneyTargetOffset(target: HTMLElement): number {
     try {
       return smoother.offset(target, "top top");
     } catch {
-      /* Fall through to the native rect measurement. */
+      /* Fall through to the native layout measurement. */
     }
   }
-  return target.getBoundingClientRect().top + getJourneyScrollTop();
+  return layoutTop(target);
 }
 
 function smoothForWidth(): number {
@@ -212,10 +231,16 @@ function absoluteTop(target: HTMLElement): number {
     try {
       return smoother.offset(target, "top top");
     } catch {
-      /* Fallback to rect calculation below */
+      /* Fallback to the native layout calculation below. */
     }
   }
-  return target.getBoundingClientRect().top + getJourneyScrollTop();
+  const rect = target.getBoundingClientRect();
+  /* A hidden target has no layout box; keep the old rect fallback so fragment
+     navigation still has a deterministic destination. */
+  if (rect.width === 0 && rect.height === 0) {
+    return rect.top + getJourneyScrollTop();
+  }
+  return layoutTop(target);
 }
 
 /** Keep a horizontally clipped gallery card visible when its anchor is used. */

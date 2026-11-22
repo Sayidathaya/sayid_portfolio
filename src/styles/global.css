@@ -135,7 +135,9 @@
     width: 100%;
     max-width: var(--shell-max);
     margin-inline: auto;
-    padding-inline: var(--gutter);
+    /* Safe-area gutters keep fixed/notched edges from covering real content. */
+    padding-left: calc(var(--gutter) + env(safe-area-inset-left, 0px));
+    padding-right: calc(var(--gutter) + env(safe-area-inset-right, 0px));
   }
 
   /* Type roles: pixel headings, mono metadata, readable body. */
@@ -521,8 +523,8 @@
   .skip-link {
     position: fixed;
     z-index: var(--z-skip);
-    top: 0.5rem;
-    left: 0.5rem;
+    top: calc(0.5rem + env(safe-area-inset-top, 0px));
+    left: calc(0.5rem + env(safe-area-inset-left, 0px));
     padding: 0.85rem 1rem;
     border: 3px solid var(--color-accent-yellow);
     color: var(--color-foreground);

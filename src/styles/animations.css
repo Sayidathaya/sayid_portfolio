@@ -527,8 +527,8 @@ html[data-gsap="on"] .ability-nodes li {
 /* ---------- Audio deck --------------------------------------------------- */
 .audio-deck {
   position: fixed;
-  right: 1rem;
-  bottom: 1rem;
+  right: calc(1rem + env(safe-area-inset-right, 0px));
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   z-index: var(--z-audio);
   width: min(17.25rem, calc(100vw - 2rem));
   color: var(--color-foreground);
@@ -767,11 +767,11 @@ html[data-gsap="on"] .ability-nodes li {
    / skill-index actions in the bottom-right corner. */
 @media (max-width: 63.99rem), (min-width: 64rem) and (max-height: 50rem) {
   .audio-deck {
-    right: 0.6rem;
-    bottom: 0.6rem;
+    right: calc(0.6rem + env(safe-area-inset-right, 0px));
+    bottom: calc(0.6rem + env(safe-area-inset-bottom, 0px));
     left: auto;
     width: auto;
-    max-width: calc(100vw - 1.2rem);
+    max-width: calc(100vw - 1.2rem - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
   }
 
   .audio-deck-details {
@@ -786,7 +786,7 @@ html[data-gsap="on"] .ability-nodes li {
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    min-height: 2.6rem;
+    min-height: 2.75rem;
     padding: 0.25rem 0.32rem;
     border: 3px solid var(--color-accent-blue);
     background: color-mix(in srgb, var(--color-surface) 94%, transparent);
@@ -842,7 +842,7 @@ html[data-gsap="on"] .ability-nodes li {
 
   .audio-deck-details[open] .audio-deck-toggle {
     width: 100%;
-    min-height: auto;
+    min-height: 2.75rem;
     justify-content: flex-start;
     padding: 0.45rem 0.65rem;
     border: 0;
