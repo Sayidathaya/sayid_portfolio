@@ -1,0 +1,482 @@
+/* ==========================================================================
+   SRA 2.0 — Arcade layer: achievements, secret level, menu, finale marquee
+   ========================================================================== */
+
+/* ---------- Achievement toasts ------------------------------------------ */
+.achievement-stack {
+  position: fixed;
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  left: calc(1rem + env(safe-area-inset-left, 0px));
+  z-index: 92;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: min(21rem, calc(100vw - 2rem - env(safe-area-inset-left, 0px)));
+  pointer-events: none;
+}
+
+.achievement-toast {
+  --ach-tone: var(--color-accent-yellow);
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.7rem;
+  align-items: start;
+  padding: 0.7rem 0.65rem 0.7rem 0.8rem;
+  border: 3px solid var(--ach-tone);
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 3px,
+      rgb(255 255 255 / 0.03) 3px 4px
+    ),
+    var(--color-surface-sunken);
+  box-shadow:
+    5px 5px 0 color-mix(in srgb, var(--ach-tone) 60%, var(--color-background-deep)),
+    9px 9px 0 rgb(0 0 0 / 0.32);
+  clip-path: var(--pixel-cut);
+  color: var(--color-foreground);
+  opacity: 0;
+  transform: translateY(16px);
+  pointer-events: auto;
+  transition:
+    opacity 260ms steps(4, end),
+    transform 260ms steps(4, end);
+}
+
+.achievement-toast[data-tone="red"] {
+  --ach-tone: var(--color-accent-red);
+}
+
+.achievement-toast[data-tone="yellow"] {
+  --ach-tone: var(--color-accent-yellow);
+}
+
+.achievement-toast[data-tone="blue"] {
+  --ach-tone: var(--color-accent-blue);
+}
+
+.achievement-toast[data-tone="purple"] {
+  --ach-tone: var(--color-accent-purple);
+}
+
+.achievement-toast[data-state="show"] {
+  opacity: 1;
+  transform: none;
+}
+
+.achievement-toast[data-state="hide"] {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.achievement-toast-glyph {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 2px solid var(--ach-tone);
+  color: var(--ach-tone);
+  background: color-mix(in srgb, var(--ach-tone) 12%, var(--color-background-deep));
+  font-family: var(--font-pixel);
+  font-size: 1.05rem;
+  line-height: 1;
+  box-shadow: 2px 2px 0 color-mix(in srgb, var(--ach-tone) 42%, transparent);
+}
+
+.achievement-toast-kicker {
+  color: var(--ach-tone);
+  font-family: var(--font-pixel);
+  font-size: 0.44rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.achievement-toast-title {
+  margin-top: 0.1rem;
+  color: var(--color-foreground);
+  font-family: var(--font-pixel);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.achievement-toast-detail {
+  margin-top: 0.22rem;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  line-height: 1.5;
+}
+
+.achievement-toast-close {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 2px solid var(--color-border);
+  color: var(--color-muted);
+  background: var(--color-surface);
+  font-family: var(--font-pixel);
+  font-size: 0.7rem;
+  line-height: 1;
+  transition:
+    color 140ms steps(2, end),
+    border-color 140ms steps(2, end),
+    background-color 140ms steps(2, end);
+}
+
+.achievement-toast-close:hover,
+.achievement-toast-close:focus-visible {
+  border-color: var(--ach-tone);
+  color: var(--color-on-yellow);
+  background: var(--ach-tone);
+}
+
+/* Clear the compact audio disclosure on touch-sized and short viewports. */
+@media (max-width: 63.99rem), (min-width: 64rem) and (max-height: 50rem) {
+  .achievement-stack {
+    bottom: calc(4.6rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (max-width: 39.99rem) {
+  .achievement-stack {
+    right: calc(0.75rem + env(safe-area-inset-right, 0px));
+    left: calc(0.75rem + env(safe-area-inset-left, 0px));
+    width: auto;
+  }
+
+  .achievement-toast {
+    gap: 0.55rem;
+  }
+}
+
+/* ---------- Secret level ------------------------------------------------ */
+.secret-level {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 4vw, 3rem);
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgb(0 0 0 / 0.28) 0 2px,
+      transparent 2px 5px
+    ),
+    color-mix(in srgb, var(--color-background-deep) 82%, transparent);
+  opacity: 0;
+  transition: opacity 240ms steps(4, end);
+}
+
+.secret-level[data-state="in"] {
+  opacity: 1;
+}
+
+.secret-level[data-state="out"] {
+  opacity: 0;
+}
+
+.secret-frame {
+  position: relative;
+  width: min(34rem, 100%);
+  padding: clamp(1.2rem, 4vw, 2rem);
+  border: 4px solid var(--color-accent-yellow);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--color-accent-purple) 22%, transparent), transparent 52%),
+    color-mix(in srgb, var(--color-background) 96%, transparent);
+  box-shadow:
+    7px 7px 0 var(--color-accent-red),
+    14px 14px 0 var(--color-accent-blue),
+    22px 22px 0 rgb(0 0 0 / 0.38);
+  clip-path: var(--pixel-cut);
+  overflow: hidden;
+  text-align: left;
+}
+
+.secret-scan {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0 3px,
+    rgb(255 255 255 / 0.05) 3px 4px
+  );
+  pointer-events: none;
+}
+
+.secret-kicker {
+  position: relative;
+  color: var(--color-accent-yellow);
+  font-family: var(--font-pixel);
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.secret-glyphs {
+  position: relative;
+  margin-top: 0.55rem;
+  color: var(--color-accent-purple-ink);
+  font-family: var(--font-pixel);
+  font-size: 1.1rem;
+  letter-spacing: 0.3em;
+}
+
+.secret-title {
+  position: relative;
+  margin-top: 0.35rem;
+  color: var(--color-foreground);
+  font-family: var(--font-pixel);
+  font-size: clamp(1.15rem, 4.4vw, 1.85rem);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  text-shadow: 3px 3px 0 var(--color-accent-red);
+}
+
+.secret-copy {
+  position: relative;
+  max-width: 42ch;
+  margin-top: 0.8rem;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+
+.secret-code {
+  position: relative;
+  margin-top: 0.9rem;
+  padding-top: 0.65rem;
+  border-top: 2px dashed var(--color-border);
+  color: var(--color-accent-yellow-ink);
+  font-family: var(--font-pixel);
+  font-size: 0.48rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.7;
+  text-transform: uppercase;
+}
+
+.secret-close {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  margin-top: 1.1rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--color-accent-yellow);
+  color: var(--color-on-yellow);
+  background: var(--color-accent-yellow);
+  box-shadow: 4px 4px 0 var(--color-accent-red);
+  font-family: var(--font-pixel);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition:
+    transform 140ms steps(2, end),
+    box-shadow 140ms steps(2, end);
+}
+
+.secret-close:hover,
+.secret-close:focus-visible {
+  transform: translate(-1px, -1px);
+  box-shadow: 6px 6px 0 var(--color-accent-red);
+}
+
+.secret-close:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--color-accent-red);
+}
+
+html[data-motion="calm"] .secret-level,
+html[data-motion="calm"] .achievement-toast {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .secret-level,
+  .achievement-toast {
+    transition: none;
+  }
+}
+
+/* ---------- Menu drawer polish ------------------------------------------ */
+.menu-icon--close {
+  display: none;
+}
+
+.menu-btn[aria-expanded="true"] .menu-icon--menu {
+  display: none;
+}
+
+.menu-btn[aria-expanded="true"] .menu-icon--close {
+  display: block;
+}
+
+.menu-btn[aria-expanded="true"] {
+  border-color: var(--color-accent-red);
+  color: var(--color-accent-red-ink);
+}
+
+@media (max-width: 74.99rem) {
+  html.js:has(.nav-list[data-open]) body::before {
+    content: "";
+    position: fixed;
+    inset: var(--hud-height, 5.375rem) 0 0;
+    z-index: calc(var(--z-header) - 1);
+    background:
+      repeating-linear-gradient(
+        0deg,
+        rgb(0 0 0 / 0.2) 0 2px,
+        transparent 2px 4px
+      ),
+      color-mix(in srgb, var(--color-background-deep) 68%, transparent);
+    pointer-events: none;
+    animation: menu-veil-in 180ms steps(3, end) both;
+  }
+
+  .js .nav-list[data-open] > li {
+    animation: menu-row-in 280ms steps(4, end) both;
+    animation-delay: calc(var(--menu-i, 0) * 45ms + 40ms);
+  }
+
+  html[data-motion="calm"] .js .nav-list[data-open] > li {
+    animation: none;
+  }
+}
+
+@keyframes menu-veil-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes menu-row-in {
+  from {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .nav-list[data-open] > li {
+    animation: none;
+  }
+
+  html.js:has(.nav-list[data-open]) body::before {
+    animation: none;
+  }
+}
+
+/* ---------- Finale marquee ---------------------------------------------- */
+.console-marquee {
+  position: relative;
+  z-index: 3;
+  margin-top: clamp(1.6rem, 4vw, 2.8rem);
+  overflow: hidden;
+  border-block: 3px solid var(--color-accent-yellow);
+  background: var(--color-accent-yellow);
+  color: var(--color-on-yellow);
+}
+
+.console-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: console-marquee-scroll 42s linear infinite;
+}
+
+.console-marquee-group {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  padding: 0.55rem 1.1rem;
+  font-family: var(--font-pixel);
+  font-size: clamp(0.56rem, 1.2vw, 0.7rem);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.console-marquee-group i {
+  flex: none;
+  width: 0.45rem;
+  height: 0.45rem;
+  background: currentColor;
+  transform: rotate(45deg);
+}
+
+html[data-motion="calm"] .console-marquee-track {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .console-marquee-track {
+    animation: none;
+  }
+}
+
+@keyframes console-marquee-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* ---------- Scene curtain pixel texture -------------------------------- */
+/* A second, coarser block grid turns the flat curtain into a pixel shutter
+   without changing the scrub lifecycle owned by Cinematics. */
+.scene-curtain::before {
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--curtain-a) 32%, transparent) 0 2px,
+      transparent 2px 24px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--curtain-b) 16%, transparent) 0 14px,
+      transparent 14px 42px
+    );
+  opacity: 0.45;
+}
+
+/* ---------- Hero stats settle ------------------------------------------- */
+.hero-stats dd {
+  transition: color 160ms steps(2, end);
+}
+
+.hero-stats dd[data-counting] {
+  color: var(--color-accent-yellow-ink);
+}
+
+/* ---------- Player class echo in the ability matrix --------------------- */
+/* Switching class in About marks the matching skill hubs when the reader
+   reaches the Skills zone. Selection interactions stay untouched. */
+html[data-profile-mode="builder"] .ability-zone[data-skill-group="build"],
+html[data-profile-mode="builder"] .ability-zone[data-skill-group="data"],
+html[data-profile-mode="creator"] .ability-zone[data-skill-group="voice"] {
+  opacity: 1;
+  border-color: color-mix(in srgb, var(--tone) 78%, transparent);
+  box-shadow: 2px 2px 0 color-mix(in srgb, var(--tone) 42%, transparent);
+}

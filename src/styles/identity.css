@@ -1,0 +1,642 @@
+/* ==========================================================================
+   SRA 2.0 — Identity scanner + Builder / Creator class
+   ========================================================================== */
+
+/* ---------- Builder / Creator profile class ----------------------------- */
+.sec-briefing[data-profile-mode="builder"] {
+  --mode-tone: var(--color-accent-blue);
+  --mode-ink: var(--color-accent-blue-ink);
+  --mode-contrast: var(--color-on-blue);
+  --mode-hue: 212deg;
+}
+
+.sec-briefing[data-profile-mode="creator"] {
+  --mode-tone: var(--color-accent-purple);
+  --mode-ink: var(--color-accent-purple-ink);
+  --mode-contrast: var(--color-on-purple);
+  --mode-hue: 278deg;
+}
+
+.profile-mode {
+  position: relative;
+  margin-bottom: clamp(1.4rem, 3vw, 2.2rem);
+  border: 2px solid var(--mode-tone);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--mode-tone) 9%, transparent), transparent 46%),
+    var(--panel-3);
+  clip-path: var(--pixel-cut);
+  box-shadow: 5px 5px 0 color-mix(in srgb, var(--mode-tone) 46%, transparent);
+  overflow: hidden;
+}
+
+.profile-mode-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 1rem;
+  padding: 0.55rem 0.7rem;
+  border-bottom: 2px solid color-mix(in srgb, var(--mode-tone) 40%, var(--line));
+  background: color-mix(in srgb, var(--mode-tone) 8%, var(--panel));
+}
+
+.profile-mode-id {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.profile-mode-sigil {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.9rem;
+  height: 1.9rem;
+  border: 2px solid var(--mode-tone);
+  color: var(--mode-ink);
+  background: var(--panel-3);
+  box-shadow: 2px 2px 0 color-mix(in srgb, var(--mode-tone) 40%, transparent);
+}
+
+.profile-mode-sigil .px-icon {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.profile-mode-kicker {
+  color: var(--mode-ink);
+  font-family: var(--font-pixel);
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.profile-mode-switch {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.profile-mode-btn {
+  display: grid;
+  gap: 0.06rem;
+  min-height: 2.75rem;
+  padding: 0.38rem 0.78rem;
+  border: 2px solid var(--line);
+  color: var(--muted);
+  background: var(--panel);
+  font-family: var(--font-pixel);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-align: left;
+  text-transform: uppercase;
+  transition:
+    color 140ms steps(2, end),
+    background-color 140ms steps(2, end),
+    border-color 140ms steps(2, end),
+    transform 140ms steps(2, end);
+}
+
+.profile-mode-btn-code {
+  color: var(--dim);
+  font-family: var(--font-mono);
+  font-size: 0.44rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+}
+
+.profile-mode-btn:hover,
+.profile-mode-btn:focus-visible {
+  border-color: var(--mode-tone);
+  color: var(--mode-ink);
+}
+
+.profile-mode-btn[aria-pressed="true"] {
+  border-color: var(--mode-tone);
+  color: var(--mode-contrast);
+  background: var(--mode-tone);
+  transform: translateY(-1px);
+}
+
+.profile-mode-btn[aria-pressed="true"] .profile-mode-btn-code {
+  color: color-mix(in srgb, var(--mode-contrast) 72%, transparent);
+}
+
+.profile-mode-panels {
+  position: relative;
+  display: grid;
+  padding: 0.85rem 0.9rem 0.95rem;
+}
+
+.profile-mode-body {
+  display: flex;
+  flex-wrap: wrap;
+  grid-area: 1 / 1;
+  gap: 1rem 1.5rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 220ms steps(4, end),
+    transform 220ms steps(4, end),
+    visibility 220ms steps(4, end);
+}
+
+.profile-mode-body[aria-hidden="true"] {
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+}
+
+.profile-mode-copy {
+  min-width: min(100%, 17rem);
+  flex: 1 1 17rem;
+}
+
+.profile-mode-title {
+  margin-bottom: 0.42rem;
+  color: var(--mode-ink);
+  font-family: var(--font-pixel);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.profile-mode-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.profile-mode-list li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.22rem 0.5rem;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+.profile-mode-list li i {
+  flex: none;
+  width: 0.38rem;
+  height: 0.38rem;
+  background: var(--mode-tone);
+  box-shadow: 1px 1px 0 color-mix(in srgb, var(--mode-tone) 45%, transparent);
+}
+
+.profile-mode-role {
+  flex: 0 1 16rem;
+  min-width: min(100%, 14rem);
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--mode-tone);
+}
+
+.profile-mode-role-tag {
+  display: block;
+  margin-bottom: 0.18rem;
+  color: var(--dim);
+  font-family: var(--font-pixel);
+  font-size: 0.44rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.profile-mode-role-title {
+  color: var(--ink);
+  font-family: var(--font-pixel);
+  font-size: 0.56rem;
+  font-weight: 700;
+  line-height: 1.6;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.profile-mode-role-meta {
+  margin-top: 0.15rem;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  line-height: 1.5;
+}
+
+.profile-mode-scan {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0 3px,
+    rgb(255 255 255 / 0.035) 3px 4px
+  );
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+}
+
+/* ---------- Pixel identity scanner -------------------------------------- */
+.subject-portrait {
+  position: relative;
+}
+
+.subject-scan-frame {
+  position: relative;
+  overflow: hidden;
+  border: 2px solid var(--paper-ink);
+  background: #050507;
+  isolation: isolate;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.subject-scan-frame .subject-photo--base {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border: 0;
+  object-fit: cover;
+}
+
+.subject-scan-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  filter: grayscale(1) contrast(1.45) brightness(1.16);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  clip-path: inset(calc(var(--scan-y, 42%) - 8%) 0 calc(92% - var(--scan-y, 42%)) 0);
+  transition:
+    clip-path 160ms steps(3, end),
+    opacity 180ms steps(2, end);
+}
+
+.subject-scan-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background:
+    linear-gradient(
+      180deg,
+      transparent 0 calc(var(--scan-y, 42%) - 10%),
+      color-mix(in srgb, var(--mode-tone, var(--color-accent-blue)) 46%, transparent)
+        calc(var(--scan-y, 42%) - 1%),
+      color-mix(in srgb, var(--mode-tone, var(--color-accent-blue)) 16%, #ffffff)
+        var(--scan-y, 42%),
+      transparent calc(var(--scan-y, 42%) + 7%)
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 3px,
+      rgb(0 0 0 / 0.16) 3px 4px
+    );
+  opacity: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  transition: opacity 180ms steps(2, end);
+}
+
+.subject-scan-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 22px, rgb(255 255 255 / 0.08) 22px 23px),
+    repeating-linear-gradient(0deg, transparent 0 22px, rgb(255 255 255 / 0.06) 22px 23px);
+  opacity: 0.22;
+  pointer-events: none;
+  transition: opacity 180ms steps(2, end);
+}
+
+.subject-scan-line {
+  position: absolute;
+  top: var(--scan-y, 42%);
+  right: 0;
+  left: 0;
+  z-index: 5;
+  height: 2px;
+  background: color-mix(in srgb, var(--mode-tone, var(--color-accent-blue)) 74%, #ffffff);
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.32),
+    0 0 14px color-mix(in srgb, var(--mode-tone, var(--color-accent-blue)) 80%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-50%);
+  transition: opacity 140ms steps(2, end);
+}
+
+.subject-scan-line i {
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  left: 0;
+  height: 12px;
+  background: linear-gradient(
+    0deg,
+    color-mix(in srgb, var(--mode-tone, var(--color-accent-blue)) 26%, transparent),
+    transparent
+  );
+}
+
+.subject-scan-frags {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(var(--scan-shift, 0px));
+  transition:
+    opacity 180ms steps(2, end),
+    transform 120ms steps(4, end);
+}
+
+.subject-scan-frags i {
+  position: absolute;
+  width: 0.55rem;
+  height: 0.55rem;
+  background: var(--mode-tone, var(--color-accent-blue));
+  box-shadow: 2px 2px 0 rgb(0 0 0 / 0.35);
+}
+
+.subject-scan-frags i:nth-child(1) {
+  top: 11%;
+  left: 9%;
+}
+
+.subject-scan-frags i:nth-child(2) {
+  top: 28%;
+  right: 13%;
+  width: 0.35rem;
+  height: 0.35rem;
+  background: var(--color-accent-yellow);
+}
+
+.subject-scan-frags i:nth-child(3) {
+  top: 54%;
+  left: 16%;
+  width: 0.42rem;
+  height: 0.42rem;
+  background: var(--color-accent-red);
+}
+
+.subject-scan-frags i:nth-child(4) {
+  top: 71%;
+  right: 8%;
+}
+
+.subject-scan-frags i:nth-child(5) {
+  bottom: 12%;
+  left: 28%;
+  width: 0.32rem;
+  height: 0.32rem;
+  background: var(--color-accent-purple);
+}
+
+.subject-scan-frags i:nth-child(6) {
+  top: 8%;
+  right: 34%;
+  width: 0.3rem;
+  height: 0.3rem;
+  background: var(--color-accent-yellow);
+}
+
+.subject-scan-hud {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 6;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.3rem 0.6rem;
+  padding: 0.38rem 0.5rem;
+  color: #ffffff;
+  background: linear-gradient(0deg, rgb(5 5 7 / 0.88), transparent);
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms steps(2, end);
+}
+
+.subject-scan-hud b {
+  color: var(--mode-ink, var(--color-accent-blue-ink));
+  font-family: var(--font-pixel);
+  font-weight: 700;
+}
+
+.subject-scan-corners {
+  position: absolute;
+  inset: 6px;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.subject-scan-corners i {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 2px solid color-mix(in srgb, var(--mode-tone, var(--color-accent-blue)) 78%, #ffffff);
+  opacity: 0.8;
+}
+
+.subject-scan-corners i:nth-child(1) {
+  top: 0;
+  left: 0;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.subject-scan-corners i:nth-child(2) {
+  top: 0;
+  right: 0;
+  border-bottom: 0;
+  border-left: 0;
+}
+
+.subject-scan-corners i:nth-child(3) {
+  bottom: 0;
+  left: 0;
+  border-top: 0;
+  border-right: 0;
+}
+
+.subject-scan-corners i:nth-child(4) {
+  right: 0;
+  bottom: 0;
+  border-top: 0;
+  border-left: 0;
+}
+
+.subject-scan-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem 0.7rem;
+  padding: 0.55rem 0.15rem 0.1rem;
+}
+
+.subject-scan-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  min-height: 2.75rem;
+  padding: 0.34rem 0.72rem;
+  border: 2px solid var(--paper-ink);
+  color: var(--paper-ink);
+  background: transparent;
+  font-family: var(--font-pixel);
+  font-size: 0.52rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition:
+    color 140ms steps(2, end),
+    background-color 140ms steps(2, end),
+    transform 140ms steps(2, end);
+}
+
+.subject-scan-btn .px-icon {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.subject-scan-btn:hover,
+.subject-scan-btn:focus-visible {
+  color: var(--mode-contrast, #ffffff);
+  background: var(--mode-tone, var(--color-accent-blue));
+  border-color: var(--mode-tone, var(--color-accent-blue));
+}
+
+.subject-scan-btn:active {
+  transform: translateY(1px);
+}
+
+.subject-scan-readout {
+  color: var(--paper-muted);
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  line-height: 1.5;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Pointer hover and locked states share the same reveal language. */
+@media (hover: hover) and (pointer: fine) {
+  .subject-portrait:hover .subject-scan-layer {
+    opacity: 0.82;
+  }
+
+  .subject-portrait:hover .subject-scan-veil {
+    opacity: 1;
+  }
+
+  .subject-portrait:hover .subject-scan-grid {
+    opacity: 0.42;
+  }
+
+  .subject-portrait:hover .subject-scan-line,
+  .subject-portrait:hover .subject-scan-frags,
+  .subject-portrait:hover .subject-scan-hud {
+    opacity: 1;
+  }
+
+  .subject-portrait:hover .subject-scan-frags i {
+    animation: scan-frag-shift 1.4s steps(4, end) infinite;
+  }
+
+  .subject-portrait:hover .subject-scan-frags i:nth-child(2n) {
+    animation-delay: 180ms;
+  }
+}
+
+.subject-portrait[data-scan="locked"] .subject-scan-layer {
+  clip-path: inset(0);
+  opacity: 0.92;
+}
+
+.subject-portrait[data-scan="locked"] .subject-scan-veil,
+.subject-portrait[data-scan="locked"] .subject-scan-grid,
+.subject-portrait[data-scan="locked"] .subject-scan-line,
+.subject-portrait[data-scan="locked"] .subject-scan-frags,
+.subject-portrait[data-scan="locked"] .subject-scan-hud {
+  opacity: 1;
+}
+
+.subject-portrait[data-scan="locked"] .subject-scan-frags i {
+  animation: scan-frag-shift 1.4s steps(4, end) infinite;
+}
+
+.subject-portrait[data-scan="locked"] .subject-scan-frags i:nth-child(2n) {
+  animation-delay: 180ms;
+}
+
+.subject-portrait[data-scan="locked"] .subject-scan-corners i {
+  opacity: 1;
+  border-color: var(--color-accent-yellow);
+}
+
+@keyframes scan-frag-shift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-4px, 3px, 0);
+  }
+}
+
+html[data-motion="calm"] .subject-scan-layer,
+html[data-motion="calm"] .subject-scan-veil,
+html[data-motion="calm"] .subject-scan-grid,
+html[data-motion="calm"] .subject-scan-line,
+html[data-motion="calm"] .subject-scan-frags {
+  transition: none;
+}
+
+html[data-motion="calm"] .subject-scan-frags i {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .subject-scan-frags i {
+    animation: none;
+  }
+}
+
+@media (max-width: 39.99rem) {
+  .profile-mode-head {
+    align-items: flex-start;
+  }
+
+  .profile-mode-switch {
+    width: 100%;
+  }
+
+  .profile-mode-btn {
+    flex: 1 1 0;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .subject-scan-hud span:last-child {
+    display: none;
+  }
+}

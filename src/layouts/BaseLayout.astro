@@ -218,8 +218,8 @@ const familyName = nameParts.at(-1) ?? profile.name;
             <div class="journey-stops">
               <ul id="site-menu" class="nav-list" data-menu>
                 {
-                  journeyChapters.map((chapter) => (
-                    <li>
+                  journeyChapters.map((chapter, index) => (
+                    <li style={`--menu-i:${index}`}>
                       <a
                         class="nav-link journey-stop"
                         href={chapter.href}
@@ -283,7 +283,8 @@ const familyName = nameParts.at(-1) ?? profile.name;
             aria-controls="site-menu"
             aria-label="Open menu"
           >
-            <PixelIcon name="menu" class="menu-icon" />
+            <PixelIcon name="menu" class="menu-icon menu-icon--menu" />
+            <PixelIcon name="close" class="menu-icon menu-icon--close" />
             <span data-menu-label>Menu</span>
           </button>
         </div>
@@ -384,6 +385,27 @@ const familyName = nameParts.at(-1) ?? profile.name;
         </div>
       </div>
 
+      <div class="console-marquee" aria-hidden="true">
+        <div class="console-marquee-track">
+          {
+            [0, 1].map(() => (
+              <div class="console-marquee-group">
+                <span>Mission complete</span>
+                <i></i>
+                <span>Save point</span>
+                <i></i>
+                <span>SRA–01</span>
+                <i></i>
+                <span>Thanks for playing</span>
+                <i></i>
+                <span>Archive open</span>
+                <i></i>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
       <div class="shell console-bottom">
         <p>© {year} {profile.name}</p>
       </div>
@@ -394,6 +416,14 @@ const familyName = nameParts.at(-1) ?? profile.name;
     <div class="scene-curtains" data-scene-curtains aria-hidden="true"></div>
 
     <slot name="overlays" />
+
+    <div
+      class="achievement-stack"
+      data-achievement-stack
+      role="status"
+      aria-live="polite"
+      aria-atomic="false"
+    ></div>
 
     <dialog
       class="cmd-palette"
@@ -516,6 +546,11 @@ const familyName = nameParts.at(-1) ?? profile.name;
     </script>
     <script>
       import "../scripts/palette";
+    </script>
+    <script>
+      import "../scripts/profile-mode";
+      import "../scripts/achievements";
+      import "../scripts/secret";
     </script>
   </body>
 </html>

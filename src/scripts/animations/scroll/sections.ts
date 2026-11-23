@@ -122,6 +122,19 @@ const revealAbout = (): void => {
 
   /* One timeline per major block. Related elements share it, but a block never
      stays hidden while another block far below is still waiting its turn. */
+
+  /* Profile class panel: transform-only reveal keeps its authored pixel-cut
+     clip shape intact (a wipe would replace the clip-path). */
+  const modePanel = q<HTMLElement>(".profile-mode", about);
+  if (modePanel) {
+    const modeTimeline = createSectionSequence({
+      trigger: modePanel,
+      start: "top 92%",
+      end: "top 60%",
+    });
+    addReveal(modeTimeline, modePanel, { y: 22, duration: 0.6 });
+  }
+
   const dialogue = q<HTMLElement>(".dialogue", about);
   if (dialogue) {
     const copyTimeline = createSectionSequence({
@@ -459,6 +472,12 @@ const revealProjects = (media: ReturnType<typeof gsap.matchMedia> | null): void 
       });
       addReveal(timeline, world, { y: 40, scale: 0.988, rotate: 0.35, duration: 0.8 });
       addReveal(timeline, q(".world-panel", world), { y: 24, duration: 0.7 });
+      addReveal(timeline, q(".world-visual", world), {
+        y: 18,
+        wipe: "up",
+        duration: 0.7,
+        position: "<0.12",
+      });
       addReveal(timeline, q(".world-strap", world), { x: 14, duration: 0.4, position: "<0.1" });
     }
   });
@@ -566,6 +585,10 @@ const revealCertificates = (): void => {
       duration: 0.8,
       stagger: 0.05,
     });
+    /* Captions drift a few pixels against the strip so the archive reads as a
+       layered editorial contact sheet rather than a uniform card row. Cards
+       keep native horizontal scrolling and their own hover transform. */
+    addFullSpan(timeline, qa(".archive-capture figcaption", certificates), { y: 0 }, { y: -12 });
     addFullSpan(timeline, q(".zone-props", certificates), { y: 0 }, { y: -28 });
     /* Field captures: a single camera flash as the strip enters the frame. */
     addSceneFlash(timeline, q(".capture-flash", certificates));
@@ -703,8 +726,25 @@ export function initScrollSections(): () => void {
   let media: ReturnType<typeof gsap.matchMedia> | null = null;
   let disposers: Disposer[] = [];
 
+  /* Stat values are real collection counts rendered by Astro. Keep the final
+     string so a motion rebuild can always restore the authored number. */
+  const statReadouts = qa<HTMLElement>(".hero-stats dd")
+    .map((element) => ({
+      element,
+      value: Number.parseInt(element.textContent ?? "", 10),
+    }))
+    .filter((entry) => Number.isFinite(entry.value));
+
+  const resetStats = (): void => {
+    for (const { element, value } of statReadouts) {
+      element.textContent = String(value).padStart(2, "0");
+      element.removeAttribute("data-counting");
+    }
+  };
+
   const showEverything = (): void => {
     showAllContent();
+    resetStats();
     /* Extra shells that are not marked with data-reveal. */
     clearMotionStyles(
       qa<HTMLElement>(
@@ -744,9 +784,33 @@ export function initScrollSections(): () => void {
         );
         const chrome = q(".hero-chrome", hero);
         const monitor = q(".hero-monitor", hero);
+        const monitorParts = qa<HTMLElement>(".monitor-bar, .monitor-screen, .monitor-foot", hero);
         const record = q(".hero-record", hero);
         const bottomline = q(".hero-bottomline", hero);
-        markMotion([chrome, monitor, record, bottomline, ...titleLines, ...copy].filter(Boolean) as Element[]);
+        markMotion(
+          [chrome, monitor, record, bottomline, ...monitorParts, ...titleLines, ...copy].filter(
+            Boolean,
+          ) as Element[],
+        );
+
+        const countStats = (): void => {
+          for (const { element, value } of statReadouts) {
+            const proxy = { value: 0 };
+            element.setAttribute("data-counting", "");
+            gsap.to(proxy, {
+              value,
+              duration: 0.9,
+              ease: "steps(12)",
+              onUpdate: () => {
+                element.textContent = String(Math.round(proxy.value)).padStart(2, "0");
+              },
+              onComplete: () => {
+                element.textContent = String(value).padStart(2, "0");
+                element.removeAttribute("data-counting");
+              },
+            });
+          }
+        };
 
         const entrance = gsap.timeline({
           paused: true,
@@ -769,8 +833,14 @@ export function initScrollSections(): () => void {
           )
           .from(copy, { autoAlpha: 0, y: 16, duration: 0.34, stagger: 0.055 }, "<0.18")
           .from(monitor, { autoAlpha: 0, y: 22, duration: 0.5 }, "<0.05")
+          .from(
+            monitorParts,
+            { autoAlpha: 0, y: 10, duration: 0.32, stagger: 0.08 },
+            "<0.14",
+          )
           .from(record, { autoAlpha: 0, x: 18, y: 14, rotate: 2, duration: 0.45 }, "<0.12")
-          .from(bottomline, { autoAlpha: 0, y: 10, duration: 0.3 }, "<0.1");
+          .from(bottomline, { autoAlpha: 0, y: 10, duration: 0.3 }, "<0.1")
+          .call(countStats, [], "<0.3");
 
         const playEntrance = (): void => {
           entrance.play(0);

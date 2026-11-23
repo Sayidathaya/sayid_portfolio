@@ -63,6 +63,27 @@ const hasLinks = profile.links.length > 0;
 const highlights = profile.highlights.length;
 const skillCount = skills.reduce((total, group) => total + group.items.length, 0);
 
+/* The Builder / Creator switch is a lens over existing collections, never a
+   second content source. Each class reads the real skill groups and roles. */
+const profileModes = [
+  {
+    id: "builder",
+    label: "Builder",
+    code: "CLASS // B-01",
+    title: "Build & Data",
+    groups: skills.filter((group) => group.id === "build" || group.id === "data"),
+    role: experience.find((entry) => entry.id === "telkom-qa"),
+  },
+  {
+    id: "creator",
+    label: "Creator",
+    code: "CLASS // C-02",
+    title: "Voice & Visual",
+    groups: skills.filter((group) => group.id === "voice"),
+    role: experience.find((entry) => entry.id === "seminar-moderator"),
+  },
+] as const;
+
 const count = (value: number): string => String(value).padStart(2, "0");
 const totalCertificates = certificates.length;
 
@@ -289,7 +310,7 @@ const ticker = [
 
   <SceneSeam label="ZONE 02 // ABOUT & BRIEFING" tone="archive" />
 
-  <section id="about" class="sec sec-briefing" aria-labelledby="about-title" data-zone="archive">
+  <section id="about" class="sec sec-briefing" aria-labelledby="about-title" data-zone="archive" data-profile-mode="builder">
     <SceneAtmosphere scene="about" tone="archive" />
     <div class="zone-props" aria-hidden="true">
       <span
@@ -313,6 +334,71 @@ const ticker = [
         title="About Sayid"
         note={`${count(highlights)} verified achievements & background highlights`}
       />
+
+      <div class="profile-mode" data-profile-mode-panel data-reveal style="--d:60ms">
+        <div class="profile-mode-head">
+          <div class="profile-mode-id">
+            <span class="profile-mode-sigil" aria-hidden="true">
+              <PixelIcon name="sword" />
+            </span>
+            <p class="profile-mode-kicker">Player class</p>
+          </div>
+          <div class="profile-mode-switch" role="group" aria-label="Profile class">
+            {
+              profileModes.map((mode, index) => (
+                <button
+                  type="button"
+                  class="profile-mode-btn"
+                  data-profile-mode-btn={mode.id}
+                  aria-pressed={index === 0 ? "true" : "false"}
+                >
+                  <span class="profile-mode-btn-code" aria-hidden="true">{mode.code}</span>
+                  <span>{mode.label}</span>
+                </button>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="profile-mode-panels">
+          {
+            profileModes.map((mode, index) => (
+              <div
+                class="profile-mode-body"
+                data-mode-panel={mode.id}
+                aria-hidden={index === 0 ? "false" : "true"}
+                inert={index !== 0}
+              >
+                <div class="profile-mode-copy">
+                  <p class="profile-mode-title">{mode.title}</p>
+                  <ul class="profile-mode-list" role="list">
+                    {mode.groups.flatMap((group) =>
+                      group.items.map((item) => (
+                        <li>
+                          <i aria-hidden="true"></i>
+                          <span>{item}</span>
+                        </li>
+                      )),
+                    )}
+                  </ul>
+                </div>
+                {
+                  mode.role && (
+                    <div class="profile-mode-role">
+                      <span class="profile-mode-role-tag">Active record</span>
+                      <p class="profile-mode-role-title">{mode.role.role}</p>
+                      <p class="profile-mode-role-meta">
+                        {mode.role.organization} · {mode.role.period}
+                      </p>
+                    </div>
+                  )
+                }
+              </div>
+            ))
+          }
+        </div>
+        <span class="profile-mode-scan" aria-hidden="true"></span>
+      </div>
 
       <div class="about-grid">
         <div class="about-col-info">
@@ -368,16 +454,55 @@ const ticker = [
         <aside class="about-col-visual" aria-labelledby="highlights-title" data-reveal style="--d:120ms">
           {
             portrait && (
-              <figure class="paper-panel subject-portrait">
-                <Picture
-                  src={portrait}
-                  alt={profile.portraitAlt}
-                  formats={["avif", "webp"]}
-                  widths={[320, 560]}
-                  sizes="(min-width: 960px) 30vw, 90vw"
-                  loading="lazy"
-                  class="subject-photo"
-                />
+              <figure class="paper-panel subject-portrait" data-identity-scanner data-scan="idle">
+                <div class="subject-scan-frame" data-scan-frame>
+                  <Picture
+                    src={portrait}
+                    alt={profile.portraitAlt}
+                    formats={["avif", "webp"]}
+                    widths={[320, 560]}
+                    sizes="(min-width: 960px) 30vw, 90vw"
+                    loading="lazy"
+                    class="subject-photo subject-photo--base"
+                  />
+                  <Picture
+                    src={portrait}
+                    alt=""
+                    aria-hidden="true"
+                    formats={["avif", "webp"]}
+                    widths={[320, 560]}
+                    sizes="(min-width: 960px) 30vw, 90vw"
+                    loading="lazy"
+                    class="subject-scan-layer"
+                  />
+                  <span class="subject-scan-veil" aria-hidden="true"></span>
+                  <span class="subject-scan-grid" aria-hidden="true"></span>
+                  <span class="subject-scan-line" aria-hidden="true"><i></i></span>
+                  <span class="subject-scan-frags" aria-hidden="true">
+                    <i></i><i></i><i></i><i></i><i></i><i></i>
+                  </span>
+                  <span class="subject-scan-hud" aria-hidden="true">
+                    <span><b>SCAN</b> LAYER 02</span>
+                    <span>ID SRA–01 · {profile.location}</span>
+                  </span>
+                  <span class="subject-scan-corners" aria-hidden="true">
+                    <i></i><i></i><i></i><i></i>
+                  </span>
+                </div>
+                <div class="subject-scan-bar">
+                  <button
+                    type="button"
+                    class="subject-scan-btn"
+                    data-scan-toggle
+                    aria-pressed="false"
+                  >
+                    <PixelIcon name="spark" />
+                    <span data-scan-label>Scan profile</span>
+                  </button>
+                  <p class="subject-scan-readout" data-scan-readout aria-live="polite">
+                    IDLE · LAYER 01
+                  </p>
+                </div>
                 <figcaption>Sayid Rafi A'thaya — Portrait</figcaption>
               </figure>
             )

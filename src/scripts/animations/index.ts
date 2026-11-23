@@ -3,6 +3,7 @@ import { initAudioDeck } from "./audio/audio-controller";
 import { initMicroSlatsBackground } from "./background/micro-slats-controller";
 import { applyInitialHash, initSmoothScroll, requestJourneyRefresh, settleJourney } from "./core/smoother";
 import { initGalleries } from "./galleries/galleries";
+import { initIdentityScanner } from "./identity/scanner";
 import { initIntro } from "./intro/intro";
 import { initSceneDirector } from "./journey/scene-director";
 import { initLanding } from "./landing/landing";
@@ -69,6 +70,7 @@ const start = (): void => {
 
   attempt("decor", initDecor);
   attempt("hero cinematic", initHeroCinematic);
+  attempt("identity scanner", initIdentityScanner);
   attempt("scene director", initSceneDirector);
   attempt("audio deck", initAudioDeck);
   attempt("audio motion", initAudioDeckMotion);
