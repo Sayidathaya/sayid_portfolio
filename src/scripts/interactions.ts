@@ -559,6 +559,16 @@ if (careerMap) {
   const segments = Array.from(careerMap.querySelectorAll<SVGGElement>("[data-segment]"));
   const questStatus = careerMap.querySelector<HTMLElement>("[data-quest-status]");
   const readout = careerMap.querySelector<HTMLElement>("[data-quest-readout]");
+  const questSteps = Array.from(
+    careerMap.querySelectorAll<HTMLButtonElement>("[data-quest-step]"),
+  );
+  const questPosition = careerMap.querySelector<HTMLElement>("[data-quest-position]");
+  const questProgress = careerMap.querySelector<HTMLElement>("[data-quest-progress]");
+  const questHint = careerMap.querySelector<HTMLElement>("[data-quest-hint]");
+
+  const questOrder = details
+    .map((detail) => detail.dataset.questDetail)
+    .filter((id): id is string => Boolean(id));
 
   const idFromHash = (): string | null => {
     const match = window.location.hash.match(/^#quest-detail-(.+)$/);
@@ -576,6 +586,7 @@ if (careerMap) {
     const selected = details.find((detail) => detail.dataset.questDetail === id);
     if (!selected) return;
     activeId = id;
+    const activeIndex = questOrder.indexOf(id);
 
     for (const detail of details) {
       const isActive = detail.dataset.questDetail === id;
@@ -598,11 +609,40 @@ if (careerMap) {
     }
 
     for (const segment of segments) {
-      const lit = segment.dataset.from === id || segment.dataset.to === id;
-      segment.toggleAttribute("data-lit", lit);
+      const segmentIndex = questOrder.indexOf(segment.dataset.to ?? "");
+      const state =
+        activeIndex < 0 || segmentIndex < 0
+          ? "future"
+          : segmentIndex < activeIndex
+            ? "past"
+            : segmentIndex === activeIndex
+              ? "active"
+              : "future";
+      segment.dataset.state = state;
+      segment.toggleAttribute("data-lit", state === "active");
     }
 
     if (readout) readout.dataset.activeQuest = id;
+    if (questHint) {
+      const role =
+        selected.querySelector<HTMLElement>(".quest-detail__role")?.textContent ?? "Career entry";
+      questHint.textContent = `${role} // ${String(activeIndex + 1).padStart(2, "0")} of ${String(
+        questOrder.length,
+      ).padStart(2, "0")}`;
+    }
+    if (questPosition) {
+      questPosition.textContent = String(activeIndex + 1).padStart(2, "0");
+    }
+    if (questProgress) {
+      const ratio = questOrder.length > 0 ? (activeIndex + 1) / questOrder.length : 0;
+      questProgress.style.width = `${Math.round(ratio * 100)}%`;
+    }
+    for (const step of questSteps) {
+      const direction = Number(step.dataset.questStep);
+      if (!Number.isFinite(direction)) continue;
+      step.disabled =
+        direction < 0 ? activeIndex <= 0 : activeIndex >= questOrder.length - 1;
+    }
 
     if (announce && questStatus) {
       const role =
@@ -630,6 +670,47 @@ if (careerMap) {
     });
   }
 
+  const selectQuest = (id: string): void => {
+    applyQuest(id, true);
+    try {
+      window.history.replaceState(null, "", `#quest-detail-${id}`);
+    } catch {
+      /* Selection still works without history. */
+    }
+  };
+
+  for (const step of questSteps) {
+    step.addEventListener("click", () => {
+      if (!activeId) return;
+      const index = questOrder.indexOf(activeId);
+      if (index < 0) return;
+      const direction = Math.sign(Number(step.dataset.questStep));
+      const nextId = questOrder[index + direction];
+      if (nextId) selectQuest(nextId);
+    });
+  }
+
+  /* Arrow keys step through the route only while a waypoint owns focus. */
+  careerMap.addEventListener("keydown", (event) => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const origin = target.closest<HTMLElement>("[data-quest-node]");
+    if (!origin || !activeId) return;
+    const index = questOrder.indexOf(activeId);
+    if (index < 0) return;
+    const nextId = questOrder[index + (event.key === "ArrowRight" ? 1 : -1)];
+    if (!nextId) return;
+    event.preventDefault();
+    selectQuest(nextId);
+    const inRoute = Boolean(origin.closest(".quest-route"));
+    const nextLink = questLinks.find(
+      (link) => link.dataset.questNode === nextId && Boolean(link.closest(".quest-route")) === inRoute,
+    );
+    nextLink?.focus({ preventScroll: true });
+  });
+
   window.addEventListener("hashchange", () => {
     const id = idFromHash();
     if (id) applyQuest(id, true);
@@ -650,6 +731,16 @@ if (skillMatrix) {
   const readSiblings = readout?.querySelector<HTMLElement>("[data-skill-siblings]");
   const skillStatus = skillMatrix.querySelector<HTMLElement>("[data-skill-status]");
   const indexItems = Array.from(skillMatrix.querySelectorAll<HTMLElement>("[data-index-skill]"));
+  const skillOrder = indexItems
+    .map((item) => item.dataset.indexSkill)
+    .filter((name): name is string => Boolean(name));
+  const skillSteps = Array.from(
+    skillMatrix.querySelectorAll<HTMLButtonElement>("[data-skill-step]"),
+  );
+  const skillPosition = skillMatrix.querySelector<HTMLElement>("[data-skill-position]");
+  const circuitButtons = Array.from(
+    skillMatrix.querySelectorAll<HTMLButtonElement>("[data-skill-circuit]"),
+  );
   const categoryTargets = Array.from(
     readout?.querySelectorAll<HTMLElement>("[data-skill-category]") ?? [],
   );
@@ -720,6 +811,22 @@ if (skillMatrix) {
       indexItem.toggleAttribute("data-active", indexItem.dataset.indexSkill === name);
     }
 
+    for (const chip of circuitButtons) {
+      chip.setAttribute("aria-pressed", String(chip.dataset.skillCircuit === group));
+    }
+
+    const orderIndex = skillOrder.indexOf(name);
+    if (skillPosition) {
+      skillPosition.textContent =
+        orderIndex >= 0 ? String(orderIndex + 1).padStart(2, "0") : "—";
+    }
+    for (const step of skillSteps) {
+      const direction = Number(step.dataset.skillStep);
+      if (!Number.isFinite(direction)) continue;
+      step.disabled =
+        direction < 0 ? orderIndex <= 0 : orderIndex < 0 || orderIndex >= skillOrder.length - 1;
+    }
+
     if (readout) {
       readout.classList.remove("is-refreshing");
       void readout.offsetWidth;
@@ -742,6 +849,28 @@ if (skillMatrix) {
     const name = button.dataset.skillName;
     if (name && !buttonByName.has(name)) buttonByName.set(name, button);
   }
+
+  const selectSkillByName = (name: string, announce = true): HTMLButtonElement | null => {
+    const button = buttonByName.get(name);
+    if (!button) return null;
+    currentSkillName = name;
+    applySkill(button, announce);
+    return button;
+  };
+
+  const stepSkill = (direction: number, focus: boolean): void => {
+    if (skillOrder.length === 0) return;
+    const index = currentSkillName ? skillOrder.indexOf(currentSkillName) : -1;
+    const nextName =
+      index < 0
+        ? direction > 0
+          ? skillOrder[0]
+          : skillOrder[skillOrder.length - 1]
+        : skillOrder[index + direction];
+    if (!nextName) return;
+    const button = selectSkillByName(nextName, true);
+    if (focus) button?.focus({ preventScroll: true });
+  };
 
   const clearCablePreview = (): void => {
     for (const link of abilityLinks) link.removeAttribute("data-preview");
@@ -799,6 +928,8 @@ if (skillMatrix) {
       candidate.removeAttribute("data-selected");
     }
     for (const link of abilityLinks) link.removeAttribute("data-active");
+    for (const chip of circuitButtons) chip.setAttribute("aria-pressed", "false");
+    for (const step of skillSteps) step.disabled = true;
   };
 
   for (const button of buttons) {
@@ -813,6 +944,42 @@ if (skillMatrix) {
       applySkill(button, true);
     });
   }
+
+  for (const step of skillSteps) {
+    step.addEventListener("click", () => {
+      const direction = Math.sign(Number(step.dataset.skillStep));
+      if (direction !== 0) stepSkill(direction, false);
+    });
+  }
+
+  for (const chip of circuitButtons) {
+    chip.addEventListener("click", () => {
+      const group = chip.dataset.skillCircuit;
+      if (!group) return;
+      const first = buttons.find((button) => button.dataset.skillGroup === group);
+      const name = first?.dataset.skillName;
+      if (!name) return;
+      selectSkillByName(name, true);
+    });
+  }
+
+  /* Left/right mirrors the visible stepper, but only while an up/down action
+     cannot be confused with page scrolling. The focused node follows along. */
+  skillMatrix.addEventListener("keydown", (event) => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    if (
+      !target.closest(
+        "[data-skill-node], [data-skill-step], [data-skill-circuit], [data-skill-readout]",
+      )
+    )
+      return;
+    event.preventDefault();
+    const fromNode = Boolean(target.closest("[data-skill-node]"));
+    stepSkill(event.key === "ArrowRight" ? 1 : -1, fromNode);
+  });
 }
 
 /* ---------- Motion toggle -------------------------------------------------- */

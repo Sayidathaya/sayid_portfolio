@@ -166,7 +166,19 @@ const destinations = projects.map((project, index) => {
           </div>
           <div class="mv-worlds-track" data-mv-worlds-track>
             {projects.map((project, index) => (
-              <ProjectWorld project={project} index={index} total={total} />
+              <ProjectWorld
+                project={project}
+                index={index}
+                total={total}
+                next={
+                  projects[index + 1]
+                    ? {
+                        slug: projects[index + 1]?.slug ?? "",
+                        title: projects[index + 1]?.title ?? "",
+                      }
+                    : null
+                }
+              />
             ))}
           </div>
         </div>

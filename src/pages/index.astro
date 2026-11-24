@@ -10,6 +10,7 @@ import PixelBadge from "../components/PixelBadge.astro";
 import PixelBlade from "../components/PixelBlade.astro";
 import PixelIcon from "../components/PixelIcon.astro";
 import PixelSprite from "../components/PixelSprite.astro";
+import PlayerManifesto from "../components/PlayerManifesto.astro";
 import ProjectMultiverse from "../components/ProjectMultiverse.astro";
 import SceneAtmosphere from "../components/SceneAtmosphere.astro";
 import SceneSeam from "../components/SceneSeam.astro";
@@ -166,7 +167,7 @@ const ticker = [
 
     <div class="shell hero-shell">
       <div class="hero-chrome">
-        <span>PLAYER 01</span>
+        <span>PLAYER 01 // SRA 2.1</span>
         <span class="hero-chrome-mid">PORTFOLIO // SAYID RAFI A'THAYA</span>
         <span>STATUS <i class="signal-pip" aria-hidden="true"></i> ONLINE</span>
       </div>
@@ -261,6 +262,9 @@ const ticker = [
               <span>SAYID RAFI A'THAYA</span>
               <span>SAMARINDA</span>
               <span>INDONESIA</span>
+              <a class="monitor-scan-link" href="#identity-scanner">
+                Scan profile <span aria-hidden="true">↓</span>
+              </a>
             </div>
           </div>
 
@@ -454,7 +458,7 @@ const ticker = [
         <aside class="about-col-visual" aria-labelledby="highlights-title" data-reveal style="--d:120ms">
           {
             portrait && (
-              <figure class="paper-panel subject-portrait" data-identity-scanner data-scan="idle">
+              <figure id="identity-scanner" class="paper-panel subject-portrait" data-identity-scanner data-scan="idle">
                 <div class="subject-scan-frame" data-scan-frame>
                   <Picture
                     src={portrait}
@@ -548,6 +552,16 @@ const ticker = [
       <p class="zone-caption" aria-hidden="true"><span></span>CONTINUOUS DOSSIER · SAYID RAFI A'THAYA<span></span></p>
     </div>
   </section>
+
+  <SceneSeam label="INTERMISSION // PLAYER MANIFESTO" tone="archive" />
+
+  <PlayerManifesto
+    profile={profile}
+    groups={skills}
+    roleCount={experience.length}
+    projectCount={featured.length}
+    certificateCount={totalCertificates}
+  />
 
   <SceneSeam label="ZONE 03 // EXPERIENCE JOURNEY" tone="quest" />
 

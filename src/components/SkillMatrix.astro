@@ -225,7 +225,27 @@ const initialSiblings = initial
     >
       <div class="ability-readout__bar">
         <p><span class="ability-readout__pixel" aria-hidden="true"></span> Skill details</p>
-        <p>Overview</p>
+        <div class="ability-readout__nav" role="group" aria-label="Step through ability records">
+          <button
+            type="button"
+            class="ability-readout__step"
+            data-skill-step="-1"
+            aria-label="Previous ability"
+          >
+            <span aria-hidden="true">◀</span>
+          </button>
+          <p class="ability-readout__position" aria-hidden="true">
+            <b data-skill-position>01</b><span>/{String(total).padStart(2, "0")}</span>
+          </p>
+          <button
+            type="button"
+            class="ability-readout__step"
+            data-skill-step="1"
+            aria-label="Next ability"
+          >
+            <span aria-hidden="true">▶</span>
+          </button>
+        </div>
       </div>
 
       <div class="ability-readout__main">
@@ -263,6 +283,25 @@ const initialSiblings = initial
       <div class="ability-index__head">
         <h3 id="ability-index-title">Complete index</h3>
         <span>{String(total).padStart(2, "0")} entries</span>
+      </div>
+
+      <div class="ability-circuit">
+        <p>Circuit select</p>
+        <div role="group" aria-label="Select an ability circuit">
+          {
+            groupVisuals.map(({ group, tone }) => (
+              <button
+                type="button"
+                data-skill-circuit={group.id}
+                data-tone={tone}
+                aria-pressed={initial?.group.id === group.id ? "true" : "false"}
+              >
+                <i aria-hidden="true" />
+                {group.label}
+              </button>
+            ))
+          }
+        </div>
       </div>
 
       {

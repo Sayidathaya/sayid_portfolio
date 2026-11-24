@@ -331,6 +331,63 @@ const familyName = nameParts.at(-1) ?? profile.name;
               <span class="console-progress-count">08 chapters</span>
             </p>
 
+            <div class="console-trophies" data-trophy-shelf data-reveal style="--d:230ms">
+              <div class="console-trophies-head">
+                <p>Achievement shelf</p>
+                <p><b data-trophy-count>00</b> / 06 unlocked</p>
+              </div>
+              <ul>
+                <li data-trophy="first-contact" data-tone="blue">
+                  <span class="console-trophy-icon" aria-hidden="true">✉</span>
+                  <span class="console-trophy-copy">
+                    <b>First Contact</b>
+                    <span>Contact terminal</span>
+                  </span>
+                  <span class="console-trophy-state" data-trophy-state>Locked</span>
+                </li>
+                <li data-trophy="world-explorer" data-tone="purple">
+                  <span class="console-trophy-icon" aria-hidden="true">◈</span>
+                  <span class="console-trophy-copy">
+                    <b>World Explorer</b>
+                    <span>Every project world</span>
+                  </span>
+                  <span class="console-trophy-state" data-trophy-state>Locked</span>
+                </li>
+                <li data-trophy="archive-hunter" data-tone="yellow">
+                  <span class="console-trophy-icon" aria-hidden="true">▣</span>
+                  <span class="console-trophy-copy">
+                    <b>Archive Hunter</b>
+                    <span>Credential vault</span>
+                  </span>
+                  <span class="console-trophy-state" data-trophy-state>Locked</span>
+                </li>
+                <li data-trophy="field-observer" data-tone="red">
+                  <span class="console-trophy-icon" aria-hidden="true">◎</span>
+                  <span class="console-trophy-copy">
+                    <b>Field Observer</b>
+                    <span>Field captures</span>
+                  </span>
+                  <span class="console-trophy-state" data-trophy-state>Locked</span>
+                </li>
+                <li data-trophy="mission-complete" data-tone="yellow">
+                  <span class="console-trophy-icon" aria-hidden="true">★</span>
+                  <span class="console-trophy-copy">
+                    <b>Mission Complete</b>
+                    <span>Post-credits save point</span>
+                  </span>
+                  <span class="console-trophy-state" data-trophy-state>Locked</span>
+                </li>
+                <li data-trophy="secret-level" data-tone="purple">
+                  <span class="console-trophy-icon" aria-hidden="true">?</span>
+                  <span class="console-trophy-copy">
+                    <b>Secret Level</b>
+                    <span>Bonus stage</span>
+                  </span>
+                  <span class="console-trophy-state" data-trophy-state>Locked</span>
+                </li>
+              </ul>
+            </div>
+
             <p class="console-note" data-reveal style="--d:260ms">
               Every project is a case file: the brief, the code, and the verified evidence.
             </p>
@@ -414,6 +471,16 @@ const familyName = nameParts.at(-1) ?? profile.name;
     </div>
 
     <div class="scene-curtains" data-scene-curtains aria-hidden="true"></div>
+
+    <div class="page-curtain" data-page-curtain data-state="idle" aria-hidden="true">
+      <span class="page-curtain-bars"></span>
+      <span class="page-curtain-grid"></span>
+      <span class="page-curtain-label">
+        <i></i>
+        Loading next chapter
+        <b>SRA // 2.1</b>
+      </span>
+    </div>
 
     <slot name="overlays" />
 
@@ -551,6 +618,7 @@ const familyName = nameParts.at(-1) ?? profile.name;
       import "../scripts/profile-mode";
       import "../scripts/achievements";
       import "../scripts/secret";
+      import "../scripts/page-curtain";
     </script>
   </body>
 </html>

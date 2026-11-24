@@ -81,6 +81,23 @@ const segments = placed
 
 const statusTone = (status: ExperienceEntry["status"]): "red" | "blue" | "purple" =>
   status === "Active" ? "red" : status === "Archived" ? "purple" : "blue";
+
+const yearOf = (period: string): number | null => {
+  const match = period.match(/(19|20)\d{2}/);
+  return match ? Number(match[0]) : null;
+};
+
+const years = trail
+  .map((entry) => yearOf(entry.period))
+  .filter((year): year is number => year !== null);
+const firstYear = years.length > 0 ? Math.min(...years) : null;
+const lastYear = years.length > 0 ? Math.max(...years) : null;
+const spanLabel =
+  firstYear === null || lastYear === null
+    ? "Recorded span"
+    : firstYear === lastYear
+      ? String(firstYear)
+      : `${firstYear}–${lastYear}`;
 ---
 
 <div class="quest-map" data-career-map data-latest={activeId}>
@@ -119,7 +136,7 @@ const statusTone = (status: ExperienceEntry["status"]): "red" | "blue" | "purple
 
       <div class="quest-world__hud">
         <span><i aria-hidden="true"></i> TIMELINE ROUTE</span>
-        <span class="quest-world__hud-mid">OLDEST → NEWEST</span>
+        <span class="quest-world__hud-mid">OLDEST → NEWEST // {spanLabel}</span>
         <span>EXPERIENCE MAP</span>
       </div>
 
@@ -237,7 +254,7 @@ const statusTone = (status: ExperienceEntry["status"]): "red" | "blue" | "purple
           <span class="quest-readout__pixel" aria-hidden="true"></span>
           Role Details
         </p>
-        <p class="quest-readout__hint">Select a milestone above to view details</p>
+        <p class="quest-readout__hint" data-quest-hint>Select a milestone above to view details</p>
       </div>
 
       {
@@ -294,7 +311,35 @@ const statusTone = (status: ExperienceEntry["status"]): "red" | "blue" | "purple
         <p>Route index</p>
         <span aria-hidden="true">03-A</span>
       </div>
-      <ol>
+
+      <div class="quest-route__stepper" role="group" aria-label="Step through career chapters">
+        <button
+          type="button"
+          class="quest-route__step"
+          data-quest-step="-1"
+          aria-label="Previous career chapter"
+          aria-controls="quest-route-list"
+        >
+          <span aria-hidden="true">◀</span>
+        </button>
+        <p class="quest-route__position" aria-hidden="true">
+          <b data-quest-position>01</b><span>/{String(total).padStart(2, "0")}</span>
+        </p>
+        <button
+          type="button"
+          class="quest-route__step"
+          data-quest-step="1"
+          aria-label="Next career chapter"
+          aria-controls="quest-route-list"
+        >
+          <span aria-hidden="true">▶</span>
+        </button>
+      </div>
+      <span class="quest-route__progress" aria-hidden="true">
+        <i data-quest-progress></i>
+      </span>
+
+      <ol id="quest-route-list">
         {
           placed.map(({ entry, chapter, tone }) => {
             const active = entry.id === activeId;

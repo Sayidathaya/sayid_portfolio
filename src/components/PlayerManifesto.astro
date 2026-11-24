@@ -1,0 +1,168 @@
+---
+import type { ChromaticTone, Profile, SkillGroup } from "../types/portfolio";
+import PixelIcon from "./PixelIcon.astro";
+import SceneAtmosphere from "./SceneAtmosphere.astro";
+
+interface Props {
+  profile: Profile;
+  groups: SkillGroup[];
+  roleCount: number;
+  projectCount: number;
+  certificateCount: number;
+}
+
+const { profile, groups, roleCount, projectCount, certificateCount } = Astro.props;
+
+const fallbackTones: ChromaticTone[] = ["blue", "red", "purple"];
+const fallbackCodes = ["B-01", "R-02", "H-03"];
+
+/* Authored design copy, not a quotation. Each card is still anchored to a real
+   skill group in the collection; the sample list comes straight from the file. */
+const mantras: Record<string, string> = {
+  build: "Interfaces that hold up.",
+  data: "Data that answers back.",
+  voice: "Rooms that listen.",
+};
+
+const modes = groups.slice(0, 3).map((group, index) => ({
+  group,
+  code: fallbackCodes[index] ?? `M-0${index + 1}`,
+  tone: group.tone ?? fallbackTones[index % fallbackTones.length] ?? "blue",
+  mantra: mantras[group.id] ?? `${group.label} in practice.`,
+  sample: group.items.slice(0, 3).join(" / "),
+  count: String(group.items.length).padStart(2, "0"),
+}));
+
+const count = (value: number): string => String(value).padStart(2, "0");
+
+const marquee = [
+  "Player manifesto",
+  "Build it clear",
+  "Read it closely",
+  "Leave a record",
+  "SRA 2.1",
+  "Arcade universe",
+];
+---
+
+<section id="manifesto" class="manifesto" aria-labelledby="manifesto-title">
+  <SceneAtmosphere scene="manifesto" tone="archive" />
+
+  <div class="manifesto-world" aria-hidden="true">
+    <span class="manifesto-grid"></span>
+    <span class="manifesto-ghost">02.5</span>
+    <span class="manifesto-sun"></span>
+    <span class="manifesto-star manifesto-star--a"></span>
+    <span class="manifesto-star manifesto-star--b"></span>
+    <span class="manifesto-star manifesto-star--c"></span>
+  </div>
+
+  <div class="shell manifesto-shell">
+    <header class="manifesto-bar" data-reveal>
+      <p class="manifesto-bar-id">
+        <span class="manifesto-bar-pip" aria-hidden="true"></span>
+        Intermission // Player manifesto
+      </p>
+      <p class="manifesto-bar-note">Between the dossier and the journey</p>
+      <p class="manifesto-bar-build">SRA 2.1 // Arcade universe</p>
+    </header>
+
+    <div class="manifesto-stage">
+      <div class="manifesto-copy">
+        <p class="manifesto-kicker" data-reveal>
+          <span aria-hidden="true">▚</span>
+          Operating principle
+        </p>
+
+        <h2 id="manifesto-title" class="manifesto-title" data-reveal style="--d:60ms">
+          <span>Make the</span>
+          <span class="manifesto-title-accent">interface</span>
+          <span>accountable.</span>
+        </h2>
+
+        <p class="manifesto-lede" data-reveal style="--d:120ms">
+          Every screen is a promise. Every record is proof. The work moves through three
+          modes: build the surface, read what the data is saying, then hold the room while
+          the story lands.
+        </p>
+
+        <div class="manifesto-actions" data-reveal style="--d:180ms">
+          <a class="px-btn px-btn--start" href="#experience">
+            <span class="px-btn-caret" aria-hidden="true">▶</span>
+            <span>Continue the journey</span>
+            <span class="px-btn-meta">Chapter 03</span>
+          </a>
+          <a class="manifesto-link" href="#contact">
+            <PixelIcon name="mail" />
+            <span>Open a channel</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </div>
+
+      <ol class="manifesto-modes" aria-label="Operating modes">
+        {
+          modes.map(({ group, code, tone, mantra, sample, count: groupCount }, index) => (
+            <li class="manifesto-mode" data-tone={tone}>
+              <a class="manifesto-mode__link" href="#skills" data-reveal style={`--d:${120 + index * 70}ms`}>
+                <span class="manifesto-mode__top">
+                  <span class="manifesto-mode__code" aria-hidden="true">{code}</span>
+                  <span class="manifesto-mode__index" aria-hidden="true">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                </span>
+                <span class="manifesto-mode__label">{group.label}</span>
+                <span class="manifesto-mode__mantra">{mantra}</span>
+                <span class="manifesto-mode__sample">{sample}</span>
+                <span class="manifesto-mode__foot">
+                  <span>{groupCount} catalogued</span>
+                  <span aria-hidden="true">→</span>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+
+    <dl class="manifesto-record" data-reveal style="--d:220ms">
+      <div>
+        <dt>Player</dt>
+        <dd>{profile.name}</dd>
+      </div>
+      <div>
+        <dt>Roles filed</dt>
+        <dd>{count(roleCount)}</dd>
+      </div>
+      <div>
+        <dt>Worlds charted</dt>
+        <dd>{count(projectCount)}</dd>
+      </div>
+      <div>
+        <dt>Credentials</dt>
+        <dd>{count(certificateCount)}</dd>
+      </div>
+      <div class="manifesto-record__note">
+        <dt>Status</dt>
+        <dd>{profile.availability}</dd>
+      </div>
+    </dl>
+  </div>
+
+  <div class="manifesto-marquee" aria-hidden="true">
+    <div class="manifesto-marquee__track">
+      {
+        [0, 1].map(() => (
+          <div class="manifesto-marquee__group">
+            {marquee.map((item) => (
+              <span class="manifesto-marquee__item">
+                <i />
+                <b>{item}</b>
+              </span>
+            ))}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

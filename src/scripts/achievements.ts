@@ -99,6 +99,27 @@ export function initAchievements(): () => void {
   let activeToast: HTMLElement | null = null;
   let secretListener: (() => void) | null = null;
 
+  const shelf = document.querySelector<HTMLElement>("[data-trophy-shelf]");
+  const shelfItems = shelf
+    ? Array.from(shelf.querySelectorAll<HTMLElement>("[data-trophy]"))
+    : [];
+  const shelfCount = shelf?.querySelector<HTMLElement>("[data-trophy-count]") ?? null;
+
+  const renderShelf = (): void => {
+    for (const item of shelfItems) {
+      const id = item.dataset.trophy;
+      const isUnlocked = id ? unlocked.has(id) : false;
+      item.toggleAttribute("data-unlocked", isUnlocked);
+      const state = item.querySelector<HTMLElement>("[data-trophy-state]");
+      if (state) state.textContent = isUnlocked ? "Unlocked" : "Locked";
+    }
+    if (shelfCount) {
+      shelfCount.textContent = String(unlocked.size).padStart(2, "0");
+    }
+  };
+
+  renderShelf();
+
   const showToast = (definition: AchievementDefinition): void => {
     const toast = document.createElement("article");
     toast.className = "achievement-toast";
@@ -164,6 +185,7 @@ export function initAchievements(): () => void {
     if (!definition) return;
     unlocked.add(id);
     writeUnlocked(unlocked);
+    renderShelf();
     queue.push(definition);
     pump();
   };

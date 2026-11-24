@@ -15,9 +15,10 @@ interface Props {
   project: PortfolioProject;
   index: number;
   total: number;
+  next?: { slug: string; title: string } | null;
 }
 
-const { project, index, total } = Astro.props;
+const { project, index, total, next = null } = Astro.props;
 
 const direction = resolveWorld(project, index);
 const { variant, tone, accent } = direction;
@@ -134,6 +135,14 @@ const directionStyle = worldStyle(direction);
         )
       }
     </div>
+
+    <nav class="world-case-nav" aria-label={next ? "Continue to the next case" : "Return to the atlas"}>
+      <a href={next ? `#world-${next.slug}` : "#mv-atlas"}>
+        <span class="world-case-nav__kicker">{next ? "Next case" : "Chain complete"}</span>
+        <span class="world-case-nav__title">{next ? next.title : "Return to project atlas"}</span>
+        <span class="world-case-nav__arrow" aria-hidden="true">{next ? "→" : "↑"}</span>
+      </a>
+    </nav>
 
     {
       project.notes && (
