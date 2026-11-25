@@ -9,10 +9,12 @@ technologies:
   - "AI ethics"
   - "Facilitation"
 status: Archived
+sort: 2
 map:
   x: 48
   y: 44
   scale: 1
   structure: relay
   tone: purple
+  card: below
 ---

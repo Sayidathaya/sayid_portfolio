@@ -12,9 +12,9 @@ const { groups } = Astro.props;
 const fallbackTones: ChromaticTone[] = ["blue", "red", "purple", "blue"];
 const fallbackGlyphs: SkillGlyph[] = ["cartridge", "shield", "rocket", "spark"];
 const fallbackHubs = [
-  { x: 24, y: 31 },
-  { x: 77, y: 31 },
-  { x: 34, y: 77 },
+  { x: 26, y: 31 },
+  { x: 74, y: 31 },
+  { x: 36, y: 73 },
   { x: 69, y: 72 },
 ];
 const fallbackNodes = [
@@ -64,6 +64,14 @@ const stepPath = (fromX: number, fromY: number, toX: number, toY: number): strin
   return `M ${fromX} ${fromY} H ${midX} V ${toY} H ${toX}`;
 };
 
+/* Hubs that sit above the core take a clean trunk: rise from the core, then
+   run sideways along the hub line. Hubs below the core keep the stepped
+   mid-bend so the trunk never cuts through a sibling node. */
+const trunkPath = (fromX: number, fromY: number, toX: number, toY: number): string =>
+  `M ${fromX} ${fromY} V ${toY} H ${toX}`;
+
+const linkY = (y: number): number => Math.max(8, Math.round((y - 3) * 10) / 10);
+
 const links = groupVisuals.flatMap((visual) => {
   const bus = {
     key: `bus-${visual.group.id}`,
@@ -71,7 +79,10 @@ const links = groupVisuals.flatMap((visual) => {
     tone: visual.tone,
     kind: "bus",
     node: "",
-    path: stepPath(core.x, core.y, visual.hub.x, visual.hub.y),
+    path:
+      visual.hub.y < core.y
+        ? trunkPath(core.x, core.y, visual.hub.x, visual.hub.y)
+        : stepPath(core.x, core.y, visual.hub.x, visual.hub.y),
   };
   const branches = visual.items.map((item) => ({
     key: `branch-${visual.group.id}-${item.name}`,
@@ -79,7 +90,7 @@ const links = groupVisuals.flatMap((visual) => {
     tone: visual.tone,
     kind: "branch",
     node: item.name,
-    path: stepPath(visual.hub.x, visual.hub.y, item.x, item.y),
+    path: `M ${visual.hub.x} ${visual.hub.y} V ${linkY(item.y)} H ${item.x}`,
   }));
   return [bus, ...branches];
 });
@@ -139,7 +150,7 @@ const initialSiblings = initial
             <g class="ability-link" data-link-group={link.group} data-link-kind={link.kind} data-link-node={link.node || undefined}>
               <path class="ability-link__under" d={link.path} vector-effect="non-scaling-stroke" />
               <path class="ability-link__line" d={link.path} vector-effect="non-scaling-stroke" data-tone={link.tone} data-link-node={link.node || undefined} />
-              <path class="ability-link__signal" d={link.path} vector-effect="non_scaling-stroke" data-link-node={link.node || undefined} />
+              <path class="ability-link__signal" d={link.path} vector-effect="non-scaling-stroke" data-link-node={link.node || undefined} />
             </g>
           ))
         }
@@ -161,7 +172,7 @@ const initialSiblings = initial
             style={`--x:${hub.x}%;--y:${hub.y}%`}
             aria-hidden="true"
           >
-            <i></i>{group.label}
+            <span class="ability-zone__chip"><i></i>{group.label}</span>
           </span>
         ))
       }

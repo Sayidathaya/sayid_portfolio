@@ -5,6 +5,16 @@ import { glob } from "astro/loaders";
 const chromaticTone = z.enum(["red", "yellow", "blue", "purple"]);
 const worldVariant = z.enum(["feature", "artifact", "expedition"]);
 const questStructure = z.enum(["tower", "vault", "relay", "gate"]);
+const questCardPlacement = z.enum([
+  "above",
+  "below",
+  "left",
+  "right",
+  "above-left",
+  "above-right",
+  "below-left",
+  "below-right",
+]);
 const entryStatus = z.enum(["Active", "Closed", "Archived"]);
 const skillGlyph = z.enum(["cartridge", "shield", "rocket", "spark", "star"]);
 const certificateCategory = z.enum(["web", "data", "leadership", "award"]);
@@ -24,6 +34,8 @@ const experienceMap = z.object({
   scale: z.number().optional(),
   structure: questStructure.optional(),
   tone: chromaticTone.optional(),
+  /** Where the information plaque sits relative to the waypoint anchor. */
+  card: questCardPlacement.optional(),
 });
 
 const projectWorld = z.object({
@@ -82,6 +94,8 @@ export const collections = {
       technologies: z.array(z.string()),
       status: entryStatus,
       map: experienceMap.optional(),
+      /** Editorial ordering for the career world: lower value = older milestone. */
+      sort: z.number().optional(),
     }),
     loader: glob({ pattern: "**/*.md", base: "./src/content/experience" }),
   }),

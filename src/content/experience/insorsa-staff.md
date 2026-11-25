@@ -9,10 +9,12 @@ technologies:
   - "Event management"
   - "Teamwork"
 status: Closed
+sort: 3
 map:
   x: 78
   y: 62
   scale: 1.04
   structure: tower
   tone: blue
+  card: below
 ---

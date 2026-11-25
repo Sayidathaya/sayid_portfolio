@@ -452,29 +452,6 @@ html[data-gsap="on"] .mv-atlas[data-reveal][data-inview] {
   clip-path: var(--pixel-cut-lg);
 }
 
-/* GSAP writes inline transforms on scrubbed targets. Move the authored
-   percent-centering to the independent `translate` property so a reveal tween
-   can never erase the layout position. */
-@media (min-width: 48rem) {
-  html[data-gsap="on"] .quest-node-wrap {
-    translate: -50% -50%;
-    transform: none;
-  }
-}
-
-@media (min-width: 60rem) {
-  html[data-gsap="on"] .ability-nodes li,
-  html[data-gsap="on"] .ability-zone {
-    translate: -50% -50%;
-    transform: none;
-  }
-
-  html[data-gsap="on"] .ability-core {
-    translate: -50% -50%;
-    transform: none;
-  }
-}
-
 html[data-gsap="on"] .archive-card[data-reveal] .archive-card-preview img,
 html[data-gsap="on"] .archive-capture[data-reveal] img {
   transition: none;
@@ -486,7 +463,6 @@ html[data-gsap="on"] .hero-record {
   animation: none;
 }
 
-html[data-gsap="on"] .quest-node-wrap,
 html[data-gsap="on"] .ability-nodes li {
   animation: none;
 }

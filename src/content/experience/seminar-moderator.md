@@ -9,10 +9,12 @@ technologies:
   - "Moderation"
   - "Event coordination"
 status: Archived
+sort: 1
 map:
   x: 22
   y: 62
   scale: 0.92
   structure: vault
   tone: purple
+  card: above
 ---

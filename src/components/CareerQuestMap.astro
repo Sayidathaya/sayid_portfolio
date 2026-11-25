@@ -1,5 +1,10 @@
 ---
-import type { ChromaticTone, ExperienceEntry, ExperienceMapPosition } from "../types/portfolio";
+import type {
+  ChromaticTone,
+  ExperienceCardPlacement,
+  ExperienceEntry,
+  ExperienceMapPosition,
+} from "../types/portfolio";
 import PixelBadge from "./PixelBadge.astro";
 import PixelIcon from "./PixelIcon.astro";
 import PixelSprite from "./PixelSprite.astro";
@@ -10,20 +15,25 @@ interface Props {
 
 const { entries } = Astro.props;
 
-// The data file is newest-first. The quest world reads oldest → newest so the route is
-// chronological from the left edge to the current signal.
-const trail = [...entries].reverse();
+/* Editorial chronological order (ascending): lower `sort` is an older milestone.
+   Falls back to the year inside `period` when an entry has no editorial sort yet. */
+const sortValue = (entry: (typeof entries)[number]): number =>
+  entry.sort ?? (Number(entry.period) || 0);
+const trail = [...entries].sort((a, b) => sortValue(a) - sortValue(b));
 const total = trail.length;
 const latest = trail[total - 1];
 
 const fallbackPositions: Array<
-  Required<Pick<ExperienceMapPosition, "x" | "y" | "scale" | "structure">>
+  Required<Pick<ExperienceMapPosition, "x" | "y" | "scale" | "structure" | "card">>
 > = [
-  { x: 20, y: 65, scale: 0.92, structure: "vault" },
-  { x: 47, y: 46, scale: 1, structure: "relay" },
-  { x: 76, y: 62, scale: 1.04, structure: "tower" },
-  { x: 38, y: 82, scale: 0.86, structure: "gate" },
+  { x: 20, y: 58, scale: 0.92, structure: "vault", card: "above" },
+  { x: 47, y: 42, scale: 1, structure: "relay", card: "below" },
+  { x: 74, y: 58, scale: 1.04, structure: "tower", card: "below" },
+  { x: 88, y: 36, scale: 0.86, structure: "gate", card: "left" },
 ];
+
+/** Keep card placements alternating even when an entry omits explicit map data. */
+const fallbackCards: ExperienceCardPlacement[] = ["above", "below", "below", "left"];
 
 const clamp = (value: number, min: number, max: number): number =>
   Math.min(max, Math.max(min, value));
@@ -41,11 +51,14 @@ const placed = trail.map((entry, index) => {
     y: 50,
     scale: 1,
     structure: "relay",
+    card: "below",
   };
   const x = clamp(entry.map?.x ?? fallback.x, 8, 92);
-  const y = clamp(entry.map?.y ?? fallback.y, 26, 86);
+  const y = clamp(entry.map?.y ?? fallback.y, 26, 78);
   const scale = clamp(entry.map?.scale ?? fallback.scale, 0.72, 1.22);
   const structure = entry.map?.structure ?? fallback.structure;
+  const card =
+    entry.map?.card ?? fallbackCards[index % fallbackCards.length] ?? fallback.card ?? "below";
   return {
     entry,
     chapter: String(index + 1).padStart(2, "0"),
@@ -53,6 +66,7 @@ const placed = trail.map((entry, index) => {
     y,
     scale,
     structure,
+    card,
     tone: toneFor(entry),
   };
 });
@@ -63,6 +77,17 @@ const stepPath = (fromX: number, fromY: number, toX: number, toY: number): strin
   const midX = Math.round((fromX + (toX - fromX) * 0.5) * 10) / 10;
   return `M ${fromX} ${fromY} H ${midX} V ${toY} H ${toX}`;
 };
+
+/* The route begins at the archive gate prop (left, lower third) so it has a
+   meaningful start, then joins the first waypoint before continuing. */
+const firstWaypoint = placed[0];
+const startSegment = firstWaypoint
+  ? {
+      d: stepPath(6, 82, firstWaypoint.x, firstWaypoint.y),
+      tone: firstWaypoint.tone,
+      to: firstWaypoint.entry.id,
+    }
+  : null;
 
 const segments = placed
   .slice(0, -1)
@@ -148,6 +173,21 @@ const spanLabel =
         focusable="false"
       >
         {
+          startSegment && (
+            <g
+              class="quest-segment quest-segment--start"
+              data-segment
+              data-from="archive-gate"
+              data-to={startSegment.to}
+              data-tone={startSegment.tone}
+            >
+              <path class="quest-segment__under" d={startSegment.d} vector-effect="non-scaling-stroke" />
+              <path class="quest-segment__line" d={startSegment.d} vector-effect="non-scaling-stroke" />
+              <path class="quest-segment__signal" d={startSegment.d} vector-effect="non-scaling-stroke" />
+            </g>
+          )
+        }
+        {
           segments.map((segment) => (
             <g class="quest-segment" data-segment data-from={segment.from} data-to={segment.to} data-tone={segment.tone}>
               <path class="quest-segment__under" d={segment.path} vector-effect="non-scaling-stroke" />
@@ -156,16 +196,6 @@ const spanLabel =
             </g>
           ))
         }
-        <path
-          class="quest-spur"
-          d="M 6 82 H 14 V 71 H 20"
-          vector-effect="non-scaling-stroke"
-        />
-        <path
-          class="quest-spur"
-          d="M 68 48 H 78 V 34 H 88"
-          vector-effect="non-scaling-stroke"
-        />
       </svg>
 
       <span class="quest-gate" aria-hidden="true">
@@ -188,11 +218,12 @@ const spanLabel =
 
       <ol class="quest-nodes" aria-label="Career quest waypoints">
         {
-          placed.map(({ entry, chapter, x, y, scale, structure, tone }, index) => {
+          placed.map(({ entry, chapter, x, y, scale, structure, card, tone }, index) => {
             const active = entry.id === activeId;
             return (
               <li
                 class="quest-node-wrap"
+                data-card={card}
                 style={`--x:${x}%;--y:${y}%;--scale:${scale};--i:${index}`}
               >
                 <div class="quest-node-reveal">

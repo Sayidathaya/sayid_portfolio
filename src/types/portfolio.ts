@@ -31,13 +31,27 @@ export interface Profile {
 
 export type EntryStatus = "Active" | "Closed" | "Archived";
 
-/** Hand-placed coordinates for the career quest map (percentage of the world). */
+/** Explicit plaque placement around a career waypoint anchor. */
+export type ExperienceCardPlacement =
+  | "above"
+  | "below"
+  | "left"
+  | "right"
+  | "above-left"
+  | "above-right"
+  | "below-left"
+  | "below-right";
+
+/** Hand-placed coordinates for the career quest map (percentage of the world).
+ * `x`/`y` mark the route waypoint; the structure is anchored to that point and
+ * the card is placed independently via `card`. */
 export interface ExperienceMapPosition {
   x: number;
   y: number;
   scale?: number;
   structure?: "tower" | "vault" | "relay" | "gate";
   tone?: ChromaticTone;
+  card?: ExperienceCardPlacement;
 }
 
 export interface ExperienceEntry {
@@ -50,6 +64,8 @@ export interface ExperienceEntry {
   status: EntryStatus;
   map?: ExperienceMapPosition;
   placeholder?: boolean;
+  /** Editorial chronological ordering used by the career quest world. */
+  sort?: number;
 }
 
 export type SkillGlyph = "cartridge" | "shield" | "rocket" | "spark" | "star";

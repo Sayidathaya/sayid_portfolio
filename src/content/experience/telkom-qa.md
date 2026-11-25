@@ -9,10 +9,12 @@ technologies:
   - "Test Automation"
   - "Quality Assurance"
 status: Active
+sort: 4
 map:
   x: 86
   y: 38
   scale: 1.1
   structure: gate
   tone: red
+  card: left
 ---

@@ -669,8 +669,8 @@
   }
   .quest-sun {
     position: absolute;
-    top: 17%;
-    right: 13%;
+    top: 10%;
+    right: 5%;
     width: clamp(2.8rem, 5vw, 4.2rem);
     aspect-ratio: 1;
     background:
@@ -827,8 +827,8 @@
   }
   .quest-relay {
     position: absolute;
-    top: 27%;
-    right: 5%;
+    right: 4%;
+    bottom: 8%;
     z-index: 2;
     display: block;
     width: 5rem;
@@ -979,13 +979,6 @@
   .quest-segment[data-lit] .quest-segment__signal {
     opacity: 0.9;
   }
-  .quest-spur {
-    fill: none;
-    stroke: var(--quest-line-strong);
-    stroke-width: 1.5;
-    stroke-dasharray: 2 6;
-    opacity: 0.55;
-  }
 
   .quest-nodes {
     position: absolute;
@@ -993,30 +986,37 @@
     z-index: 4;
   }
   .quest-node-wrap {
+    --node-card-w: clamp(10rem, 13.6vw, 12.2rem);
+    --node-prop: clamp(4rem, 6.2vw, 5.3rem);
+    --node-card-gap: 0.65rem;
     position: absolute;
     top: var(--y);
     left: var(--x);
-    width: clamp(8.4rem, 13vw, 11.4rem);
-    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
   }
   .js .quest-node-wrap {
     animation: quest-node-in 520ms steps(6, end) both;
     animation-delay: calc(var(--i) * 90ms + 160ms);
   }
   .quest-node {
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
     display: block;
-    padding-top: clamp(4.2rem, 7vw, 5.4rem);
+    width: 0;
+    height: 0;
     text-align: left;
   }
   .quest-prop {
     position: absolute;
-    top: 0;
-    left: 50%;
-    width: clamp(4rem, 6.2vw, 5.3rem);
-    height: clamp(4rem, 6.2vw, 5.3rem);
+    bottom: 0;
+    left: 0;
+    width: var(--node-prop);
+    height: var(--node-prop);
     pointer-events: none;
-    transform: translateX(-50%);
+    transform: translateX(-50%) scale(var(--scale, 1));
+    transform-origin: bottom center;
     filter: drop-shadow(4px 4px 0 rgb(5 5 7 / 0.7));
     transition: transform var(--t-ui) var(--ease-step), filter var(--t-ui) var(--ease-step);
   }
@@ -1174,9 +1174,10 @@
   }
 
   .quest-node__plaque {
-    position: relative;
+    position: absolute;
     display: block;
-    padding: 0.45rem 0.5rem 0.5rem;
+    width: var(--node-card-w);
+    padding: 0.5rem 0.58rem 0.55rem;
     border: 2px solid var(--quest-ink);
     color: var(--color-paper-ink);
     background:
@@ -1188,13 +1189,49 @@
       box-shadow var(--t-ui) var(--ease-step),
       background-color var(--t-ui) steps(2, end);
   }
+
+  /* Explicit card placements: the waypoint stays a single point, the structure
+     rises from it, and the plaque is anchored independently. No centering
+     transform is used, so GSAP is free to animate nodes without moving layout. */
+  .quest-node-wrap[data-card="above"] .quest-node__plaque {
+    bottom: calc(var(--node-prop) * var(--scale, 1) + var(--node-card-gap));
+    left: calc(var(--node-card-w) * -0.5);
+  }
+  .quest-node-wrap[data-card="below"] .quest-node__plaque {
+    top: var(--node-card-gap);
+    left: calc(var(--node-card-w) * -0.5);
+  }
+  .quest-node-wrap[data-card="left"] .quest-node__plaque {
+    right: calc(var(--node-prop) * var(--scale, 1) * 0.5 + var(--node-card-gap));
+    bottom: var(--node-card-gap);
+  }
+  .quest-node-wrap[data-card="right"] .quest-node__plaque {
+    bottom: var(--node-card-gap);
+    left: calc(var(--node-prop) * var(--scale, 1) * 0.5 + var(--node-card-gap));
+  }
+  .quest-node-wrap[data-card="above-left"] .quest-node__plaque {
+    right: var(--node-card-gap);
+    bottom: calc(var(--node-prop) * var(--scale, 1) + var(--node-card-gap));
+  }
+  .quest-node-wrap[data-card="above-right"] .quest-node__plaque {
+    bottom: calc(var(--node-prop) * var(--scale, 1) + var(--node-card-gap));
+    left: var(--node-card-gap);
+  }
+  .quest-node-wrap[data-card="below-left"] .quest-node__plaque {
+    top: var(--node-card-gap);
+    right: var(--node-card-gap);
+  }
+  .quest-node-wrap[data-card="below-right"] .quest-node__plaque {
+    top: var(--node-card-gap);
+    left: var(--node-card-gap);
+  }
   .quest-node__no {
     display: flex;
     align-items: center;
     gap: 0.3rem;
     color: var(--color-paper-muted);
     font-family: var(--font-pixel);
-    font-size: 0.42rem;
+    font-size: clamp(0.46rem, 0.7vw, 0.54rem);
     font-weight: 700;
     line-height: 1.5;
     letter-spacing: 0.05em;
@@ -1208,47 +1245,54 @@
   }
   .quest-node__state {
     margin-left: auto;
-    padding: 0.05rem 0.22rem;
+    padding: 0.05rem 0.24rem;
     border: 1px solid currentColor;
     color: var(--color-paper-muted);
-    font-size: 0.34rem;
+    font-size: 0.44rem;
     letter-spacing: 0.04em;
     white-space: nowrap;
   }
   .quest-node__role {
     display: block;
-    margin-top: 0.22rem;
+    margin-top: 0.26rem;
     font-family: var(--font-pixel);
-    font-size: clamp(0.52rem, 0.9vw, 0.62rem);
+    font-size: clamp(0.72rem, 1.02vw, 0.8rem);
     font-weight: 700;
-    line-height: 1.4;
+    line-height: 1.38;
     letter-spacing: 0.01em;
     text-transform: uppercase;
     overflow-wrap: anywhere;
   }
   .quest-node__org {
     display: block;
-    margin-top: 0.16rem;
+    margin-top: 0.2rem;
     color: color-mix(in srgb, var(--tone) 55%, var(--color-paper-ink));
     font-family: var(--font-mono);
-    font-size: 0.52rem;
-    line-height: 1.45;
+    font-size: 0.62rem;
+    line-height: 1.42;
     letter-spacing: 0.02em;
     text-transform: uppercase;
     overflow-wrap: anywhere;
   }
   .quest-node__period {
     display: block;
-    margin-top: 0.12rem;
+    margin-top: 0.14rem;
     color: var(--color-paper-muted);
     font-family: var(--font-mono);
-    font-size: 0.48rem;
-    line-height: 1.45;
+    font-size: 0.58rem;
+    line-height: 1.42;
   }
   .quest-node:hover .quest-node__plaque,
   .quest-node:focus-visible .quest-node__plaque {
     transform: translate(-2px, -3px);
     box-shadow: 5px 5px 0 var(--tone);
+  }
+  .quest-node:focus-visible {
+    outline: none;
+  }
+  .quest-node:focus-visible .quest-node__plaque {
+    outline: 3px solid var(--color-accent-blue-ink);
+    outline-offset: 3px;
   }
   .quest-node:hover .quest-prop,
   .quest-node:focus-visible .quest-prop {
@@ -1376,7 +1420,7 @@
     gap: 0.35rem;
     color: color-mix(in srgb, var(--tone) 56%, var(--color-paper-ink));
     font-family: var(--font-pixel);
-    font-size: 0.48rem;
+    font-size: 0.52rem;
     font-weight: 700;
     line-height: 1.5;
     letter-spacing: 0.08em;
@@ -1434,7 +1478,7 @@
     border-bottom: 2px dashed var(--color-paper-line);
     color: var(--color-paper-muted);
     font-family: var(--font-mono);
-    font-size: 0.62rem;
+    font-size: 0.68rem;
     line-height: 1.5;
     letter-spacing: 0.03em;
     text-transform: uppercase;
@@ -1447,7 +1491,7 @@
   .quest-detail__index {
     margin-left: auto;
     font-family: var(--font-pixel);
-    font-size: 0.46rem;
+    font-size: 0.52rem;
     letter-spacing: 0.04em;
   }
   .quest-detail__summary {
@@ -1468,7 +1512,7 @@
   .quest-detail__loot-label {
     color: var(--color-paper-muted);
     font-family: var(--font-pixel);
-    font-size: 0.42rem;
+    font-size: 0.48rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -1680,7 +1724,7 @@
     display: block;
     color: var(--color-accent-purple-ink);
     font-family: var(--font-pixel);
-    font-size: 0.44rem;
+    font-size: 0.5rem;
     font-weight: 700;
     line-height: 1.5;
     letter-spacing: 0.11em;
@@ -1708,7 +1752,7 @@
     gap: 0.35rem;
     color: var(--matrix-muted);
     font-family: var(--font-mono);
-    font-size: 0.55rem;
+    font-size: 0.58rem;
     line-height: 1.5;
     white-space: nowrap;
   }
@@ -1721,7 +1765,7 @@
   .ability-hud__legend b {
     color: var(--color-paper);
     font-family: var(--font-pixel);
-    font-size: 0.46rem;
+    font-size: 0.5rem;
     font-weight: 700;
   }
   .ability-hud__count {
@@ -1741,13 +1785,14 @@
   .ability-hud__count span {
     color: var(--matrix-muted);
     font-family: var(--font-mono);
-    font-size: 0.5rem;
+    font-size: 0.54rem;
     line-height: 1.35;
     letter-spacing: 0.03em;
     text-transform: uppercase;
   }
 
   .ability-stage {
+    --core-size: clamp(4.4rem, 6.4vw, 6rem);
     position: relative;
     min-height: clamp(30rem, 44vw, 38rem);
     overflow: hidden;
@@ -1839,20 +1884,21 @@
     z-index: 3;
     display: grid;
     place-items: center;
-    width: clamp(3.6rem, 5vw, 4.5rem);
+    width: var(--core-size);
     aspect-ratio: 1;
+    margin-top: calc(var(--core-size) / -2);
+    margin-left: calc(var(--core-size) / -2);
     border: 3px solid var(--matrix-ink);
     color: var(--color-on-yellow);
     background: var(--color-accent-yellow);
     clip-path: var(--pixel-cut-sm);
-    box-shadow: 5px 5px 0 var(--color-accent-purple);
+    box-shadow: 6px 6px 0 var(--color-accent-purple);
     font-family: var(--font-pixel);
-    font-size: 0.46rem;
+    font-size: clamp(0.58rem, 0.78vw, 0.68rem);
     font-weight: 700;
     line-height: 1.15;
     letter-spacing: 0.04em;
     text-align: center;
-    transform: translate(-50%, -50%);
     animation: hover-step 6s steps(2, end) infinite;
   }
   .ability-core__ring {
@@ -1896,24 +1942,32 @@
     position: absolute;
     top: var(--y);
     left: var(--x);
-    z-index: 1;
+    z-index: 3;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+  .ability-zone__chip {
+    position: absolute;
+    top: 0;
+    left: 0;
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    padding: 0.08rem 0.3rem;
-    border: 1px solid color-mix(in srgb, var(--tone) 34%, transparent);
+    padding: 0.2rem 0.46rem;
+    border: 2px solid color-mix(in srgb, var(--tone) 58%, transparent);
     color: var(--tone-ink);
-    background: rgb(5 5 7 / 0.56);
+    background: #0a0a12;
+    box-shadow: 2px 2px 0 color-mix(in srgb, var(--tone) 40%, transparent);
     font-family: var(--font-pixel);
-    font-size: 0.38rem;
+    font-size: clamp(0.58rem, 0.78vw, 0.66rem);
     font-weight: 700;
-    line-height: 1.5;
+    line-height: 1.4;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     white-space: nowrap;
-    opacity: 0.72;
+    opacity: 0.9;
     transform: translate(-50%, -50%);
-    pointer-events: none;
   }
   .ability-zone i {
     width: 3px;
@@ -1929,7 +1983,8 @@
     position: absolute;
     top: var(--y);
     left: var(--x);
-    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
   }
   .js .ability-nodes li {
     animation: ability-node-in 440ms steps(5, end) both;
@@ -1940,6 +1995,9 @@
     z-index: 6;
   }
   .skill-node {
+    position: absolute;
+    top: 0;
+    left: 0;
     display: grid;
     justify-items: center;
     gap: 0.22rem;
@@ -1947,6 +2005,7 @@
     padding: 0.15rem;
     color: var(--color-paper);
     text-align: center;
+    transform: translate(-50%, -50%);
   }
   .skill-node__box {
     position: relative;
@@ -2001,7 +2060,7 @@
   .skill-node__name {
     color: var(--color-paper);
     font-family: var(--font-pixel);
-    font-size: clamp(0.46rem, 0.82vw, 0.54rem);
+    font-size: clamp(0.62rem, 0.9vw, 0.72rem);
     font-weight: 700;
     line-height: 1.35;
     letter-spacing: 0.01em;
@@ -2011,7 +2070,7 @@
   .skill-node__group {
     color: var(--matrix-dim);
     font-family: var(--font-mono);
-    font-size: 0.4rem;
+    font-size: 0.46rem;
     line-height: 1.4;
     letter-spacing: 0.03em;
     text-transform: uppercase;
@@ -2057,7 +2116,7 @@
     color: var(--matrix-muted);
     background: rgb(5 5 7 / 0.68);
     font-family: var(--font-pixel);
-    font-size: clamp(0.32rem, 0.62vw, 0.4rem);
+    font-size: clamp(0.38rem, 0.68vw, 0.46rem);
     font-weight: 700;
     line-height: 1.5;
     letter-spacing: 0.06em;
@@ -2085,7 +2144,7 @@
     color: var(--matrix-dim);
     background: #08080e;
     font-family: var(--font-pixel);
-    font-size: clamp(0.34rem, 0.65vw, 0.42rem);
+    font-size: clamp(0.4rem, 0.7vw, 0.48rem);
     font-weight: 700;
     line-height: 1.5;
     letter-spacing: 0.06em;
@@ -2547,11 +2606,11 @@
   @keyframes quest-node-in {
     from {
       opacity: 0;
-      transform: translate(-50%, calc(-50% + 14px));
+      transform: translateY(14px);
     }
     to {
       opacity: 1;
-      transform: translate(-50%, -50%);
+      transform: translateY(0);
     }
   }
   @keyframes ability-node-in {
@@ -2569,6 +2628,9 @@
     .quest-console,
     .ability-console {
       grid-template-columns: minmax(0, 1fr);
+    }
+    .quest-world {
+      min-height: clamp(31rem, 52vw, 36rem);
     }
     .quest-route ol {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2596,14 +2658,8 @@
       grid-row: 1;
     }
     .quest-node-wrap {
-      width: clamp(7.6rem, 12vw, 9.6rem);
-    }
-    .quest-node {
-      padding-top: clamp(3.8rem, 6.2vw, 4.6rem);
-    }
-    .quest-prop {
-      width: clamp(3.6rem, 5.6vw, 4.6rem);
-      height: clamp(3.6rem, 5.6vw, 4.6rem);
+      --node-card-w: clamp(8rem, 12.6vw, 10.2rem);
+      --node-prop: clamp(3.6rem, 5.6vw, 4.6rem);
     }
   }
   @media (max-width: 59.99rem), (hover: none) and (pointer: coarse) {
@@ -2614,7 +2670,7 @@
       display: block;
     }
   }
-  @media (max-width: 47.99rem) {
+  @media (max-width: 61.99rem) {
     .quest-world {
       min-height: 0;
       padding: 2.2rem 0.8rem 2.4rem;
@@ -2647,22 +2703,35 @@
       gap: 0.7rem;
     }
     .quest-node-wrap {
+      --node-prop: clamp(3.4rem, 10vw, 4.4rem);
       position: static;
       width: auto;
-      transform: none;
+      height: auto;
     }
     .js .quest-node-wrap {
       animation-name: pixel-in;
       animation-duration: 380ms;
     }
     .quest-node {
-      padding-top: clamp(3.6rem, 9vw, 4.5rem);
+      position: relative;
+      inset: auto;
+      width: auto;
+      height: auto;
+      padding-top: calc(var(--node-prop) + 0.55rem);
     }
     .quest-prop {
-      width: clamp(3.4rem, 10vw, 4.4rem);
-      height: clamp(3.4rem, 10vw, 4.4rem);
+      top: 0;
+      bottom: auto;
+      left: 50%;
+      width: var(--node-prop);
+      height: var(--node-prop);
     }
-    .quest-world__hud-mid,
+    .quest-node-wrap[data-card] .quest-node__plaque {
+      position: relative;
+      inset: auto;
+      width: 100%;
+    }
+    .quest-world__hud > .quest-world__hud-mid,
     .quest-world__foot span:last-child {
       display: none;
     }
@@ -2689,9 +2758,6 @@
     }
     .ability-readout {
       box-shadow: 5px 5px 0 var(--color-accent-purple);
-    }
-    .ability-readout__bar p:last-child {
-      display: none;
     }
     .ability-readout__main {
       grid-template-columns: auto minmax(0, 1fr);
