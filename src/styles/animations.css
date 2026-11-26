@@ -457,6 +457,15 @@ html[data-gsap="on"] .archive-capture[data-reveal] img {
   transition: none;
 }
 
+/* Field capture panels: GSAP owns the entrance reveal, while the panel state
+   (width expansion, chromatic border, shadow) stays owned by authored CSS. */
+html[data-gsap="on"] .archive-capture[data-reveal] {
+  transition:
+    box-shadow 180ms steps(2, end),
+    border-color 180ms steps(2, end),
+    width 520ms var(--t-ui) steps(4, end);
+}
+
 html[data-gsap="on"] .game-title-line,
 html[data-gsap="on"] .hero-monitor,
 html[data-gsap="on"] .hero-record {

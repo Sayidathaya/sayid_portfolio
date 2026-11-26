@@ -1,6 +1,7 @@
 ---
 
 id: stage
+order: 7
 image: instagram
 alt: "Sayid singing into a microphone on a stage with a The Nuraga banner."
 caption: "Stage performance at The Nuraga"

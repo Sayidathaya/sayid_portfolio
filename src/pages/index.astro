@@ -51,7 +51,9 @@ const certificateGroupsEntries = await getCollection("certificateGroups");
 const certificateGroups: CertificateGroup[] = certificateGroupsEntries.map((entry) => entry.data);
 
 const capturesEntries = await getCollection("captures");
-const fieldCaptures: FieldCapture[] = capturesEntries.map((entry) => entry.data);
+const fieldCaptures: FieldCapture[] = capturesEntries
+  .map((entry) => entry.data)
+  .sort((a, b) => (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER));
 
 const portrait = findImage("portrait");
 const aboutMe = findImage("about-me");
@@ -874,8 +876,8 @@ const ticker = [
             <span class="capture-flash" aria-hidden="true"></span>
             <div class="field-captures-head" data-reveal>
               <div>
-                <p class="archive-group-kicker">Visual Archive</p>
-                <h3 class="field-captures-title">Field Captures</h3>
+                <p class="archive-group-kicker">Visual Archive // Player Memory</p>
+                <h3 class="field-captures-title">Chromatic Memory Archive</h3>
               </div>
               <p class="field-captures-note">Photographic documentation from campus, stage & events</p>
             </div>
@@ -896,7 +898,15 @@ const ticker = [
               </button>
               <div class="archive-captures" data-horizontal-scroll>
               {captures.map((capture, index) => (
-                <figure class="archive-capture paper-panel" data-reveal>
+                <figure
+                  class="archive-capture paper-panel"
+                  data-reveal
+                  data-active={index === 0 ? "true" : "false"}
+                  data-capture-id={capture.id}
+                  tabindex="0"
+                  role="group"
+                  aria-label={`Capture ${String(index + 1).padStart(2, "0")} — ${capture.meta} — ${capture.caption}`}
+                >
                   <Picture
                     src={capture.image}
                     alt={capture.alt}

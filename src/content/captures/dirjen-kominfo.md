@@ -1,6 +1,7 @@
 ---
 
 id: dirjen-kominfo
+order: 5
 image: dirjen_informasi_kominfo_bemkm_unmul
 alt: "Sayid Rafi A'thaya as Dirjen Informasi along with the Kementerian Komunikasi dan Informasi team of BEM KM Universitas Mulawarman (Kabinet Metamorfosa)."
 caption: "Dirjen Informasi · Kementerian Kominfo BEM KM UNMUL"

@@ -124,6 +124,8 @@ export const collections = {
   captures: defineCollection({
     schema: z.object({
       id: z.string(),
+      /** Editorial sequence for the horizontal archive; lower value = earlier. */
+      order: z.number().optional(),
       image: z.string(),
       alt: z.string(),
       caption: z.string(),

@@ -1,6 +1,7 @@
 ---
 
 id: faculty
+order: 2
 image: cv-profile
 alt: "Sayid in an orange jacket in front of a Fakultas Teknik banner."
 caption: "Fakultas Teknik event, Universitas Mulawarman"

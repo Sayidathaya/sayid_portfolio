@@ -1,7 +1,8 @@
 ---
 
 id: night
-image: codepen-profile
+order: 10
+image: capture-night
 alt: "Sayid standing on outdoor steps at night."
 caption: "Night event capture"
 meta: "CodePen / Developer"

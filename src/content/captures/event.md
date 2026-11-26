@@ -1,6 +1,7 @@
 ---
 
 id: event
+order: 8
 image: deviant-art
 alt: "Sayid sitting in front of a wall of music posters and balloons."
 caption: "Creative documentation, Samarinda"

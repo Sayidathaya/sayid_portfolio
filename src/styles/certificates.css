@@ -575,58 +575,101 @@
     overscroll-behavior-x: contain;
     scrollbar-width: thin;
     scrollbar-color: var(--color-accent-blue) transparent;
+    min-height: clamp(28rem, 62vh, 44rem);
   }
-  .archive-captures > figure {
-    flex: 0 0 auto;
-    width: min(19rem, 78vw);
-  }
+  .archive-captures > figure,
   .archive-capture {
     --tilt: -0.35deg;
+    --capture-w: clamp(13rem, 17vw, 18rem);
+    --capture-w-active: clamp(20rem, 27vw, 29rem);
+    flex: 0 0 auto;
+    position: relative;
+    width: var(--capture-w);
     margin: 0;
     padding: 0.5rem;
-    transform: rotate(var(--tilt, 0deg));
+    transform: rotate(var(--tilt, -0.35deg));
+    border: 2px solid var(--color-paper-line);
     box-shadow: 5px 5px 0 var(--color-shadow);
-    transition: box-shadow 180ms steps(2, end);
+    transition:
+      box-shadow 180ms steps(2, end),
+      border-color 180ms steps(2, end),
+      width 520ms var(--t-ui) steps(4, end);
   }
-  .archive-capture:hover {
+  .archive-captures > figure[data-active="true"],
+  .archive-capture[data-active="true"] {
+    width: var(--capture-w-active);
+    border-color: var(--color-accent-red);
+    box-shadow: 7px 7px 0 var(--color-accent-red);
+  }
+  .archive-capture:hover,
+  .archive-captures > figure:hover {
+    width: var(--capture-w-active);
+    border-color: var(--color-accent-red);
     box-shadow: 7px 7px 0 var(--color-accent-red);
   }
   .archive-capture:nth-child(even) {
     --tilt: 0.4deg;
   }
   .archive-capture img {
-    display: block;
+    position: absolute;
+    inset: 0;
     width: 100%;
-    aspect-ratio: 4 / 5;
+    height: 100%;
     object-fit: cover;
     border: 2px solid var(--color-paper-ink);
     filter: saturate(0.88) contrast(1.02);
   }
+  .archive-capture[data-active="true"] img {
+    border-color: var(--color-accent-red);
+  }
   .archive-capture figcaption {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 2;
     display: grid;
     gap: 0.15rem;
-    padding: 0.55rem 0.25rem 0.2rem;
+    padding: 2rem 0.6rem 0.55rem;
+    background: linear-gradient(transparent, rgb(6 6 11 / 0.86) 42%, rgb(6 6 11 / 0.94));
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 320ms var(--t-ui) steps(4, end),
+      visibility 0s linear 320ms;
+  }
+  .archive-capture:hover figcaption,
+  .archive-capture:focus-within figcaption,
+  .archive-capture[data-active="true"] figcaption,
+  .archive-capture:focus-visible figcaption {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
   }
   .archive-capture-meta {
-    color: var(--color-paper-muted);
+    color: color-mix(in srgb, var(--color-paper) 74%, transparent);
     font-family: var(--font-mono);
     font-size: 0.52rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
   .archive-capture-caption {
-    color: var(--color-paper-ink);
+    color: var(--color-paper);
     font-family: var(--font-pixel);
-    font-size: 0.54rem;
+    font-size: clamp(0.5rem, 0.8vw, 0.62rem);
     font-weight: 700;
     line-height: 1.5;
     text-transform: uppercase;
+    text-shadow: 1px 1px 0 rgb(0 0 0 / 0.45);
   }
   .archive-capture-no {
-    color: var(--color-paper-muted);
+    color: color-mix(in srgb, var(--color-paper) 64%, transparent);
     font-family: var(--font-mono);
     font-size: 0.52rem;
     letter-spacing: 0.08em;
+  }
+  .archive-capture:focus-visible {
+    outline: 3px solid var(--color-accent-yellow);
+    outline-offset: -3px;
   }
   .archive-capture-platform {
     display: inline-flex;
@@ -663,6 +706,31 @@
   .archive-capture-platform:hover :global(.px-icon),
   .archive-capture-platform:focus-visible :global(.px-icon) {
     color: var(--color-on-yellow);
+  }
+
+  /* Touch: expansion is state-driven (tap → selected), never hover-driven.
+     Active panels are excluded so a sticky tap-hover cannot collapse them. */
+  @media (hover: none) {
+    .archive-captures > figure:not([data-active="true"]):hover,
+    .archive-capture:not([data-active="true"]):hover {
+      width: var(--capture-w);
+      border-color: var(--color-paper-line);
+      box-shadow: 5px 5px 0 var(--color-shadow);
+    }
+    .archive-capture:not([data-active="true"]):hover figcaption {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+
+  /* Mobile capture sizing — declared after the base panel rules so the wider
+     touch-first panels win the cascade at ≤47.99rem. */
+  @media (max-width: 47.99rem) {
+    .archive-captures > figure,
+    .archive-capture {
+      --capture-w: min(19rem, 78vw);
+      --capture-w-active: min(29rem, 86vw);
+    }
   }
 
   /* ---------- Modal Lightbox -------------------------------------------- */

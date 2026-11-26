@@ -1120,6 +1120,34 @@ if (horizontalZones.length > 0) {
     const next = zone.querySelector<HTMLButtonElement>("[data-gallery-next]");
     if (!scroller) continue;
 
+    const captureFigures = Array.from(
+      scroller.querySelectorAll<HTMLElement>("[data-capture-id]"),
+    );
+    if (captureFigures.length > 0) {
+      const selectCapture = (rail: HTMLElement, figure: HTMLElement): void => {
+        /* The server renders the first capture as selected. Clearing every
+           sibling (rather than only the previously clicked one) keeps that
+           initial selection from surviving the first interaction. */
+        for (const other of rail.querySelectorAll<HTMLElement>("[data-capture-id]")) {
+          if (other !== figure) other.setAttribute("data-active", "false");
+        }
+        figure.setAttribute("data-active", "true");
+      };
+
+      for (const figure of captureFigures) {
+        figure.addEventListener("click", () => {
+          const rail = figure.closest<HTMLElement>("[data-horizontal-scroll]");
+          selectCapture(rail ?? scroller, figure);
+        });
+        figure.addEventListener("keydown", (event: KeyboardEvent) => {
+          if (event.key !== "Enter" && event.key !== " ") return;
+          event.preventDefault();
+          const rail = figure.closest<HTMLElement>("[data-horizontal-scroll]");
+          selectCapture(rail ?? scroller, figure);
+        });
+      }
+    }
+
     if (prev && next) {
       const scrollGallery = (direction: number): void => {
         scroller.scrollBy({

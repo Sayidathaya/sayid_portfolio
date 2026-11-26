@@ -1,6 +1,7 @@
 ---
 
 id: insorsa
+order: 3
 image: linkedin
 alt: "Group of INFORSA students standing with hands on each other's shoulders."
 caption: "INFORSA cohort group capture"

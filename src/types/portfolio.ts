@@ -151,6 +151,7 @@ export interface ArchiveProject {
 /** A personal photograph from the supplied archive, with an honest caption. */
 export interface FieldCapture {
   id: string;
+  order?: number;
   image: string;
   alt: string;
   caption: string;
